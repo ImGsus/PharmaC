@@ -62,6 +62,213 @@ body {
 	height: 100%;
 	line-height: 1.5;
 	overflow-x: hidden;
+	transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body.dark-mode {
+	background-color: #0f1720;
+	color: #e2e8f0;
+}
+
+body.dark-mode .main-wrapper,
+body.dark-mode .page-wrapper,
+body.dark-mode .content.container-fluid,
+body.dark-mode .page-header,
+body.dark-mode .card,
+body.dark-mode .dropdown-menu,
+body.dark-mode .sidebar,
+body.dark-mode .header {
+	background-color: #111827;
+	color: #e2e8f0;
+}
+
+body.dark-mode .header {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .header,
+body.dark-mode .sidebar {
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .header .nav-link,
+body.dark-mode .sidebar .nav-link,
+body.dark-mode .page-title,
+body.dark-mode .card-title,
+body.dark-mode .table thead th,
+body.dark-mode .table td,
+body.dark-mode .dropdown-item,
+body.dark-mode .text-muted,
+body.dark-mode .form-control,
+body.dark-mode .form-group label {
+	color: #e2e8f0;
+}
+
+body.dark-mode .form-control {
+	background-color: #111827;
+	border-color: #0f172a;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+.form-control,
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+	border-color: rgba(0, 0, 0, 0.18);
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+	transition: border-color 0.2s ease, box-shadow 0 0 0.2s ease;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .select2-container--default .select2-selection--single,
+body.dark-mode .select2-container--default .select2-selection--multiple {
+	border-color: #0f172a !important;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55) !important;
+}
+
+body.dark-mode .row {
+	color: #f8fafc;
+}
+
+body.dark-mode .row * {
+	color: inherit;
+}
+
+body.dark-mode .row .text-muted,
+body.dark-mode .row .dash-widget-info h6,
+body.dark-mode .row .card-title,
+body.dark-mode .row .page-title,
+body.dark-mode .row .dash-count h3,
+body.dark-mode .row .table thead th,
+body.dark-mode .row .table td,
+body.dark-mode .row p,
+body.dark-mode .row span,
+body.dark-mode .row li,
+body.dark-mode .row a,
+body.dark-mode .row h1,
+body.dark-mode .row h2,
+body.dark-mode .row h3,
+body.dark-mode .row h4,
+body.dark-mode .row h5,
+body.dark-mode .row h6 {
+	color: #f8fafc !important;
+}
+
+/* Force dashboard to remain in light appearance even when dark-mode is toggled globally */
+body.dark-mode .page-wrapper .dashboard-card,
+body.dark-mode .page-wrapper .card.card-table,
+body.dark-mode .page-wrapper #sales-table,
+body.dark-mode .page-wrapper .card.card-chart {
+	background-color: #0f172a !important;
+	color: #f8fafc !important;
+	border-color: rgba(255, 255, 255, 0.12) !important;
+	border-radius: 10px !important;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-mode .page-wrapper .card.card-table .table,
+body.dark-mode .page-wrapper .card.card-table .table td,
+body.dark-mode .page-wrapper .card.card-table .table th,
+body.dark-mode .page-wrapper .card.card-table .table thead,
+body.dark-mode .page-wrapper .card.card-table .table tbody,
+body.dark-mode .page-wrapper #sales-table {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	border: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+body.dark-mode .page-wrapper .card.card-table .table tbody tr td,
+body.dark-mode .page-wrapper .card.card-table .table tbody tr th,
+body.dark-mode .page-wrapper #sales-table tbody tr td,
+body.dark-mode .page-wrapper #sales-table tbody tr th {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+	border-left: 1px solid rgba(255, 255, 255, 0.06) !important;
+	padding: 1rem 0.75rem !important;
+}
+
+body.dark-mode .page-wrapper .card.card-table .table tbody tr td:first-child,
+body.dark-mode .page-wrapper .card.card-table .table tbody tr th:first-child,
+body.dark-mode .page-wrapper #sales-table tbody tr td:first-child,
+body.dark-mode .page-wrapper #sales-table tbody tr th:first-child {
+	border-left-width: 0 !important;
+	padding-left: 1.5rem !important;
+}
+
+body.dark-mode .page-wrapper .card.card-table .table tbody tr td:last-child,
+body.dark-mode .page-wrapper .card.card-table .table tbody tr th:last-child,
+body.dark-mode .page-wrapper #sales-table tbody tr td:last-child,
+body.dark-mode .page-wrapper #sales-table tbody tr th:last-child {
+	border-right-width: 0 !important;
+	padding-right: 1.5rem !important;
+}
+
+body.dark-mode .btn-outline-secondary,
+body.dark-mode .btn-default {
+	color: #111827;
+	background-color: #f8fafc;
+	border-color: #f8fafc;
+}
+
+body.dark-mode .btn-light,
+body.dark-mode .btn-light:hover,
+body.dark-mode .btn-light:focus,
+body.dark-mode .btn-light:active {
+	color: #f8fafc !important;
+	background-color: #111827 !important;
+	border-color: #475569 !important;
+}
+
+body.dark-mode .page-link,
+body.dark-mode .paginate_button .page-link,
+body.dark-mode .pagination .page-link {
+	background-color: #111827 !important;
+	border-color: #475569 !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode .page-link:hover,
+body.dark-mode .paginate_button .page-link:hover,
+body.dark-mode .pagination .page-link:hover {
+	background-color: #1f2937 !important;
+	border-color: #64748b !important;
+	color: #ffffff !important;
+}
+
+.theme-switch-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	margin-left: 1rem;
+	padding: 0.4rem 0.9rem;
+	border: none;
+	border-radius: 999px;
+	background: #111827;
+	color: #ffffff;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 6px 16px rgba(17, 24, 39, 0.18);
+	transition: all 0.35s ease;
+	position: relative; /* change to absolute if you want fixed placement */
+	top: 13px;   /* adjust up/down: negative = up, positive = down */
+	right: 0; /* adjust left/right: negative = left, positive = right when positioned absolute */
+}
+
+.theme-switch-btn:hover {
+	background: #6b7280;
+	transform: translateY(-1px);
+}
+
+body.dark-mode .theme-switch-btn {
+	background: #ffffff;
+	color: #111827;
+}
+
+body.dark-mode .theme-switch-btn:hover {
+	background: #d1d5db;
 }
 
 h1,
@@ -86,15 +293,15 @@ input:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px white inset !important;
 }
 .form-control {
-    border: 1px solid #ddd;
-    box-shadow: none;
+    border: 1px solid #5a5a5a;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
     color: #333;
     font-size: 15px;
     height: 40px;
 }
 .form-control:focus {
 	border-color: #00d0f1;
-	box-shadow: none;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
 	outline: 0 none;
 }
 .form-control.form-control-sm {
@@ -198,6 +405,17 @@ textarea.form-control {
 .table.dataTable {
 	border-collapse: collapse !important;
 }
+body:not(.dark-mode) table.table,
+body:not(.dark-mode) .table.dataTable {
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	border: 2px solid rgba(15, 23, 42, 0.20);
+}
+
+body:not(.dark-mode) .table {
+	background-color: #fff;
+}
+
 table.table td h2 {
 	display: inline-block;
 	font-size: inherit;
@@ -228,19 +446,41 @@ table.table td h2 span {
 	font-size: 12px;
 	margin-top: 3px;
 }
-.table thead {
+body:not(.dark-mode) .table thead {
 	background-color: #f8f9fa;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+	border-bottom: 2px solid rgba(0, 0, 0, 0.48) !important;
 }
-.table thead tr th {
+body:not(.dark-mode) .table thead tr th {
 	font-weight: 600;
-	border: 0;
+	border: 0 !important;
+	border-bottom: 2px solid rgba(0, 0, 0, 0.44) !important;
 }
-.table tbody tr {
-	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+body:not(.dark-mode) .table tbody tr {
+	border-bottom: 2px solid rgba(0, 0, 0, 0.40) !important;
 }
-.table tbody tr:last-child {
-	border-color: transparent;
+body:not(.dark-mode) .table tbody tr:last-child {
+	border-color: transparent !important;
+}
+body:not(.dark-mode) .table tbody tr td,
+body:not(.dark-mode) .table tbody tr th,
+body:not(.dark-mode) .card-table .table tbody tr td,
+body:not(.dark-mode) .card-table .table tbody tr th {
+	border-left: 1px solid rgba(0, 0, 0, 0.40) !important;
+	border-right: 1px solid rgba(0, 0, 0, 0.40) !important;
+	border-top: 1px solid rgba(0, 0, 0, 0.36) !important;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.36) !important;
+}
+body:not(.dark-mode) .table tbody tr td:first-child,
+body:not(.dark-mode) .table tbody tr th:first-child,
+body:not(.dark-mode) .card-table .table tbody tr td:first-child,
+body:not(.dark-mode) .card-table .table tbody tr th:first-child {
+	border-left-width: 0 !important;
+}
+body:not(.dark-mode) .table tbody tr td:last-child,
+body:not(.dark-mode) .table tbody tr th:last-child,
+body:not(.dark-mode) .card-table .table tbody tr td:last-child,
+body:not(.dark-mode) .card-table .table tbody tr th:last-child {
+	border-right-width: 0 !important;
 }
 .table.table-center td,
 .table.table-center th {
@@ -264,12 +504,12 @@ table.table td h2 span {
 .table-striped tbody tr:nth-of-type(odd) {
 	background-color: rgba(235, 235, 235, 0.4);
 }
-.table-bordered {
-	border: 1px solid rgba(0, 0, 0, 0.05) !important;
+body:not(.dark-mode) .table-bordered {
+	border: 1px solid rgba(0, 0, 0, 0.42) !important;
 }
-.table-bordered th,
-.table-bordered td {
-	border-color: rgba(0, 0, 0, 0.05);
+body:not(.dark-mode) .table-bordered th,
+body:not(.dark-mode) .table-bordered td {
+	border-color: rgba(0, 0, 0, 0.40) !important;
 }
 .card-table .card-body {
     padding: 0;
@@ -472,6 +712,28 @@ button.bg-danger:hover {
 .text-muted {
     color: #757575 !important;
 }
+
+body.dark-mode .row .text-muted,
+body.dark-mode .row .dash-widget-info h6,
+body.dark-mode .row .card-title,
+body.dark-mode .row .page-title,
+body.dark-mode .row p,
+body.dark-mode .row span,
+body.dark-mode .row li,
+body.dark-mode .row a,
+body.dark-mode .row h1,
+body.dark-mode .row h2,
+body.dark-mode .row h3,
+body.dark-mode .row h4,
+body.dark-mode .row h5,
+body.dark-mode .row h6 {
+    color: #f8fafc !important;
+}
+
+body.dark-mode .dashboard-hero p {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
 .text-secondary {
     color: #b8bdc1!important;
 }
@@ -887,14 +1149,44 @@ button.bg-danger:hover {
 .dropdown-menu {
 	font-size: 14px;
 }
-.card {
-	border: 0;
+body:not(.dark-mode) .card {
+	border: 1px solid rgba(71, 85, 105, 0.55);
 	margin-bottom: 1.875rem;
 	border-radius: 10px;
-	box-shadow: 0 6px 18px rgba(31,45,61,0.06);
+	background-color: #fff;
+	box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.24), 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+body:not(.dark-mode) .card:hover,
+body:not(.dark-mode) .card:focus-within {
+	border-color: rgba(51, 65, 85, 0.8);
+	box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.34), 0 12px 32px rgba(15, 23, 42, 0.14);
 }
 .card-body {
 	padding: 1.5rem;
+}
+
+body.dark-mode .card {
+	background-color: #111827;
+	border-color: rgba(148, 163, 184, 0.24);
+	box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .card-body,
+body.dark-mode .card-header,
+body.dark-mode .card-footer {
+	background-color: #111827;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .card-text,
+body.dark-mode .table thead th,
+body.dark-mode .table td,
+body.dark-mode .page-title,
+body.dark-mode .page-header,
+body.dark-mode .dropdown-item,
+body.dark-mode .header .nav-link,
+body.dark-mode .sidebar .nav-link {
+	color: #f8fafc;
 }
 .table img,
 .table td img {
@@ -937,6 +1229,255 @@ button.bg-danger:hover {
 	border-color: #e6e6e6;
 	color: #a6a6a6;
 }
+
+body.dark-mode .btn-light,
+body.dark-mode .btn-light:hover,
+body.dark-mode .btn-light:focus,
+body.dark-mode .btn-light:active {
+	color: #111827 !important;
+	background-color: #f8fafc !important;
+	border-color: #f8fafc !important;
+}
+
+body.dark-mode .text-muted,
+body.dark-mode .dash-widget-info h6,
+body.dark-mode .card-title,
+body.dark-mode .dashboard-hero p,
+body.dark-mode .table thead th,
+body.dark-mode .table td,
+body.dark-mode .dataTables_info,
+body.dark-mode .dataTables_length,
+body.dark-mode .dataTables_filter,
+body.dark-mode .paginate_button,
+body.dark-mode .page-link,
+body.dark-mode .btn {
+	color: #f8fafc !important;
+}
+
+body.dark-mode #sales-table,
+body.dark-mode #sales-table thead,
+body.dark-mode #sales-table tbody,
+body.dark-mode #sales-table tr,
+body.dark-mode #sales-table th,
+body.dark-mode #sales-table td,
+body.dark-mode .table,
+body.dark-mode .table thead,
+body.dark-mode .table tbody,
+body.dark-mode .table tr,
+body.dark-mode .table th,
+body.dark-mode .table td,
+body.dark-mode .dataTables_wrapper,
+body.dark-mode .dataTables_wrapper th,
+body.dark-mode .dataTables_wrapper td,
+body.dark-mode .dropdown-menu li a,
+body.dark-mode .list-group-item {
+	background-color: #111827 !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode table.table,
+body.dark-mode .table.dataTable,
+body.dark-mode .dataTables_wrapper table,
+body.dark-mode #sales-table,
+body.dark-mode .card-table .table {
+	background-color: #111827 !important;
+	color: #f8fafc !important;
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	border: 2px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+body.dark-mode .table {
+	background-color: #111827 !important;
+}
+
+body.dark-mode .table thead {
+	background-color: #111827 !important;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+body.dark-mode .table thead tr th {
+	font-weight: 600;
+	border: 0 !important;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+body.dark-mode .table tbody tr {
+	border-bottom: 2px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode .table tbody tr:last-child {
+	border-color: transparent !important;
+}
+
+body.dark-mode .table tbody tr td,
+body.dark-mode .table tbody tr th,
+body.dark-mode .card-table .table tbody tr td,
+body.dark-mode .card-table .table tbody tr th {
+	border: 0 !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+	background-color: transparent !important;
+}
+
+body.dark-mode .table tbody tr td:first-child,
+body.dark-mode .table tbody tr th:first-child,
+body.dark-mode .card-table .table tbody tr td:first-child,
+body.dark-mode .card-table .table tbody tr th:first-child {
+	border-left-width: 0 !important;
+}
+
+body.dark-mode .table tbody tr td:last-child,
+body.dark-mode .table tbody tr th:last-child,
+body.dark-mode .card-table .table tbody tr td:last-child,
+body.dark-mode .card-table .table tbody tr th:last-child {
+	border-right-width: 0 !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+	background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover td {
+	color: #ffffff !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(even) {
+	background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+	background-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+body.dark-mode .table-bordered {
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+body.dark-mode .table-bordered th,
+body.dark-mode .table-bordered td {
+	border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+body.dark-mode .card-table .card-body {
+	padding: 0;
+}
+
+body.dark-mode .card-table .card-body .table > thead > tr > th {
+	border-top: 0;
+}
+
+body.dark-mode .card-table .card-body .table tr td:first-child,
+body.dark-mode .card-table .card-body .table tr th:first-child {
+	padding-left: 1.5rem;
+}
+
+body.dark-mode .card-table .card-body .table tr td:last-child,
+body.dark-mode .card-table .card-body .table tr th:last-child {
+	padding-right: 1.5rem;
+}
+
+body.dark-mode .card-table .table td,
+body.dark-mode .card-table .table th {
+	border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+	padding: 14px 12px !important;
+}
+
+body.dark-mode .table.table-center td,
+body.dark-mode .table.table-center th {
+	vertical-align: middle;
+}
+
+body.dark-mode .card.card-table,
+body.dark-mode .card.card-chart,
+body.dark-mode .card.card-table .card-body,
+body.dark-mode .card.card-table .card-header,
+body.dark-mode .card.card-table .card-footer {
+	background-color: #111827 !important;
+	border-color: rgba(255, 255, 255, 0.10) !important;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .card.card-table .table-responsive,
+body.dark-mode .card.card-table .table {
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	background-color: transparent !important;
+	border: 2px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-mode .card.card-table .table thead th,
+body.dark-mode .card.card-table .table thead td,
+body.dark-mode .card.card-table .table thead tr th,
+body.dark-mode .card.card-table .table thead tr td {
+	background-color: #111827 !important;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.16) !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr {
+	border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
+	background-color: transparent !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr td,
+body.dark-mode .card.card-table .table tbody tr th {
+	border: 0 !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+	padding: 14px 12px !important;
+	background-color: transparent !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr td:first-child,
+body.dark-mode .card.card-table .table tbody tr th:first-child {
+	border-left-width: 0 !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr td:last-child,
+body.dark-mode .card.card-table .table tbody tr th:last-child {
+	border-right-width: 0 !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr:hover {
+	background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+body.dark-mode .card.card-table .table td,
+body.dark-mode .card.card-table .table th {
+	border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+}
+
+body.dark-mode .card.card-table .table.table-center td,
+body.dark-mode .card.card-table .table.table-center th {
+	vertical-align: middle !important;
+}
+
+body.dark-mode .card.card-table .table td,
+body.dark-mode .card.card-table .table th {
+	padding: 1rem 0.75rem !important;
+	white-space: nowrap !important;
+}
+
+body.dark-mode .card.card-table .table,
+body.dark-mode .table.dataTable,
+body.dark-mode .dataTables_wrapper table,
+body.dark-mode #sales-table {
+	border-collapse: separate !important;
+	border-spacing: 0 !important;
+	background-color: #111827 !important;
+	border: 2px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+body.dark-mode .card.card-table .table tbody tr td,
+body.dark-mode .card.card-table .table tbody tr th,
+body.dark-mode .table.dataTable tbody tr td,
+body.dark-mode .table.dataTable tbody tr th,
+body.dark-mode #sales-table tbody tr td,
+body.dark-mode #sales-table tbody tr th {
+	border: 0 !important;
+	border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+	background-color: transparent !important;
+	padding: 1rem 0.75rem !important;
+}
+
 .bootstrap-datetimepicker-widget table td.active, .bootstrap-datetimepicker-widget table td.active:hover {
 	background-color: #00d0f1;
 	text-shadow: unset;
@@ -982,9 +1523,11 @@ button.bg-danger:hover {
 	padding: 3px;
 }
 
-.select2-container .select2-selection--single {
-	border: 1px solid #ddd;
+.select2-container .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+	border: 1px solid #5a5a5a;
 	height: 40px;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
 }
 .select2-container--default .select2-selection--single .select2-selection__arrow {
 	height: 38px;
@@ -1016,12 +1559,89 @@ button.bg-danger:hover {
 	font-weight: normal;
 	line-height: 38px;
 }
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+
+body.dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered,
+body.dark-mode .select2-container--default .select2-results__option {
+	color: #f8fafc !important;
+}
+
+body.dark-mode .select2-container--default .select2-selection--single,
+body.dark-mode .select2-container--default .select2-dropdown,
+body.dark-mode .select2-dropdown,
+body.dark-mode .select2-container--default .select2-selection--multiple {
+	background-color: #0f172a !important;
+	border-color: #0b1120 !important;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55) !important;
+}
+
+body.dark-mode .select2-container--default .select2-search--dropdown .select2-search__field {
+	background-color: #111827 !important;
+	color: #f8fafc !important;
+	border-color: #475569 !important;
+}
+
+body.dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected] {
+	background-color: #1f2937;
+	color: #ffffff !important;
+}
+.select2-container--default .select2-results__option {
+	color: #111827;
+}
+.select2-container--default .select2-results__option--selected {
+	background-color: transparent !important;
+	color: #111827 !important;
+}
+.select2-container--default .select2-results__option--highlighted {
 	background-color: #00d0f1;
+	color: #111827 !important;
+}
+.select2-container--default .select2-results__option[aria-selected="true"]:not(.select2-results__option--highlighted) {
+	background-color: transparent !important;
+	color: #111827 !important;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+	background-color: #00d0f1 !important;
+	color: #111827 !important;
+}
+body.dark-mode .select2-container--default .select2-results__option--selected {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+}
+body.dark-mode .select2-container--default .select2-results__option[aria-selected="true"]:not(.select2-results__option--highlighted) {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+}
+body.dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+	background-color: #1f2937 !important;
+	color: #ffffff !important;
 }
 .select2-container--default .select2-selection--multiple {
 	border: 1px solid #ddd;
 	min-height: 40px;
+}
+
+body.dark-mode .select2-container--default .select2-results__option {
+	color: #f8fafc !important;
+}
+body.dark-mode .select2-container--default .select2-results__option--selected,
+body.dark-mode .select2-container--default .select2-results__option--selected:hover,
+body.dark-mode .select2-container--default .select2-results__option--selected.select2-results__option--highlighted {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+}
+body.dark-mode .select2-container--default .select2-results__option--highlighted,
+body.dark-mode .select2-container--default .select2-results__option--highlighted:hover,
+body.dark-mode .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+body.dark-mode .select2-container--default .select2-results__option:hover,
+body.dark-mode .select2-container--default .select2-results__option--selectable:hover,
+body.dark-mode .select2-container--default .select2-results__option.cursor-hovered {
+	background-color: #1f2937 !important;
+	color: #ffffff !important;
+}
+
+.select2-container--default .select2-results__option.cursor-hovered {
+	background-color: #00d0f1 !important;
+	color: #111827 !important;
 }
 
 /*-----------------
@@ -1406,13 +2026,21 @@ button.bg-danger:hover {
 
 .header {
 	background: #fff;
-	border-bottom: 1px solid #f0f0f0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.40);
 	left: 0;
 	position: fixed;
 	right: 0;
 	top: 0;
 	z-index: 1001;
 	height: 60px;
+}
+
+.header .header-left {
+	border-right: 1px solid rgba(0, 0, 0, 0.48);
+}
+
+body.dark-mode .header .header-left {
+	border-right: 1px solid rgba(255, 255, 255, 0.24);
 }
 .header .header-left {
 	float: left;
@@ -2048,8 +2676,9 @@ html.menu-opened body {
 }
 .login-wrapper .loginbox {
     background-color: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
 	display: flex;
     margin: 1.875rem auto;
     max-width: 800px;

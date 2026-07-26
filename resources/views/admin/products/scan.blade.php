@@ -32,11 +32,11 @@
     <div class="col-md-8 offset-md-2">
         <div class="card barcode-card">
             <div class="card-body text-center">
-                <h4 class="mb-4">Scan or enter product barcode</h4>
+                <h4 class="mb-4">Scan or enter product barcode / SKU</h4>
                 <form action="{{ route('products.lookup') }}" method="post">
                     @csrf
                     <div class="mb-3">
-                        <input type="text" name="barcode" class="form-control barcode-input text-center" placeholder="Enter barcode or scan here" autofocus autocomplete="off" required>
+                        <input type="text" name="barcode" class="form-control barcode-input text-center" placeholder="Enter SKU or barcode" autofocus autocomplete="off" required>
                     </div>
                     <button type="submit" class="btn btn-primary btn-lg">Lookup Product</button>
                 </form>
@@ -47,7 +47,7 @@
                     <div class="mt-4 text-start">
                         <h5>Product details</h5>
                         <p><strong>Name:</strong> {{ session('product')->purchase->product ?? 'N/A' }}</p>
-                        <p><strong>Barcode:</strong> {{ session('product')->barcode }}</p>
+                        <p><strong>SKU / Barcode:</strong> {{ session('product')->barcode }}</p>
                         <p><strong>Price:</strong> {{ AppSettings::get('app_currency','$') }} {{ session('product')->price }}</p>
                         <p><strong>Expiry:</strong> {{ optional(session('product')->purchase)->expiry_date ? date_format(date_create(session('product')->purchase->expiry_date), 'd M, Y') : 'N/A' }}</p>
                         <p><strong>Status:</strong> {{ session('product')->expired ? 'Expired' : 'Active' }}</p>

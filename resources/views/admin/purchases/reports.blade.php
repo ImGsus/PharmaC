@@ -36,7 +36,8 @@
                                     <th>Supplier</th>
                                     <th>Purchase Cost</th>
                                     <th>Quantity</th>
-                                    <th>Expire Date</th>                                </tr>
+                                    <th>Expire Date</th>
+                                </tr>
                             </thead>
                             <tbody>
                             @foreach ($purchases as $purchase)
@@ -44,22 +45,20 @@
                                 <tr>
                                     <td>
                                         <h2 class="table-avatar">
-                                            @if(!empty($purchase->image))
                                             <span class="avatar avatar-sm mr-2">
-                                                <img class="avatar-img" src="{{asset('storage/purchases/'.$purchase->image)}}" alt="product image">
+                                                <img class="avatar-img" src="{{ $purchase->image_url }}" alt="product image">
                                             </span>
-                                            @endif
-                                            {{$purchase->product}}
+                                            {{ $purchase->product }}
                                         </h2>
                                     </td>
-                                    <td>{{$purchase->category->name}}</td>
-                                    <td>{{AppSettings::get('app_currency', '$')}}{{$purchase->price}}</td>
-                                    <td>{{$purchase->quantity}}</td>
-                                    <td>{{$purchase->supplier->name}}</td>
-                                    <td>{{date_format(date_create($purchase->expiry_date),"d M, Y")}}</td>
+                                    <td>{{ $purchase->category->name }}</td>
+                                    <td>{{ $purchase->supplier->name }}</td>
+                                    <td>{{ AppSettings::get('app_currency', '$') }}{{ $purchase->cost_price }}</td>
+                                    <td>{{ $purchase->quantity }}</td>
+                                    <td>{{ date_format(date_create($purchase->expiry_date), 'd M, Y') }}</td>
                                 </tr>
                                 @endif
-                            @endforeach                         
+                            @endforeach
                             </tbody>
                         </table>
                     </div>

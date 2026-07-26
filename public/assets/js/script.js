@@ -8,6 +8,39 @@ $(document).ready(function(){
 
 (function($) {
     "use strict";
+
+    if ($.fn.select2 && $.fn.select2.amd) {
+        $.fn.select2.amd.require(['select2/results'], function (Results) {
+            if (Results && Results.prototype && Results.prototype.highlightFirstItem) {
+                Results.prototype.highlightFirstItem = function () {
+                    this.$results.find('.select2-results__option--highlighted').removeClass('select2-results__option--highlighted');
+                    this.$results.find('.select2-results__option--selected').removeClass('select2-results__option--selected');
+                };
+            }
+        });
+    }
+
+    var themeKey = 'pharmacy-theme';
+
+    function applyTheme(isDark) {
+        $('body').toggleClass('dark-mode', isDark);
+        localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
+
+        $('#loginThemeToggle .toggle-icon').text(isDark ? '☀️' : '🌙');
+        $('#loginThemeToggle .toggle-text').text(isDark ? 'Light Mode' : 'Night Mode');
+        $('#dashboardThemeToggle .toggle-icon').text(isDark ? '☀️' : '🌙');
+        $('#dashboardThemeToggle .toggle-text').text(isDark ? 'Light Mode' : 'Night Mode');
+    }
+
+    $(document).ready(function() {
+        var storedTheme = localStorage.getItem(themeKey);
+        applyTheme(storedTheme === 'dark');
+
+        $('#loginThemeToggle, #dashboardThemeToggle').on('click', function() {
+            var isDark = !$('body').hasClass('dark-mode');
+            applyTheme(isDark);
+        });
+    });
 	
 	// Variables declarations
 	
@@ -25,6 +58,35 @@ $(document).ready(function(){
 	// select2
 	$('.select2').select2({
 		placeholder: 'Select an option'
+	});
+
+	function setSelect2HoverStyle(element) {
+		var isDark = $('body').hasClass('dark-mode');
+		element.style.setProperty('background-color', isDark ? '#1f2937' : '#00d0f1', 'important');
+		element.style.setProperty('color', isDark ? '#ffffff' : '#111827', 'important');
+	}
+
+	function clearSelect2HoverStyle(element) {
+		element.style.removeProperty('background-color');
+		element.style.removeProperty('color');
+	}
+
+	$('.select2').on('select2:open', function () {
+		setTimeout(function () {
+			$('.select2-results__option--selected').removeClass('select2-results__option--selected');
+			$('.select2-results__option--highlighted').removeClass('select2-results__option--highlighted');
+			$('.select2-results__option--selectable').each(function () {
+				clearSelect2HoverStyle(this);
+			});
+		}, 20);
+	});
+
+	$(document).on('mouseenter', '.select2-results__option--selectable', function () {
+		setSelect2HoverStyle(this);
+	});
+
+	$(document).on('mouseleave', '.select2-results__option--selectable', function () {
+		clearSelect2HoverStyle(this);
 	});
 		
 	function init() {

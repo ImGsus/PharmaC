@@ -180,6 +180,33 @@
         }
     @endif
 </script>
+<script>
+    function initHeaderDateTime() {
+        const el = document.getElementById('header-current-datetime');
+        if (!el) {
+            return;
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            el.textContent = now.toLocaleString('en-US', options);
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initHeaderDateTime);
+</script>
 <!-- Page JS -->
 @stack('page-js')
 </html>

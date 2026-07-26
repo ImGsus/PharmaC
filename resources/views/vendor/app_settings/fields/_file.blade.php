@@ -15,7 +15,7 @@
         @php
             $disk = Arr::get($field, 'disk', 'public');
             $fileExists = \Storage::disk($disk)->exists($filePath);
-            $fileUrl = \Storage::disk($disk)->url($filePath);
+            $fileUrl = '/storage/' . ltrim($filePath, '/');
             $previewUrl = $fileUrl . ($fileExists && file_exists(public_path('storage/' . $filePath)) ? '?v=' . filemtime(public_path('storage/' . $filePath)) : '');
         @endphp
 

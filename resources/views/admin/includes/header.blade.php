@@ -21,8 +21,11 @@
 	<a href="javascript:void(0);" id="toggle_btn">
 		<i class="fe fe-text-align-left"></i>
 	</a>
-	
-	
+
+	<button type="button" id="dashboardThemeToggle" class="theme-switch-btn" aria-label="Toggle night mode">
+		<span class="toggle-icon">🌙</span>
+		<span class="toggle-text">Night Mode</span>
+	</button>
 	
 	<!-- Mobile Menu Toggle -->
 	<a class="mobile_btn" id="mobile_btn">
@@ -32,6 +35,9 @@
 	
 	<!-- Header Right Menu -->
 	<ul class="nav user-menu">
+		<li class="nav-item d-none d-sm-flex align-items-center me-3">
+			<span class="nav-link p-0 text-muted" id="header-current-datetime">Loading current time...</span>
+		</li>
 		<li class="nav-item dropdown">
 			<a href="#" data-target="#add_sales" title="make a sale" data-toggle="modal" class="dropdown-toggle nav-link">
 				<i class="fas fa-clipboard"></i>

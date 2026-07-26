@@ -231,6 +231,14 @@ class UserController extends Controller
     */
     public function destroy(Request $request)
     {
-        return User::findOrFail($request->id)->delete();
+        $user = User::findOrFail($request->id);
+
+        if (!empty($user->avatar) && Storage::disk('public')->exists('users/' . $user->avatar)) {
+            Storage::disk('public')->delete('users/' . $user->avatar);
+        }
+
+        $user->delete();
+
+        return response()->json(['success' => true]);
     }
 }

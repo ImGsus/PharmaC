@@ -23,7 +23,7 @@ class Product extends Model
     {
         return static::where('expired', false)
             ->whereHas('purchase', function ($query) {
-                $query->whereDate('expiry_date', '<=', Carbon::now());
+                $query->whereDate('expiry_date', '<=', Carbon::today());
             })
             ->update(['expired' => true]);
     }

@@ -161,14 +161,17 @@ class ProductController extends Controller
      */
     public function lookupByBarcode(Request $request)
     {
+        $barcode = $request->input('barcode') ?: $request->input('sku');
+        $request->merge(['barcode' => $barcode]);
+
         $request->validate([
             'barcode' => 'required|string',
         ]);
 
-        $product = Product::with('purchase')->where('barcode', $request->barcode)->first();
+        $product = Product::with('purchase')->where('barcode', $barcode)->first();
 
         if (!$product) {
-            return redirect()->route('products.scan')->with('message', 'Product barcode not found')->with('alert-type', 'warning');
+            return redirect()->route('products.scan')->with('message', 'Product not found')->with('alert-type', 'warning');
         }
 
         return redirect()->route('products.scan')->with('product', $product);
@@ -182,14 +185,17 @@ class ProductController extends Controller
      */
     public function lookupByBarcodeGet(Request $request)
     {
+        $barcode = $request->query('barcode') ?: $request->query('sku');
+        $request->merge(['barcode' => $barcode]);
+
         $request->validate([
             'barcode' => 'required|string',
         ]);
 
-        $product = Product::with('purchase')->where('barcode', $request->query('barcode'))->first();
+        $product = Product::with('purchase')->where('barcode', $barcode)->first();
 
         if (!$product) {
-            return redirect()->route('products.scan')->with('message', 'Product barcode not found')->with('alert-type', 'warning');
+            return redirect()->route('products.scan')->with('message', 'Product not found')->with('alert-type', 'warning');
         }
 
         return redirect()->route('products.scan')->with('product', $product);

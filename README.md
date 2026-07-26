@@ -84,6 +84,55 @@ php artisan serve
 ```
 http://127.0.0.1:8000
 ```
+
+## Running with ngrok (Mobile/Remote Access)
+
+To access your local pharmacy management system from a mobile device or remote location, follow these steps:
+
+### Step 1: Update .env with ngrok URL
+Update your `.env` file with your ngrok forwarding URL:
+```
+APP_URL=https://silencer-frostbite-sponsor.ngrok-free.dev
+ASSET_URL=https://silencer-frostbite-sponsor.ngrok-free.dev
+```
+Replace `silencer-frostbite-sponsor` with your actual ngrok forwarding URL.
+
+### Step 2: First Terminal - Start Laravel
+Open PowerShell and run:
+```powershell
+cd "C:\Users\Administrator\Documents\A\Pharmacy-management-system-main"
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+### Step 3: Second Terminal - Start ngrok
+Open another PowerShell and run:
+```powershell
+cd "C:\Users\Administrator\Documents\A\Pharmacy-management-system-main"
+.\ngrok\ngrok.exe http 8000
+```
+
+The terminal will display a `Forwarding` URL like:
+```
+Forwarding                    https://silencer-frostbite-sponsor.ngrok-free.dev -> http://localhost:8000
+```
+
+### Step 4: Access on Mobile
+On your mobile device, open Chrome and navigate to:
+```
+https://silencer-frostbite-sponsor.ngrok-free.dev
+```
+
+To access the barcode scanner directly:
+```
+https://silencer-frostbite-sponsor.ngrok-free.dev/Webby/index.php
+```
+
+### Notes
+- Both terminals must be running simultaneously
+- Replace the URL with your actual ngrok forwarding address
+- ngrok requires an internet connection
+- For the barcode scanner to work, use HTTPS (as provided by ngrok)
+
 12. Enjoy and make sure to star the repo :).Report bugs,features and also send your pull requests.
 
 # admin login credentials

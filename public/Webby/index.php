@@ -139,81 +139,94 @@ require_once __DIR__ . '/function.php';
             </div>
         </div>
 
-        <input id="barcode-value" type="text" name="barcode" placeholder="Detected barcode appears here" readonly>
+        <input id="barcode-value" type="text" name="sku" placeholder="Detected SKU/barcode appears here" autocomplete="off">
         <div id="status-message" class="status">Press Start camera to begin scanning.</div>
 
-        <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+            <button id="lookup-btn" class="btn btn-secondary" type="button">Lookup SKU manually</button>
+        </div>
+
+        <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
             <button id="start-camera" class="btn btn-primary">Start camera</button>
             <button id="stop-camera" class="btn btn-secondary" type="button">Stop camera</button>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js"></script>
     <script>
         const startButton = document.getElementById('start-camera');
         const stopButton = document.getElementById('stop-camera');
+        const lookupButton = document.getElementById('lookup-btn');
         const preview = document.getElementById('camera-preview');
         const barcodeInput = document.getElementById('barcode-value');
         const statusMessage = document.getElementById('status-message');
 
         let stream = null;
-        let scanInterval = null;
-        let barcodeDetector = null;
+        let codeReader = null;
 
         async function startCamera() {
             try {
+                statusMessage.textContent = 'Starting camera and scanning SKU...';
+                statusMessage.classList.remove('error');
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    statusMessage.textContent = 'Camera access is unavailable. Use Chrome on Android with HTTPS or localhost access to enable the camera.';
+                    statusMessage.classList.add('error');
+                    return;
+                }
+
+                codeReader = new ZXing.BrowserMultiFormatReader();
+
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 preview.srcObject = stream;
                 await preview.play();
+
                 startButton.disabled = true;
                 stopButton.disabled = false;
-                statusMessage.textContent = 'Scanning for barcode...';
 
-                if ('BarcodeDetector' in window) {
-                    const supportedFormats = await BarcodeDetector.getSupportedFormats();
-                    barcodeDetector = new BarcodeDetector({ formats: supportedFormats });
-                    scanInterval = setInterval(scanFrame, 500);
-                } else {
-                    statusMessage.textContent = 'Browser does not support BarcodeDetector. Please use Chrome on Android.';
-                }
+                codeReader.decodeFromVideoDevice(null, preview, (result, err) => {
+                    if (result) {
+                        const sku = result.text.trim();
+                        if (sku) {
+                            barcodeInput.value = sku;
+                            statusMessage.textContent = 'SKU detected! Redirecting...';
+                            stopCamera();
+                            redirectToApp(sku);
+                        }
+                    }
+
+                    if (err && !(err instanceof ZXing.NotFoundException) && !(err instanceof ZXing.ChecksumException) && !(err instanceof ZXing.FormatException)) {
+                        console.debug('ZXing scan error', err);
+                    }
+                });
             } catch (error) {
                 console.error('Camera start failed', error);
-                statusMessage.textContent = 'Unable to access camera. Please allow permission and use HTTPS.';
+                statusMessage.textContent = error.message || 'Unable to access camera. Please allow permission and use HTTPS.';
             }
         }
 
-        async function scanFrame() {
-            if (!barcodeDetector || !preview.videoWidth) return;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = preview.videoWidth;
-            canvas.height = preview.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
-
-            try {
-                const barcodes = await barcodeDetector.detect(canvas);
-                if (barcodes.length > 0) {
-                    const barcode = barcodes[0].rawValue;
-                    barcodeInput.value = barcode;
-                    statusMessage.textContent = 'Barcode detected! Redirecting...';
-                    stopCamera();
-                    redirectToApp(barcode);
-                }
-            } catch (error) {
-                console.debug('Detection error', error);
-            }
-        }
-
-        function redirectToApp(barcode) {
+        function redirectToApp(sku) {
             const url = new URL('/products/scan/result', window.location.origin);
-            url.searchParams.set('barcode', barcode);
+            url.searchParams.set('sku', sku);
             window.location.href = url.toString();
         }
 
+        function lookupProduct() {
+            const sku = barcodeInput.value.trim();
+            if (!sku) {
+                statusMessage.textContent = 'Enter a SKU or scan a barcode first.';
+                statusMessage.classList.add('error');
+                return;
+            }
+            statusMessage.textContent = 'Looking up SKU...';
+            statusMessage.classList.remove('error');
+            redirectToApp(sku);
+        }
+
         function stopCamera() {
-            if (scanInterval) {
-                clearInterval(scanInterval);
-                scanInterval = null;
+            if (codeReader) {
+                codeReader.reset();
+                codeReader = null;
             }
             if (stream) {
                 stream.getTracks().forEach((track) => track.stop());
@@ -235,6 +248,18 @@ require_once __DIR__ . '/function.php';
         stopButton.addEventListener('click', (event) => {
             event.preventDefault();
             stopCamera();
+        });
+
+        lookupButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            lookupProduct();
+        });
+
+        barcodeInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                lookupProduct();
+            }
         });
 
         stopButton.disabled = true;

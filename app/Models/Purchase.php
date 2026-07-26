@@ -26,4 +26,18 @@ class Purchase extends Model
     public function purchaseProduct(){
         return $this->hasOne(Product::class);
     }
+
+    public function getImageUrlAttribute()
+    {
+        if (empty($this->image)) {
+            return asset('assets/img/avatar.png');
+        }
+
+        $imagePath = public_path('storage/purchases/'.$this->image);
+        if (file_exists($imagePath)) {
+            return asset('storage/purchases/'.$this->image);
+        }
+
+        return asset('assets/img/avatar.png');
+    }
 }

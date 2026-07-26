@@ -15,17 +15,18 @@ class DashboardController extends Controller
 {
     public function index(){
         $title = 'dashboard';
-        $total_purchases = Purchase::where('expiry_date','!=',Carbon::now())->count();
+        $total_purchases = Purchase::count();
         $total_categories = Category::count();
         $total_suppliers = Supplier::count();
         $total_sales = Sale::count();
         Product::markExpiredProducts();
         $total_barcoded_products = Product::whereNotNull('barcode')->count();
+        $today = Carbon::today()->toDateString();
         
         $pieChart = app()->chartjs
                 ->name('pieChart')
                 ->type('pie')
-                ->size(['width' => 400, 'height' => 200])
+                ->size(['width' => 320, 'height' => 220])
                 ->labels(['Total Purchases', 'Total Suppliers','Total Sales'])
                 ->datasets([
                     [
@@ -34,11 +35,16 @@ class DashboardController extends Controller
                         'data' => [$total_purchases, $total_suppliers,$total_sales]
                     ]
                 ])
-                ->options([]);
+                ->options([
+                    'responsive' => true,
+                    'maintainAspectRatio' => false,
+                    'legend' => ['position' => 'bottom'],
+                    'layout' => ['padding' => ['top' => 8, 'bottom' => 8]],
+                ]);
         
         $total_expired_products = Product::where('expired', true)->count();
-        $latest_sales = Sale::whereDate('created_at','=',Carbon::now())->get();
-        $today_sales = Sale::whereDate('created_at','=',Carbon::now())->sum('total_price');
+        $latest_sales = Sale::whereDate('created_at', $today)->get();
+        $today_sales = Sale::whereDate('created_at', $today)->sum('total_price');
         return view('admin.dashboard',compact(
             'title','pieChart','total_expired_products',
             'latest_sales','today_sales','total_categories','total_barcoded_products'
