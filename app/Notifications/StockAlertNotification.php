@@ -19,9 +19,10 @@ class StockAlertNotification extends Notification
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data, $status = 'low_stock')
     {
         $this->data = $data;
+        $this->status = $status;
     }
 
     /**
@@ -43,11 +44,14 @@ class StockAlertNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $url = url(route('purchases.edit',$this->data->id));
+        $url = url(route('purchases.edit', $this->data->id));
+        $title = $this->status === 'out_of_stock' ? 'The Product below is out of stock.' : 'The Product below is running low on stock.';
+        $quantityText = $this->data->quantity === 0 ? 'out of stock' : $this->data->quantity . ' left in quantity';
+
         return (new MailMessage)
                     ->greeting('Hello!')
-                    ->line('The Product below is running out of stock.')
-                    ->line("Product's name is ".$this->data->product ." is only ".$this->data->quantity." left in quantity")
+                    ->line($title)
+                    ->line("Product's name is " . $this->data->product . " and is " . $quantityText)
                     ->line("Please update the product's quantity or make a new purchase.")
                     ->action('View Product', $url)
                     ->line('Thank you!');
@@ -61,10 +65,16 @@ class StockAlertNotification extends Notification
      */
     public function toArray($notifiable)
     {
+        $message = $this->status === 'out_of_stock'
+            ? 'is out of stock.'
+            : 'is low on stock.';
+
         return [
-            'product_name'=>$this->data->product,
-            'quantity'=>$this->data->quantity,
-            'image'=>$this->data->image,
+            'product_name' => $this->data->product,
+            'quantity' => $this->data->quantity,
+            'image' => $this->data->image,
+            'status' => $this->status,
+            'message' => $this->data->product . ' ' . $message,
         ];
     }
 

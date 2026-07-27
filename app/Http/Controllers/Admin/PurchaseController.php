@@ -99,7 +99,10 @@ class PurchaseController extends Controller
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
-            'quantity'=>'required|min:1',
+            'item_quantity'=>'required|integer|min:0',
+            'packaging_box'=>'required|integer|min:0',
+            'quantity_per_box'=>'required|integer|min:0',
+            'total_quantity'=>'required|integer|min:0',
             'expiry_date'=>'required',
             'supplier'=>'required',
             'image'=>'file|image|mimes:jpg,jpeg,png,gif',
@@ -109,12 +112,17 @@ class PurchaseController extends Controller
             $imageName = time().'.'.$request->image->extension();
             $request->image->move(public_path('storage/purchases'), $imageName);
         }
+        $computedTotal = $request->item_quantity + ($request->packaging_box * $request->quantity_per_box);
         Purchase::create([
             'product'=>$request->product,
             'category_id'=>$request->category,
             'supplier_id'=>$request->supplier,
             'cost_price'=>$request->cost_price,
-            'quantity'=>$request->quantity,
+            'quantity'=>$computedTotal,
+            'item_quantity'=>$request->item_quantity,
+            'packaging_box'=>$request->packaging_box,
+            'quantity_per_box'=>$request->quantity_per_box,
+            'total_quantity'=>$computedTotal,
             'expiry_date'=>$request->expiry_date,
             'image'=>$imageName,
         ]);
@@ -153,7 +161,10 @@ class PurchaseController extends Controller
             'product'=>'required|max:200',
             'category'=>'required',
             'cost_price'=>'required|min:1',
-            'quantity'=>'required|min:1',
+            'item_quantity'=>'required|integer|min:0',
+            'packaging_box'=>'required|integer|min:0',
+            'quantity_per_box'=>'required|integer|min:0',
+            'total_quantity'=>'required|integer|min:0',
             'expiry_date'=>'required',
             'supplier'=>'required',
             'image'=>'file|image|mimes:jpg,jpeg,png,gif',
@@ -172,12 +183,17 @@ class PurchaseController extends Controller
             $request->image->move(public_path('storage/purchases'), $imageName);
         }
 
+        $computedTotal = $request->item_quantity + ($request->packaging_box * $request->quantity_per_box);
         $purchase->update([
             'product'=>$request->product,
             'category_id'=>$request->category,
             'supplier_id'=>$request->supplier,
             'cost_price'=>$request->cost_price,
-            'quantity'=>$request->quantity,
+            'quantity'=>$computedTotal,
+            'item_quantity'=>$request->item_quantity,
+            'packaging_box'=>$request->packaging_box,
+            'quantity_per_box'=>$request->quantity_per_box,
+            'total_quantity'=>$computedTotal,
             'expiry_date'=>$request->expiry_date,
             'image'=>$imageName,
         ]);

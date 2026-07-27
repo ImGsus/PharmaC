@@ -29,32 +29,27 @@
 
 @section('content')
 <div class="row">
-    <div class="col-md-8 offset-md-2">
-        <div class="card barcode-card">
-            <div class="card-body text-center">
-                <h4 class="mb-4">Scan or enter product barcode / SKU</h4>
-                <form action="{{ route('products.lookup') }}" method="post">
-                    @csrf
-                    <div class="mb-3">
-                        <input type="text" name="barcode" class="form-control barcode-input text-center" placeholder="Enter SKU or barcode" autofocus autocomplete="off" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg">Lookup Product</button>
-                </form>
-                <div class="mt-3">
-                    <a href="/Webby/index.php" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary">Scan with camera</a>
-                </div>
-                @if(session('product'))
-                    <div class="mt-4 text-start">
-                        <h5>Product details</h5>
-                        <p><strong>Name:</strong> {{ session('product')->purchase->product ?? 'N/A' }}</p>
-                        <p><strong>SKU / Barcode:</strong> {{ session('product')->barcode }}</p>
-                        <p><strong>Price:</strong> {{ AppSettings::get('app_currency','$') }} {{ session('product')->price }}</p>
-                        <p><strong>Expiry:</strong> {{ optional(session('product')->purchase)->expiry_date ? date_format(date_create(session('product')->purchase->expiry_date), 'd M, Y') : 'N/A' }}</p>
-                        <p><strong>Status:</strong> {{ session('product')->expired ? 'Expired' : 'Active' }}</p>
-                    </div>
-                @endif
-            </div>
+    <div class="col-md-12">
+        <div class="text-center mt-5">
+            <h4 class="mb-4">Camera Scanner</h4>
+            <p class="text-muted">Click the button below to open the camera scanner.</p>
+            <button id="open_webby" class="btn btn-primary btn-lg">Open Camera Scanner</button>
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var btn = document.getElementById('open_webby');
+        if(!btn) return;
+        btn.addEventListener('click', function(){
+            var params = new URLSearchParams(window.location.search);
+            var origin = params.get('origin');
+            var url = '/Webby/index.php';
+            if(origin){
+                url += '?origin=' + encodeURIComponent(origin);
+            }
+            window.open(url, 'webby_scanner', 'width=900,height=700');
+        });
+    });
+</script>
 @endsection

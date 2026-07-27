@@ -66,10 +66,12 @@
 										<div class="media-body">
 											<h6 class="text-danger">Stock Alert</h6>
 											<p class="noti-details">
-												<span class="noti-title">{{$notification->data['product_name']}} is only {{$notification->data['quantity']}} left.</span>
-												<span>Please update the purchase quantity </span>
-											</p>
-											
+										@if(isset($notification->data['status']) && $notification->data['status'] === 'out_of_stock')
+											<span class="noti-title">{{$notification->data['product_name']}} is out of stock.</span>
+										@else
+											<span class="noti-title">{{$notification->data['product_name']}} is low on stock ({{$notification->data['quantity']}} left).</span>
+										@endif
+										<span>Please update the purchase quantity.</span>
 											<p class="noti-time"><span class="notification-time">{{$notification->created_at->diffForHumans()}}</span></p>
 										</div>
 									</div>

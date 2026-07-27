@@ -171,7 +171,15 @@ class ProductController extends Controller
         $product = Product::with('purchase')->where('barcode', $barcode)->first();
 
         if (!$product) {
-            return redirect()->route('products.scan')->with('message', 'Product not found')->with('alert-type', 'warning');
+            $routeParams = [];
+            if ($request->input('origin')) {
+                $routeParams['origin'] = $request->input('origin');
+            }
+            return redirect()->route('products.scan', $routeParams)->with('message', 'Product not found')->with('alert-type', 'warning');
+        }
+
+        if ($request->input('origin') === 'sales_add') {
+            return redirect()->route('sales.create', ['barcodes' => $barcode]);
         }
 
         return redirect()->route('products.scan')->with('product', $product);
@@ -195,7 +203,15 @@ class ProductController extends Controller
         $product = Product::with('purchase')->where('barcode', $barcode)->first();
 
         if (!$product) {
-            return redirect()->route('products.scan')->with('message', 'Product not found')->with('alert-type', 'warning');
+            $routeParams = [];
+            if ($request->query('origin')) {
+                $routeParams['origin'] = $request->query('origin');
+            }
+            return redirect()->route('products.scan', $routeParams)->with('message', 'Product not found')->with('alert-type', 'warning');
+        }
+
+        if ($request->query('origin') === 'sales_add') {
+            return redirect()->route('sales.create', ['barcodes' => $barcode]);
         }
 
         return redirect()->route('products.scan')->with('product', $product);

@@ -4808,6 +4808,11 @@ table.table-inbox tbody tr.checked {
 .custom-edit-service textarea.form-control{
 	min-height: 200px;
 }
+
+/* Ensure purchase add/edit card is tall enough to show all fields */
+.card-body.custom-edit-service {
+    min-height: 420px;
+}
 .custom-edit-service .service-upload {
     border: 1px solid #dcdcdc;
     border-radius: .25rem;
@@ -4857,6 +4862,18 @@ table.table-inbox tbody tr.checked {
 }
 .custom-edit-service .upload-wrap li img{
 	max-width: 100%;
+}
+.purchase-edit-form {
+	min-height: 400px;
+	padding-bottom: 45px;
+}
+.submit-section {
+	display: flex;
+	justify-content: center;
+	padding-top: 18px;
+}
+.submit-section .submit-btn {
+	min-width: 180px;
 }
 /*-----------------
 	27. Blog Grid

@@ -206,8 +206,18 @@ require_once __DIR__ . '/function.php';
         }
 
         function redirectToApp(sku) {
+            var params = new URLSearchParams(window.location.search);
+            var origin = params.get('origin');
+            if (window.opener && origin === 'product_create') {
+                window.opener.postMessage({ type: 'scanned_barcode', barcode: sku }, '*');
+                window.close();
+                return;
+            }
             const url = new URL('/products/scan/result', window.location.origin);
             url.searchParams.set('sku', sku);
+            if (origin) {
+                url.searchParams.set('origin', origin);
+            }
             window.location.href = url.toString();
         }
 

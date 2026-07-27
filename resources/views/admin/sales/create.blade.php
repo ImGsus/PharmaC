@@ -23,30 +23,49 @@
                 <!-- Create Sale -->
                 <form method="POST" action="{{route('sales.store')}}">
 					@csrf
-					<div class="row form-row">
-						<div class="col-12">
-							<div class="form-group">
-								<label>Product <span class="text-danger">*</span></label>
-								<select class="select2 form-select form-control" name="product"> 
-									@foreach ($products as $product)
-										@if (!empty($product->purchase))
-											@if (!($product->purchase->quantity <= 0))
-                                                <option disabled selected > Select Product</option>
-												<option value="{{$product->id}}">{{$product->purchase->product}}</option>
-											@endif
+				<div class="row form-row">
+					<div class="col-12">
+						<div class="form-group">
+							<label>Product <span class="text-danger">*</span></label>
+							<select class="select2 form-select form-control" name="product"> 
+								@foreach ($products as $product)
+									@if (!empty($product->purchase))
+										@if (!($product->purchase->quantity <= 0))
+											<option value="{{$product->id}}">{{$product->purchase->product}}</option>
 										@endif
-									@endforeach
-								</select>
-							</div>
-						</div>
-						<div class="col-12">
-							<div class="form-group">
-								<label>Quantity</label>
-								<input type="number" value="1" class="form-control" name="quantity">
-							</div>
+									@endif
+								@endforeach
+							</select>
 						</div>
 					</div>
+					<div class="col-12">
+						<div class="form-group">
+							<label>Quantity</label>
+							<input type="number" value="1" class="form-control" name="quantity">
+						</div>
+					</div>
+				</div>
+				@if(!empty($selectedProducts) && count($selectedProducts))
+					<hr />
+					<h5>Scanned Items</h5>
+					<div id="scanned-list" class="mb-3">
+						@foreach($selectedProducts as $idx => $p)
+							<div class="d-flex justify-content-between align-items-center p-2 border mb-1">
+								<div>
+									<strong>{{ $p->purchase->product ?? 'N/A' }}</strong>
+									<div class="text-muted">SKU: {{ $p->barcode }}</div>
+								</div>
+								<div>
+									<input type="hidden" name="items[{{ $idx }}][product]" value="{{ $p->id }}">
+									<input type="number" name="items[{{ $idx }}][quantity]" value="1" min="1" class="form-control" style="width:90px; display:inline-block;">
+								</div>
+							</div>
+						@endforeach
+					</div>
+					<button type="submit" class="btn btn-success btn-block">Add Sale for Scanned Items</button>
+				@else
 					<button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+				@endif
 				</form>
                 <!--/ Create Sale -->
 			</div>

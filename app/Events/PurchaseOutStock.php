@@ -16,15 +16,17 @@ class PurchaseOutStock
 
 
     public $data;
+    public $status;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data, $status = 'low_stock')
     {
         $this->data = $data;
+        $this->status = $status;
     }
 
     /**

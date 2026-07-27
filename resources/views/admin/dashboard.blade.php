@@ -658,7 +658,7 @@
                 <p>Monitor inventory health, expired products, and barcode-ready stock from a clean control panel.</p>
             </div>
             <div class="col-md-4 text-md-end mt-4 mt-md-0">
-                <a href="{{ route('products.scan') }}" class="btn btn-light btn-lg">Scan Barcode</a>
+                <a href="{{ route('products.scan', ['origin' => 'sales_add']) }}" class="btn btn-light btn-lg">Scan Barcode</a>
             </div>
         </div>
     </div>

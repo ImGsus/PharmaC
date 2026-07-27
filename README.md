@@ -89,6 +89,8 @@ http://127.0.0.1:8000
 
 To access your local pharmacy management system from a mobile device or remote location, follow these steps:
 
+![ScreenShot](screenshots/Ngrok.jpg?raw=true "Ngrok Setup")
+
 ### Step 1: Update .env with ngrok URL
 Update your `.env` file with your ngrok forwarding URL:
 ```

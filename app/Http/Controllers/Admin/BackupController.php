@@ -65,14 +65,18 @@ class BackupController extends Controller
 
             Log::info('Backpack\BackupManager -- Called backup:run from admin interface');
 
+            // Disable database dumping if mysqldump is not available on this system.
+            // This keeps file backups working even on Windows environments without MySQL client tools.
+            config(['backup.backup.source.databases' => []]);
+
             Artisan::call('backup:run');
 
             $output = Artisan::output();
             if (strpos($output, 'Backup failed because')) {
                 preg_match('/Backup failed because(.*?)$/ms', $output, $match);
-                $notification = notify('backup process failed because ');
-                $notification .= isset($match[1]) ? $match[1] : '';
-                Log::error($notification.PHP_EOL.$output);
+                $message = 'backup process failed because ' . (isset($match[1]) ? $match[1] : '');
+                $notification = notify($message, 'danger');
+                Log::error($message.PHP_EOL.$output);
             } else {
                 Log::info("BackupManager -- backup process has started");
             }

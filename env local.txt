@@ -2,10 +2,11 @@ APP_NAME=Laravel
 APP_ENV=local
 APP_KEY=base64:co/mgM3/85kNJ1p6vjv1Rnr+yoRcl0zRawUTi4lrAKQ=
 APP_DEBUG=true
-APP_URL=http://localhost
+# APP_URL=http://localhost
 # ASSET_URL=http://localhost
-# APP_URL=https://silencer-frostbite-sponsor.ngrok-free.dev
-# ASSET_URL=https://silencer-frostbite-sponsor.ngrok-free.dev
+APP_URL=https://viselike-tribunal-balcony.ngrok-free.dev
+ASSET_URL=https://viselike-tribunal-balcony.ngrok-free.dev
+# NGROK_AUTH_TOKEN=3H38m8cNiaNOzDly3RwlkgumE6Z_4E2XVFry2VhbBRjMAQ7My
 
 LOG_CHANNEL=stack
 LOG_DEPRECATIONS_CHANNEL=null

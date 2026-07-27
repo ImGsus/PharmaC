@@ -55,21 +55,43 @@
 					</div>
 				</div>
 				
-				<div class="service-fields mb-3">
-					<div class="row">
-						<div class="col-lg-6">
-							<div class="form-group">
-								<label>Cost Price<span class="text-danger">*</span></label>
-								<input class="form-control" value="{{$purchase->cost_price}}" type="text" name="cost_price">
-							</div>
-						</div>
-						<div class="col-lg-6">
-							<div class="form-group">
-								<label>Quantity<span class="text-danger">*</span></label>
-								<input class="form-control" value="{{$purchase->quantity}}" type="text" name="quantity">
+					<div class="service-fields mb-3">
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Cost Price<span class="text-danger">*</span></label>
+									<input class="form-control" value="{{$purchase->cost_price}}" type="text" name="cost_price">
+								</div>
 							</div>
 						</div>
 					</div>
+				
+					<div class="service-fields mb-3">
+					<div class="row">
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Item (1)<span class="text-danger">*</span></label>
+									<input class="form-control" type="number" min="0" name="item_quantity" value="{{$purchase->item_quantity}}">
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Packaging box (1)<span class="text-danger">*</span></label>
+									<input class="form-control" type="number" min="0" name="packaging_box" value="{{$purchase->packaging_box}}">
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Total Quantity Per (1 - Box)<span class="text-danger">*</span></label>
+									<input class="form-control" type="number" min="0" name="quantity_per_box" value="{{$purchase->quantity_per_box}}">
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Total<span class="text-danger">*</span></label>
+									<input class="form-control" type="number" min="0" name="total_quantity" value="{{$purchase->total_quantity}}" readonly>
+									</div>
+								</div>
 				</div>
 
 				<div class="service-fields mb-3">
