@@ -20,7 +20,7 @@
 Follow these steps to install the application.
 1. Clone the Repository
 ```
-git clone https://github.com/gmanaitv3-cpu/PharmaC.git
+git clone https://github.com/ImGsus/PharmaC.git
 ```
 2. Go to project directory
 
