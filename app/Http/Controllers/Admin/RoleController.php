@@ -7,6 +7,7 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
+use App\Services\ArchiveService;
 
 class RoleController extends Controller
 {
@@ -36,23 +37,21 @@ class RoleController extends Controller
                     // return implode("",$role->getAllPermissions()->toArray());
                 })
                 ->addColumn('action',function ($row){
-                    $editbtn = '<a href="'.route('roles.edit',$row->id).'" class="editbtn"><button class="btn btn-primary"><i class="fa fa-edit"></i></button></a>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('roles.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fa fa-trash"></i></button></a>';
+                    $editbtn = '<a href="'.route('roles.edit',$row->id).'" class="dropdown-item editbtn"><i class="fa fa-edit mr-2"></i>Edit</a>';
+                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('roles.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fa fa-trash mr-2"></i>Delete</a>';
                     if(!auth()->user()->hasPermissionTo('edit-role')){
                         $editbtn = '';
                     }
                     if(!auth()->user()->hasPermissionTo('destroy-role')){
                         $deletebtn = '';
                     }
-                    $btn = $editbtn.' '.$deletebtn;
-                    return $btn;
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle role-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Role actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
                 })
                 ->rawColumns(['permissions','action'])
                 ->make(true);
         }
-        return view('admin.roles.index',compact(
-           'title' 
-        ));
+          $permissions = Permission::get();
+          return view('admin.roles.index', compact('title', 'permissions'));
     }
 
     /**
@@ -130,6 +129,8 @@ class RoleController extends Controller
      */
     public function destroy(Request $request)
     {
-        return Role::findOrFail($request->id)->delete();
+        $role = Role::findOrFail($request->id);
+        ArchiveService::record($role, 'Role: '.$role->name);
+        return $role->delete();
     }
 }

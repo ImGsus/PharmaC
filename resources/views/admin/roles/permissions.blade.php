@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-<x-assets.datatables />  
+<x-assets.tabulator />  
 
 @push('page-header')
 <div class="col-sm-7 col-auto">
@@ -23,18 +23,7 @@
 		<div class="card">
 			<div class="card-body">
 				<div class="table-responsive">
-					<table id="perm-table" class="datatable table table-striped table-bordered table-hover table-center mb-0">
-						<thead>
-							<tr style="boder:1px solid black;">
-								<th>Name</th>
-								<th>Created date</th>
-								<th class="text-center action-btn">Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-													
-						</tbody>
-					</table>
+					<div id="perm-table" class="tabulator-table-wrap"></div>
 				</div>
 			</div>
 		</div>
@@ -108,25 +97,23 @@
 @push('page-js')
 	<script>
 		$(document).ready(function() {
-            var table = $('#perm-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{route('permissions.index')}}",
+            if (!window.PharmaTabulator) return;
+            window.PharmaTabulator.server({
+                el: 'perm-table',
+                url: "{{route('permissions.index')}}",
                 columns: [
-                    {data: 'name', name: 'name'},
-                    // {data: 'role', name: 'role'},
-                    {data: 'created_at',name: 'created_at'},
-                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                    {title: 'Name', field: 'name'},
+                    {title: 'Created date', field: 'created_at'},
+                    {title: 'Actions', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
                 ]
             });
-			$('#perm-table').on('click','.editbtn',function (){
+			$(document).on('click', '#perm-table .editbtn', function () {
 				$('#edit_permission').modal('show');
 				var id = $(this).data('id');
 				var permission = $(this).data('name');
 				$('#edit_id').val(id);
 				$('.perm_name').val(permission);
 			});
-			//
 		});
 	</script>
 	

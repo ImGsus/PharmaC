@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-<x-assets.datatables />
+<x-assets.tabulator />
 
 
 @push('page-css')
@@ -46,7 +46,7 @@
                                                 {{$sale->product->purchase->product}}
                                                 @if (!empty($sale->product->purchase->image))
                                                     <span class="avatar avatar-sm mr-2">
-                                                    <img class="avatar-img" src="{{asset("storage/purchases/".$sale->product->purchase->image)}}" alt="image">
+                                                    <img class="avatar-img" src="{{ url('storage/system/purchases/'.$sale->product->purchase->image) }}" alt="image">
                                                     </span>
                                                 @endif
                                             </td>
@@ -112,41 +112,15 @@
 @push('page-js')
 <script>
     $(document).ready(function(){
-        $('#sales-table').DataTable({
-			dom: 'Bfrtip',		
-			buttons: [
-				{
-				extend: 'collection',
-				text: 'Export Data',
-				buttons: [
-					{
-						extend: 'pdf',
-						exportOptions: {
-							columns: "thead th:not(.action-btn)"
-						}
-					},
-					{
-						extend: 'excel',
-						exportOptions: {
-							columns: "thead th:not(.action-btn)"
-						}
-					},
-					{
-						extend: 'csv',
-						exportOptions: {
-							columns: "thead th:not(.action-btn)"
-						}
-					},
-					{
-						extend: 'print',
-						exportOptions: {
-							columns: "thead th:not(.action-btn)"
-						}
-					}
-				]
-				}
-			]
-		});
+        if (document.getElementById('sales-table') && window.PharmaTabulator) {
+            window.PharmaTabulator.fromDom({
+                el: 'sales-table',
+                key: 'sales-report',
+                export: true,
+                filename: 'sales-report',
+                pageLength: 10
+            });
+        }
     });
 </script>
 @endpush

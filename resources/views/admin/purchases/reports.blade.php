@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-<x-assets.datatables />
+<x-assets.tabulator />
 
 
 @push('page-css')
@@ -55,7 +55,7 @@
                                     <td>{{ $purchase->supplier->name }}</td>
                                     <td>{{ AppSettings::get('app_currency', '$') }}{{ $purchase->cost_price }}</td>
                                     <td>{{ $purchase->quantity }}</td>
-                                    <td>{{ date_format(date_create($purchase->expiry_date), 'd M, Y') }}</td>
+                                    <td>{{ $purchase->expiry_date ? date_format(date_create($purchase->expiry_date), 'd M, Y') : 'No expiry' }}</td>
                                 </tr>
                                 @endif
                             @endforeach
@@ -114,41 +114,15 @@
 @push('page-js')
 <script>
     $(document).ready(function(){
-        $('#purchase-table').DataTable({
-            dom: 'Bfrtip',		
-            buttons: [
-                {
-                extend: 'collection',
-                text: 'Export Data',
-                buttons: [
-                    {
-                        extend: 'pdf',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    },
-                    {
-                        extend: 'excel',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    },
-                    {
-                        extend: 'csv',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    },
-                    {
-                        extend: 'print',
-                        exportOptions: {
-                            columns: "thead th:not(.action-btn)"
-                        }
-                    }
-                ]
-                }
-            ]
-        });
+        if (document.getElementById('purchase-table') && window.PharmaTabulator) {
+            window.PharmaTabulator.fromDom({
+                el: 'purchase-table',
+                key: 'purchase-report',
+                export: true,
+                filename: 'purchase-report',
+                pageLength: 10
+            });
+        }
     });
 </script>
 @endpush

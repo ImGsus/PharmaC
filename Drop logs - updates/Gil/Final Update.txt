@@ -1,0 +1,653 @@
+FINAL UPDATE GUIDE
+Chapter I: The Problem and Its Background
+Pages 1-9
+
+Purpose
+This guide identifies the Chapter 1 statements that should be updated so they accurately describe the implemented pharmacy management system. The Enhanced wording is written in a direct academic style and may be copied into the final document.
+
+======================================================================
+FIRST: LIST OF WHAT NEEDS TO CHANGE
+======================================================================
+
+1. Page 1 - Introduction: revise claims that the system guarantees medicine availability, safety, or real-time operation.
+2. Page 2 - Background of the Study: clarify that the system supports inventory, purchasing, sales, and reporting workflows.
+3. Page 3 - Statement of the Problem: mention the need for an integrated system that includes inventory, expiry, sales, and reporting.
+4. Page 3-4 - Objectives of the Study: add purchasing, sales/POS, barcode lookup, reports, and stock updates.
+5. Page 4 - Scope: expand the feature list to include suppliers, purchases, sales/POS, batch records, barcode lookup, reports, and user permissions.
+6. Page 5 - Delimitations: remove the statement that the system is only for inventory management because the code includes sales and POS.
+7. Page 5 - Delimitations: revise the barcode statement because barcode lookup is implemented when compatible hardware or typed input is available.
+8. Page 5 - Theoretical Framework: revise "real time" wording to "when transactions are saved" unless real-time synchronization has been formally tested.
+9. Page 6-7 - Conceptual Framework: update the input and output descriptions to include sales, purchasing, barcode, reports, and system evaluation.
+10. Page 8 - Significance of the Study: change guaranteed outcomes into intended benefits because the code alone does not prove actual financial or productivity improvement.
+11. Page 8-9 - Operational Definitions: revise Expiry Tracking, Pharmacist, Report Generation, and Web-Based System so they match the verified implementation.
+12. Page 9 - Operational Definitions: avoid claiming that expiry tracking automatically prevents every expired-product sale unless sale-time rejection is tested and confirmed.
+
+======================================================================
+SECOND: OLD AND ENHANCED WORDING
+======================================================================
+
+---------------------------------------------------------------------
+PAGE 1 - A. INTRODUCTION
+---------------------------------------------------------------------
+
+Old:
+
+A. Introduction
+
+In today's fast-paced healthcare environment, pharmacies play a vital role
+in ensuring the availability and safety of medicines for patients. Traditional
+inventory management methods, which often rely on manual recording and monitoring,
+are prone to human error, inefficiency, and data inaccuracy. These challenges can
+lead to issues such as stock shortages, overstocking, and the dispensing of expired
+medications, all of which may compromise patient safety and business operations.
+
+With the advancement of web technologies, automated systems have become essential
+tools in improving operational efficiency. A Web-Based Pharmacy Inventory Management
+System with Stock Monitoring and Expiry Tracking is designed to address these
+challenges by providing a centralized, real-time platform for managing pharmaceutical
+inventory. This system enables pharmacy staff to easily track stock levels, monitor
+expiration dates, and generate reports for better decision-making.
+
+The proposed system aims to enhance accuracy, reduce manual workload, and improve
+overall pharmacy management. By integrating stock monitoring and expiry tracking
+features, it ensures that medicines are always available, properly managed, and safe
+for consumption. Ultimately, this system supports better healthcare service delivery
+and promotes patient safety.
+
+Enhanced:
+
+A. Introduction
+
+In today's fast-paced healthcare environment, pharmacies play a vital role
+in managing the availability and proper recording of medicines for patients.
+Traditional inventory management methods, which often rely on manual recording
+and monitoring, are prone to human error, inefficiency, and data inaccuracy.
+These challenges can lead to issues such as stock shortages, overstocking, and
+the possible dispensing of expired medications, which may affect patient safety
+and pharmacy operations.
+
+With the advancement of web technologies, automated systems have become useful
+tools for improving pharmacy operations. A Web-Based Pharmacy Inventory and Sales
+Management System with Stock Monitoring and Expiry Tracking is designed to help
+pharmacies manage medicine records, purchases, sales, stock quantities, expiry
+dates, and reports in one centralized platform. The system enables authorized
+users to review stock information, monitor expiry records, process transactions,
+and generate reports for decision-making.
+
+The proposed system is intended to improve record accuracy, reduce repeated
+manual work, and support organized pharmacy management. Through stock monitoring,
+expiry tracking, transaction recording, and reporting, the system may assist
+pharmacy staff in managing medicines more efficiently. The system does not by
+itself guarantee medicine availability, product safety, or correct clinical
+dispensing decisions.
+
+Reason for update:
+The code supports inventory, purchases, sales, POS, and reports. The wording
+should not promise guaranteed availability, safety, or clinical results.
+
+---------------------------------------------------------------------
+PAGE 2 - B. BACKGROUND OF THE STUDY
+---------------------------------------------------------------------
+
+Old:
+
+B. Background of the Study
+
+Technology plays an important role in improving business operations, especially
+in the healthcare industry. Pharmacies manage different kinds of medicines every
+day, including monitoring stocks, checking expiration dates, and recording medicine
+transactions. Many small and medium pharmacies still use manual recording methods
+such as notebooks and spreadsheets. These traditional methods are time-consuming,
+prone to human error, and may cause problems such as inaccurate inventory counts,
+expired medicines, and delayed restocking.
+
+Inventory management is one of the most important processes in a pharmacy because
+medicines must always be available for patients while ensuring that expired products
+are properly monitored. Failure to monitor medicine expiration dates may lead to
+financial losses and health risks for customers. Because of this, pharmacies need
+a reliable and automated system that can help staff manage inventory efficiently.
+
+The proposed Web-Based Pharmacy Inventory Management System with Stock Monitoring
+and Expiry Tracking is designed to help pharmacies automate inventory processes.
+The system can record medicine stocks, monitor quantities, generate notifications
+for low-stock medicines, and track medicine expiration dates. Since the system is
+web-based, authorized users can access it using computers connected to the internet
+or local network.
+
+This study aims to improve the efficiency, accuracy, and security of pharmacy
+inventory management. Through automation, the pharmacy staff can reduce manual
+work, minimize errors, and provide better service to customers.
+
+Enhanced:
+
+B. Background of the Study
+
+Technology plays an important role in improving business operations, especially
+in the healthcare industry. Pharmacies manage different kinds of medicines every
+day, including monitoring stocks, checking expiration dates, recording purchases,
+and processing sales transactions. Many small and medium pharmacies still use
+manual recording methods such as notebooks and spreadsheets. These traditional
+methods are time-consuming, prone to human error, and may cause problems such as
+inaccurate inventory counts, expired medicines, and delayed restocking.
+
+Inventory management is one of the most important processes in a pharmacy because
+medicine records, quantities, purchases, sales, and expiration dates must be
+organized and monitored. Failure to monitor medicine expiration dates and stock
+levels may lead to product waste, delayed replenishment, and operational risks.
+Because of this, pharmacies need a reliable system that can help authorized users
+manage inventory and related pharmacy transactions efficiently.
+
+The proposed Web-Based Pharmacy Inventory and Sales Management System with Stock
+Monitoring and Expiry Tracking is designed to help pharmacies organize inventory,
+purchase, supplier, sales, and expiry records. The system can update recorded
+stock quantities when purchase or sales transactions are saved, identify low-stock
+items, monitor expiry records, and generate reports. Authorized users can access
+the browser-based system when the configured Laravel server is available through
+a local network or hosted connection.
+
+This study aims to support the efficiency, accuracy, and security of pharmacy
+record management. Through centralized records, transaction processing, stock
+movement tracking, and reports, pharmacy staff may reduce repeated manual work
+and improve access to operational information.
+
+Reason for update:
+The code includes purchases, suppliers, sales, POS, stock movements, and reports.
+Internet or LAN access depends on server deployment, so it should not be presented
+as an automatic guarantee of public Internet access.
+
+---------------------------------------------------------------------
+PAGE 3 - C. STATEMENT OF THE PROBLEM
+---------------------------------------------------------------------
+
+Old:
+
+C. Statement of the Problem
+
+Managing inventory effectively keeps medicine available, safe, and high-quality.
+Yet, many small and medium pharmacies still rely on paper logs and simple spreadsheets
+to track stock and expiration dates. These manual methods frequently lead to human
+error, inaccurate records, late reorders, and expired products slipping through the
+cracks.
+
+Pharmacy inventory inefficiencies cause stock issues, financial loss, and safety
+risks from expired drugs. Existing inventory software is often too expensive,
+complex, or lacks the integrated tracking features smaller pharmacies need.
+
+A study is conducted to develop a web-based pharmacy inventory system with stock
+and expiry tracking to automate workflows, improve record accuracy, and support
+data-driven decisions through automated alerts and reports.
+
+The study sought to answer the following questions:
+
+1. How can the pharmacy efficiently manage and monitor medicine inventory?
+2. How can the system help pharmacy staff track medicine expiration dates?
+3. How can the system provide notifications for low-stock and expired medicines?
+4. How can the system enhance the accuracy, security, and reliability of pharmacy
+   inventory records compared to manual methods?
+5. How can the system support pharmacy management in making informed inventory
+   and operational decisions?
+
+Enhanced:
+
+C. Statement of the Problem
+
+Managing pharmacy records effectively is important for maintaining organized
+medicine stocks, monitoring expiration dates, and recording pharmacy transactions.
+However, many small and medium pharmacies still rely on paper logs and simple
+spreadsheets to track inventory, purchases, sales, and expiry dates. These manual
+methods may lead to human error, inaccurate records, delayed replenishment, and
+expired products being overlooked.
+
+Pharmacy record-management problems may affect stock availability, increase
+product waste, and make operational decisions more difficult. Some existing
+systems may also be expensive, complex, or lacking the integrated inventory,
+expiry, transaction, and reporting functions needed by smaller pharmacies.
+
+This study aims to develop a web-based pharmacy inventory and sales management
+system with stock monitoring and expiry tracking. The system is intended to
+centralize pharmacy records, support transaction-triggered stock updates, identify
+low-stock and expiry conditions, and provide reports for operational decision-making.
+
+The study seeks to answer the following questions:
+
+1. How can a web-based system help the pharmacy manage medicine, purchase,
+   supplier, and sales records?
+2. How can the system help authorized users monitor medicine quantities and
+   expiration dates?
+3. How can the system identify low-stock, out-of-stock, near-expiry, and expired
+   products through alerts or reports?
+4. How can the system improve the organization, security, and accessibility of
+   pharmacy records compared with manual methods?
+5. How can the system support pharmacy management in making informed inventory,
+   purchasing, sales, and operational decisions?
+
+Reason for update:
+The revised problem statement reflects the actual modules without claiming that
+the system completely eliminates all pharmacy risks.
+
+---------------------------------------------------------------------
+PAGES 3-4 - D. OBJECTIVES OF THE STUDY
+---------------------------------------------------------------------
+
+Old:
+
+General Objective
+
+In order to automate inventory control, reduce pharmaceutical waste from expiry,
+and improve overall operational efficiency for pharmacies, the study aimed to design,
+develop, and deploy a Web-Based Pharmacy Inventory Management System with Stock
+Monitoring and Expiry Tracking.
+
+Specific Objectives
+
+The following are developed / created / done:
+
+1. Create a web-based system that can record and manage medicine inventory.
+2. Implement a stock monitoring feature for tracking medicine availability.
+3. Implement stock monitoring and automated notification alerts for low-stock
+   quantities and critical expiration dates.
+4. Automate product inventory updates based on purchasing and sales transaction
+   processing.
+5. Generate comprehensive reports on sales, inventory status, purchase histories,
+   and expiring products to support management decision-making.
+
+Enhanced:
+
+D. Objectives of the Study
+
+General Objective
+
+In order to improve the organization of pharmacy records, stock monitoring, expiry
+tracking, and transaction management, the study aimed to design and develop a
+Web-Based Pharmacy Inventory and Sales Management System with Stock Monitoring
+and Expiry Tracking for small and medium-sized pharmacies.
+
+Specific Objectives
+
+The study aimed to:
+
+1. Create a web-based system that can record and manage medicine, category,
+   supplier, purchase, and inventory records.
+2. Implement stock monitoring that identifies recorded quantities, reorder levels,
+   low-stock items, and out-of-stock items.
+3. Record medicine expiry dates and provide expiry monitoring for near-expiry and
+   expired products.
+4. Process purchase and sales transactions and update recorded stock quantities
+   when transactions are saved.
+5. Support point-of-sale transactions, including product lookup, customer details,
+   payment-method recording, cashier recording, and transaction history.
+6. Support barcode-based product lookup through compatible scanner input or typed
+   barcode input.
+7. Generate inventory, sales, purchase, supplier, expiry, stock movement, valuation,
+   batch, forecasting, and compliance reports for management decision-making.
+8. Provide role-based access, audit records, and authorized-user controls for
+   pharmacy system operations.
+
+Reason for update:
+The original objectives describe inventory only. These revised objectives include
+the implemented purchase, sales, POS, barcode, reporting, and security functions.
+
+---------------------------------------------------------------------
+PAGE 4 - E. SCOPE AND DELIMITATION: SCOPE
+---------------------------------------------------------------------
+
+Old:
+
+E. Scope and Delimitation
+
+Scope
+
+The study focused on the development of a web-based pharmacy inventory management
+system intended for small and medium pharmacies. The system included the following
+features:
+
+a. User login and authentication
+b. Medicine inventory management
+c. Stock monitoring
+d. Expiry date tracking
+e. Low-stock alerts
+f. Report generation
+g. Dashboard for monitoring inventory status
+
+The system is accessible through computers with internet or local network
+connection.
+
+Enhanced:
+
+E. Scope and Delimitation
+
+Scope
+
+The study focused on the development of a web-based pharmacy inventory and sales
+management system intended for small and medium pharmacies. The system included
+the following features:
+
+a. User login, authentication, and role-based access control
+b. Medicine, category, supplier, purchase, and inventory management
+c. Stock monitoring and transaction-triggered stock quantity updates
+d. Expiry date tracking and expired-product monitoring
+e. Low-stock and out-of-stock identification
+f. Batch and lot number recording
+g. Barcode-based product lookup using compatible scanner or typed input
+h. Point-of-sale and sales transaction recording
+i. Prescription submission and manual status verification
+j. Stock movement and audit trail records
+k. Inventory, sales, purchase, supplier, expiry, valuation, batch, forecasting,
+   and compliance report generation
+l. Rule-based reorder suggestions and simple sales-based demand projections
+m. Mobile-responsive browser inventory checking
+n. Manual temperature reading and threshold monitoring
+o. Administrative dashboard for monitoring inventory and sales status
+
+The system is designed to be accessed through a web browser when the Laravel
+server is available through the configured local network or hosted connection.
+The system does not provide barcode-scanner hardware. Barcode lookup depends on
+compatible scanner input or typed barcode input.
+
+Reason for update:
+The code is not limited to inventory. It includes sales, POS, purchases, suppliers,
+barcode lookup, reports, audit logs, and other supporting workflows.
+
+---------------------------------------------------------------------
+PAGE 5 - E. SCOPE AND DELIMITATION: DELIMITATIONS
+---------------------------------------------------------------------
+
+Old:
+
+Delimitations
+
+These are the limitations of the study:
+
+a. The system is intended only for pharmacy inventory management.
+b. Online payment and e-commerce features are not included.
+c. The system depends on internet or local network connectivity.
+d. Barcode scanning are not be included unless additional hardware is available.
+e. The system is limited to authorized users such as admin and pharmacy staff.
+
+Enhanced:
+
+Delimitations
+
+These are the limitations of the study:
+
+a. The system supports pharmacy inventory, purchasing, sales, dispensing-related
+   transaction recording, and point-of-sale management. It does not include a full
+   accounting or general ledger module.
+b. Online payment processing, customer-facing e-commerce, and online ordering
+   features are not included.
+c. The system depends on internet or local network connectivity and server
+   availability for access and transaction synchronization.
+d. Barcode-based product lookup is supported through compatible external scanner
+   hardware or typed barcode input. The system does not provide the physical
+   barcode-scanner hardware, and camera-based scanning is not verified.
+e. The system is limited to authorized users assigned configured application
+   roles and permissions.
+f. The baseline system is intended for a single pharmacy and does not include
+   verified multi-branch management or external supplier, insurance, and billing
+   system integration.
+g. Prescription verification is a record and manual status workflow. The system
+   does not establish that prescription approval is required before every sale.
+h. Temperature monitoring is based on manually recorded readings. Sensor-based
+   automatic capture is not verified.
+i. Demand forecasting and reorder suggestions are rule-based calculations using
+   recorded sales and stock information, not a validated predictive model.
+
+Reason for update:
+The original limitations incorrectly exclude POS and barcode lookup. The revised
+version preserves the true limitations: no full accounting, online payments,
+e-commerce, hardware supply, camera scanning, sensor capture, or multi-branch
+operation.
+
+---------------------------------------------------------------------
+PAGE 5 - F. THEORETICAL FRAMEWORK
+---------------------------------------------------------------------
+
+Old:
+
+Inventory Management Theory explains the importance of controlling and monitoring
+stocks to maintain the right balance between supply and demand. In a pharmacy
+setting, proper inventory management ensures that medicines are available when
+needed while minimizing losses caused by expired or excess stocks. The system
+applied this theory by:
+
+a. Monitoring medicine quantities in real time
+b. Tracking stock movement
+c. Providing alerts for low stock and expired medicines
+d. Organizing medicine records systematically
+
+Enhanced:
+
+Inventory Management Theory explains the importance of controlling and monitoring
+stocks to maintain an appropriate balance between supply and demand. In a pharmacy
+setting, inventory management includes recording purchases and sales, monitoring
+stock quantities, tracking expiry information, and identifying replenishment needs.
+The system applies this theory by:
+
+a. Monitoring recorded medicine quantities when transactions are processed
+b. Tracking stock movement from purchase and sales activities
+c. Identifying low-stock, out-of-stock, near-expiry, and expired conditions
+   through available alerts and reports
+d. Organizing medicine, supplier, purchase, and sales records systematically
+e. Providing rule-based reorder suggestions using recorded stock and sales data
+
+Reason for update:
+Use "when transactions are processed" instead of "in real time" unless simultaneous
+multi-user synchronization has been tested and documented.
+
+---------------------------------------------------------------------
+PAGES 6-7 - G. CONCEPTUAL FRAMEWORK
+---------------------------------------------------------------------
+
+Old:
+
+The study follows the Input-Process-Output (IPO) Model as the conceptual framework
+of the system.
+
+Input:
+Software and Hardware Specs
+Pharmacy System Requirements
+Inventory and Expiry Datasets
+ISO 25010 Evaluation Criteria
+
+Process:
+Data Gathering and Analysis
+System Design and UML Modeling
+Coding and Development
+Testing and Implementation
+
+Output:
+Developed Web-Based Pharmacy Inventory Management System
+ISO 25010 Effectiveness
+
+Enhanced:
+
+The study follows the Input-Process-Output (IPO) Model as the conceptual framework
+of the system.
+
+1. Input
+
+The inputs of the study include:
+
+a. Software and hardware specifications
+b. Pharmacy inventory, purchasing, sales, supplier, and user requirements
+c. Product, stock, purchase, sales, expiry, and transaction datasets
+d. System security and role-permission requirements
+e. ISO 25010 evaluation criteria
+
+2. Process
+
+The system processes the data through:
+
+a. Data gathering and requirements analysis
+b. System design and database/UML modeling
+c. Coding and web application development
+d. Inventory, purchase, sales, POS, expiry, report, and user-permission integration
+e. Testing, evaluation, and implementation
+
+3. Output
+
+The expected outputs of the study are:
+
+a. A developed web-based pharmacy inventory and sales management system
+b. Stock, expiry, purchase, sales, supplier, and compliance reports
+c. Role-based access and audit records for authorized users
+d. Barcode-based product lookup through supported input devices
+e. ISO 25010 system evaluation results
+
+Reason for update:
+The original IPO description is acceptable, but the input, process, and output
+should represent the actual modules implemented in the code.
+
+---------------------------------------------------------------------
+PAGE 8 - H. SIGNIFICANCE OF THE STUDY
+---------------------------------------------------------------------
+
+Old:
+
+Pharmacy Owners - The system helped pharmacy owners monitor inventory accurately,
+reduce losses from expired medicines, and improve business operations.
+
+Pharmacy Staff - The system will reduce manual recording tasks, making inventory
+management faster and more efficient.
+
+Customers - Customers will benefit from improved pharmacy services and medicine
+availability.
+
+Future Researchers - The study may serve as a reference for future studies related
+to inventory management systems and healthcare technologies.
+
+Researchers - The study will enhance the researchers' knowledge and skills in web
+development, database management, and system analysis.
+
+Enhanced:
+
+Pharmacy Owners - The system may assist pharmacy owners in reviewing inventory,
+expiry, purchase, sales, supplier, and valuation information. Actual financial
+savings or productivity improvement require operational evaluation.
+
+Pharmacy Staff - The system is intended to reduce repeated manual recording by
+centralizing inventory, purchasing, sales, stock movement, expiry, and reporting
+records.
+
+Customers - The system is intended to support medicine availability and expiry
+monitoring through organized pharmacy records. It does not guarantee medicine
+availability, product safety, or clinical dispensing correctness.
+
+Future Researchers - The study may serve as a reference for future studies related
+to pharmacy inventory systems, transaction management, healthcare technologies,
+reporting, and web-based applications.
+
+Researchers - The study may enhance the researchers' knowledge and skills in web
+development, database management, system analysis, transaction processing, and
+software evaluation.
+
+Reason for update:
+The code demonstrates system functions, but it does not by itself prove actual
+financial savings, productivity improvement, patient safety, or medicine availability.
+
+---------------------------------------------------------------------
+PAGES 8-9 - I. OPERATIONAL DEFINITION OF TERMS
+---------------------------------------------------------------------
+
+Old:
+
+Inventory Management System - A computerized system used to organize, monitor,
+and control the storage and movement of medicines and pharmacy products.
+
+Stock Monitoring - The process of tracking the quantity and availability of
+medicines to avoid shortages or overstocking.
+
+Expiry Tracking - A feature that monitors the expiration dates of medicines to
+prevent the use or sale of expired products.
+
+Web-Based System - A system that operates through a web browser and can be
+accessed using the internet or a local network.
+
+Database - An organized collection of related data used for storing medicine
+records, transactions, and user information.
+
+Administrator - The authorized user responsible for managing the system, users,
+reports, and overall operations.
+
+Pharmacist - A licensed professional or system user who manages medicine inventory,
+stock updates, and expiry monitoring.
+
+Medicine Inventory - The complete list and record of medicines available in the
+pharmacy, including quantity, price, and expiration date.
+
+Report Generation - The process of creating inventory reports, stock summaries,
+and expiry reports from the system data.
+
+User Authentication - A security process that verifies the username and password
+of users before allowing access to the system.
+
+Enhanced:
+
+Inventory Management System - A web-based system used to organize medicine,
+supplier, purchase, sales, stock, expiry, and transaction records.
+
+Stock Monitoring - A system function that displays and checks recorded medicine
+quantities, reorder levels, stock movements, and low-stock conditions.
+
+Expiry Tracking - A system function that records and identifies medicine expiry
+dates and displays expiry-related information in product and report views. It
+supports the detection of expired products but does not by itself guarantee that
+every expired-product sale is prevented.
+
+Web-Based System - A system accessed through a web browser when the Laravel server
+is available through the configured local network or hosted connection.
+
+Database - An organized collection of related data used to store medicine,
+purchase, sales, stock movement, supplier, user, prescription, temperature, and
+audit records.
+
+Administrator - An authorized user assigned permissions to manage configured
+system functions, users, reports, and operational records.
+
+Pharmacist - An authorized pharmacy user who may be assigned permissions to perform
+configured inventory, sales, dispensing-related, or expiry-monitoring tasks. The
+system does not verify a separate pharmacist role unless one is configured by the
+administrator.
+
+Medicine Inventory - The recorded list of medicines and pharmacy products,
+including quantities, prices, suppliers, batch information, and expiry dates.
+
+Report Generation - A system function that displays inventory, sales, purchase,
+supplier, expiry, stock movement, valuation, batch, forecasting, and compliance
+information and supports CSV export for configured reports.
+
+User Authentication - A security process that verifies a user's login credentials
+before allowing access to protected system functions.
+
+Barcode Lookup - A system function that searches for a product using its stored
+barcode through compatible scanner input or typed barcode input.
+
+Point-of-Sale Transaction - A recorded pharmacy sales transaction containing the
+selected product, quantity, price, customer or transaction information, payment
+method, and authorized user details.
+
+Reason for update:
+These definitions now describe the implemented system without claiming pharmacist-
+specific authorization, automatic clinical enforcement, public Internet deployment,
+or guaranteed prevention of every expired-product sale.
+
+======================================================================
+FINAL CHECKLIST BEFORE SUBMITTING THE UPDATED CHAPTER 1
+======================================================================
+
+[ ] Replace the old Introduction with the Enhanced version on page 1.
+[ ] Replace the old Background of the Study with the Enhanced version on page 2.
+[ ] Replace the Statement of the Problem and research questions on page 3.
+[ ] Replace the General and Specific Objectives on pages 3-4.
+[ ] Replace the Scope and Delimitations on pages 4-5.
+[ ] Update the Inventory Management Theory wording on page 5.
+[ ] Update the IPO inputs, processes, and outputs on pages 6-7.
+[ ] Revise the Significance of the Study on page 8.
+[ ] Revise the Operational Definition of Terms on pages 8-9.
+[ ] Check that all references to "real-time," "guarantee," "prevents," and
+    "pharmacist" match the actual tested behavior and configured user roles.
+[ ] Confirm the final document title. Recommended title:
+    Web-Based Pharmacy Inventory and Sales Management System with Stock Monitoring
+    and Expiry Tracking
+
+END OF FINAL UPDATE GUIDE

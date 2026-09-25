@@ -1,16 +1,19 @@
 <!-- Header -->
-<div class="header">
+<div class="header" id="admin-header" data-turbo-permanent>
 			
 	<!-- Logo -->
 	<div class="header-left">
 		@php
 			$logoPath = AppSettings::get('logo');
-			$logoUrl = !empty($logoPath)
+			$customLogo = !empty($logoPath)
 				? asset('storage/' . $logoPath) . (file_exists(public_path('storage/' . $logoPath)) ? '?v=' . filemtime(public_path('storage/' . $logoPath)) : '')
-				: asset('assets/img/logo-white.png');
+				: null;
+			$lightLogo = asset('assets/img/logo.png');
+			$darkLogo = asset('assets/img/logo-white.png');
+			$logoUrl = $customLogo ?: $lightLogo;
 		@endphp
 		<a href="{{route('dashboard')}}" class="logo">
-			<img src="{{ $logoUrl }}" alt="Logo">
+			<img id="site-logo" src="{{ $logoUrl }}" alt="Logo" width="180" height="50" data-custom-logo="{{ $customLogo }}" data-light-logo="{{ $lightLogo }}" data-dark-logo="{{ $darkLogo }}">
 		</a>
 		<a href="{{route('dashboard')}}" class="logo logo-small">
 			<img src="{{asset('assets/img/logo-small.png')}}" alt="Logo" width="30" height="30">
@@ -18,13 +21,34 @@
 	</div>
 	<!-- /Logo -->
 	
-	<a href="javascript:void(0);" id="toggle_btn">
-		<i class="fe fe-text-align-left"></i>
+	<a href="javascript:void(0);" id="toggle_btn" aria-label="Toggle sidebar" aria-expanded="true">
+		<span class="sidebar-toggle-icon" aria-hidden="true">
+			<span></span>
+			<span></span>
+			<span></span>
+		</span>
 	</a>
 
-	<button type="button" id="dashboardThemeToggle" class="theme-switch-btn" aria-label="Toggle night mode">
-		<span class="toggle-icon">🌙</span>
-		<span class="toggle-text">Night Mode</span>
+	<button type="button" id="dashboardThemeToggle" class="theme-switch-btn" role="switch" aria-checked="false" aria-label="Switch to dark mode">
+		<svg class="theme-switch-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+			<defs>
+				<mask id="dashboardThemeMoonMask">
+					<rect width="24" height="24" fill="white" />
+					<circle class="theme-switch-mask" cx="24" cy="0" r="9" fill="black" />
+				</mask>
+			</defs>
+			<circle class="theme-switch-sun" cx="12" cy="12" r="5" mask="url(#dashboardThemeMoonMask)" />
+			<g class="theme-switch-rays" stroke="currentColor">
+				<line x1="12" y1="1" x2="12" y2="3" />
+				<line x1="12" y1="21" x2="12" y2="23" />
+				<line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+				<line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+				<line x1="1" y1="12" x2="3" y2="12" />
+				<line x1="21" y1="12" x2="23" y2="12" />
+				<line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+				<line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+			</g>
+		</svg>
 	</button>
 	
 	<!-- Mobile Menu Toggle -->
@@ -39,7 +63,7 @@
 			<span class="nav-link p-0 text-muted" id="header-current-datetime">Loading current time...</span>
 		</li>
 		<li class="nav-item dropdown">
-			<a href="#" data-target="#add_sales" title="make a sale" data-toggle="modal" class="dropdown-toggle nav-link">
+			<a href="#" data-target="#add_sales" title="make a sale" data-toggle="modal" data-turbo="false" class="nav-link">
 				<i class="fas fa-clipboard"></i>
 			</a>
 		</li>
@@ -61,7 +85,18 @@
 								<a href="{{route('read')}}">
 									<div class="media">
 										<span class="avatar avatar-sm">
-											<img class="avatar-img rounded-circle" alt="Product image" src="{{asset('storage/purchases/'.$notification['image'])}}">
+											@php
+												$notificationImage = $notification->data['image'] ?? null;
+													$imagePath = $notificationImage ? storage_path('app/system/purchases/'.$notificationImage) : null;
+													if ($notificationImage && !file_exists($imagePath)) $imagePath = storage_path('app/purchases/'.$notificationImage);
+											@endphp
+											@if(!empty($notificationImage) && file_exists($imagePath))
+													<img class="avatar-img rounded-circle" alt="Product image" src="{{ url('storage/system/purchases/'.$notificationImage) }}">
+											@else
+												<span class="avatar-title rounded-circle bg-light text-muted">
+													<i class="fe fe-box"></i>
+												</span>
+											@endif
 										</span>
 										<div class="media-body">
 											<h6 class="text-danger">Stock Alert</h6>
@@ -88,14 +123,21 @@
 		<!-- /Notifications -->
 		
 		<!-- User Menu -->
+		@php
+			$currentUserAvatar = auth()->user()->hasRole('super-admin')
+				? asset('assets/img/ADMIN.jpg')
+					: (!empty(auth()->user()->avatar)
+						? (in_array(auth()->user()->avatar, ['femaleperson.jpg', 'maleperson.jpg'], true) ? asset('assets/img/'.auth()->user()->avatar) : url('storage/system/profiles/'.auth()->user()->avatar))
+						: (in_array(strtolower((string) auth()->user()->gender), ['male', 'female'], true) ? asset('assets/img/'.strtolower(auth()->user()->gender).'person.jpg') : asset('assets/img/avatar.png')));
+		@endphp
 		<li class="nav-item dropdown has-arrow">
 			<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-				<span class="user-img"><img class="rounded-circle" src="{{!empty(auth()->user()->avatar) ? asset('storage/users/'.auth()->user()->avatar): asset('assets/img/avatar.png')}}" width="31" alt="avatar"></span>
+				<span class="user-img"><img class="rounded-circle" src="{{$currentUserAvatar}}" width="31" alt="avatar"></span>
 			</a>
 			<div class="dropdown-menu">
 				<div class="user-header">
 					<div class="avatar avatar-sm">
-						<img src="{{!empty(auth()->user()->avatar) ? asset('storage/users/'.auth()->user()->avatar): asset('assets/img/avatar.png')}}" alt="User Image" class="avatar-img rounded-circle">
+						<img src="{{$currentUserAvatar}}" alt="User Image" class="avatar-img rounded-circle">
 					</div>
 					<div class="user-text">
 						<h6>{{auth()->user()->name}}</h6>
@@ -118,3 +160,21 @@
 	
 </div>
 <!-- /Header -->
+
+<script>
+	(function () {
+		var root = document.documentElement;
+		var isDark = root.classList.contains('dark-mode');
+		var logo = document.getElementById('site-logo');
+		var toggle = document.getElementById('dashboardThemeToggle');
+
+		if (logo && isDark) {
+			logo.src = logo.getAttribute('data-dark-logo') || logo.src;
+		}
+		if (toggle) {
+			toggle.classList.toggle('is-dark', isDark);
+			toggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
+			toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+		}
+	})();
+</script>

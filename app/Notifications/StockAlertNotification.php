@@ -8,11 +8,40 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 
-class StockAlertNotification extends Notification
+/**
+ * Stock-low / out-of-stock alert sent to every user.
+ *
+ * This notification runs through the queue (ShouldQueue) so it never
+ * blocks the request that triggered it — i.e. the POS Save click. The
+ * previous version shipped a real SMTP email inside the Sales
+ * transaction, which made Save hang for the full SMTP timeout when the
+ * mail server was slow or unreachable, and turned the Stock Alert into
+ * a hot-button bug for cashiers who couldn't see their receipt toast.
+ *
+ * Even with `ShouldQueue`, when the queue driver is `sync` (the default
+ * in `.env`) the job still runs inline, so the `mail` channel was
+ * dropped from `via()` for the time being. The notification now writes
+ * a `database` row (visible on the bell-icon dropdown) and a `broadcast`
+ * event for any subscribed websockets. Re-add `mail` once a real queue
+ * worker is running.
+ */
+class StockAlertNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private $data;
+    /**
+     * Notification payload.
+     *
+     * `$data` carries the purchase row (or whatever the listener passes),
+     * and `$status` is one of `low_stock` | `out_of_stock`. Both must be
+     * declared as class properties — PHP 8.2 promotes dynamic-property
+     * creation to E_DEPRECATED, and with Laravel's ErrorHandler turning
+     * deprecations into ErrorException, the queued-toMail path crashes
+     * with "Undefined property" the moment the notification tries to
+     * serialize `started_at` for queue storage.
+     */
+    public $data;
+    public $status;
 
     /**
      * Create a new notification instance.
@@ -28,12 +57,21 @@ class StockAlertNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
+     * `mail` is intentionally *not* in this list: when the queue driver is
+     * `sync` (the default in `.env`), `ShouldQueue` jobs still run inline,
+     * and a synchronous SMTP send inside the POS Save click was the
+     * root cause of "Save takes very long to progress a purchase" — the
+     * SMTP server (or its absence) would block the request for its full
+     * timeout. The stock alert is purely an internal notification now;
+     * admins who want email can wire `mail` back in once a real queue
+     * worker is running.
+     *
      * @param  mixed  $notifiable
      * @return array
      */
     public function via($notifiable)
     {
-        return ['mail','database','broadcast'];
+        return ['database','broadcast'];
     }
 
     /**

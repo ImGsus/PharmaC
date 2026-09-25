@@ -9,32 +9,17 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{{route('sales.store')}}">
-                    @csrf
-                    <div class="row form-row">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>Product <span class="text-danger">*</span></label>
-                                <select class="select2 form-select form-control" name="product"> 
-                                    @foreach (\App\Models\Product::get() as $product)
-                                        @if (!empty($product->purchase))
-                                            @if (!($product->purchase->quantity <= 0))
-                                                <option value="{{$product->id}}">{{$product->purchase->product}}</option>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>Quantity</label>
-                                <input type="number" value="1" class="form-control" name="quantity">
-                            </div>
+                <div class="row form-row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Choose <span class="text-danger">*</span></label>
+                            <select class="form-select form-control" disabled>
+                                <option selected>POS</option>
+                            </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
-                </form>
+                </div>
+                <a href="{{ route('pos.orders') }}" class="btn btn-primary btn-block">Go</a>
             </div>
         </div>
     </div>

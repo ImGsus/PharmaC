@@ -1,0 +1,346 @@
+FINAL UPDATE GUIDE 2
+Chapter II: Review of Related Literature and Studies
+Pages 13-18
+
+Purpose
+This guide focuses on the exact section that starts on Page 13 and continues until Page 18 of Chapter II. The wording in these pages should match the actual Laravel pharmacy system and should not exceed what the implemented code can support.
+
+======================================================================
+FIRST: LIST OF WHAT NEEDS TO CHANGE
+======================================================================
+
+1. Page 13-14: revise the local studies discussion so it does not sound like a verified finding of the study. It should describe possible pharmacy conditions, not proven local losses.
+
+2. Page 13-14: replace absolute statements about expired stock, financial losses, and local system conditions with careful wording such as "may contribute" and "should be supported by local evidence."
+
+3. Page 15: qualify statements about customer service and consultation time. The system supports prescription records and verification workflow, but it does not replace pharmacist judgment.
+
+4. Page 15-17: keep the synthesis grounded in the code: inventory, purchasing, sales, stock movement, batch tracking, barcode lookup, POS workflow, low-stock monitoring, reorder suggestions, audit logs, and internal compliance exception reports.
+
+5. Page 15-18: remove claims that the system guarantees regulatory compliance, establishes an immutable audit trail, or meets international standards unless this is proven through separate formal evaluation.
+
+6. Page 13-18: use wording like "may support," "supports internal review," and "transaction-triggered updates" instead of absolute phrases like "prevents," "ensures," and "guarantees."
+
+======================================================================
+PAGE 13 - REVIEW OF RELATED LITERATURE AND STUDIES
+======================================================================
+
+Old:
+This chapter presents the related literature and studies relevant to the
+development of the Web-Based Pharmacy Inventory and Sales Management System
+with Stock Monitoring and Expiry Tracking. It includes information from books,
+journals, official publications, websites, and previous studies related to
+pharmacy inventory management, purchasing, sales and point-of-sale transactions,
+stock movement, expiry tracking, barcode-based lookup, reporting, and web-based
+technologies.
+
+The purpose of this chapter is to establish the concepts and practices that
+support the proposed system. The reviewed sources provide a basis for organizing
+medicine, supplier, purchase, sales, stock, expiry, and reporting records. They
+also help explain the relevance of role-based access, audit records, batch
+information, low-stock monitoring, rule-based reorder suggestions, and short-term
+demand estimates based on recorded sales.
+
+The proposed system is an operational support tool. Its implementation does not
+independently guarantee regulatory compliance, medicine safety, clinical
+prescription decisions, financial improvement, or real-time synchronization
+across devices.
+
+Enhanced:
+This chapter presents the related literature and studies relevant to the
+development of the Web-Based Pharmacy Inventory and Sales Management System
+with Stock Monitoring and Expiry Tracking. It includes information from books,
+journals, official publications, websites, and previous studies related to
+pharmacy inventory management, purchasing, sales and point-of-sale transactions,
+stock movement, expiry tracking, barcode-based lookup, reporting, and web-based
+technologies.
+
+The purpose of this chapter is to establish the concepts and practices that
+support the proposed system. The reviewed sources provide a basis for organizing
+medicine, supplier, purchase, sales, stock, expiry, and reporting records. They
+also help explain the relevance of role-based access, audit records, batch
+information, low-stock monitoring, rule-based reorder suggestions, and short-term
+demand estimates based on recorded sales.
+
+The proposed system is an operational support tool. Its implementation supports
+inventory tracking, purchasing, sales recording, stock movement, expiry monitoring,
+report generation, and audit logging, but it does not independently guarantee
+regulatory compliance, medicine safety, clinical prescription decisions, financial
+improvement, or real-time synchronization across devices.
+
+Reason:
+The code supports inventory, supplier, purchase, sales, stock movement, expiry,
+barcode lookup, POS transactions, reports, user access control, and audit logs. It
+is accurate to describe the system as an operational support tool rather than a
+system that guarantees compliance or medical outcomes.
+
+======================================================================
+PAGE 14 - A. FOREIGN LITERATURE
+======================================================================
+
+Old:
+Foreign literature regarding pharmaceutical operations commonly emphasizes the
+importance of accurate storage records, expiry-date monitoring, product
+traceability, and timely review of stock conditions. These practices help
+pharmacy personnel identify records that may require attention and support the
+proper management of pharmaceutical products.
+
+The proposed system addresses these operational concerns through product and
+purchase records, batch-number fields, expiry-date records, stock-movement
+records, low-stock indicators, expiry reports, and an internal compliance
+exception report. It also provides rule-based reorder suggestions and short-term
+demand estimates calculated from recorded sales history.
+
+These functions should be understood as operational support features. They do
+not independently certify drug potency, guarantee product safety, replace
+pharmacist judgment, or constitute official regulatory reporting. The system
+updates stock records when purchase or sales transactions are saved and produces
+reports when requested; this should not be described as continuous real-time
+data synchronization unless that behavior has been separately tested.
+
+Enhanced:
+Foreign literature regarding pharmaceutical operations commonly emphasizes the
+importance of accurate storage records, expiry-date monitoring, product
+traceability, and timely review of stock conditions. These practices help
+pharmacy personnel identify records that may require attention and support the
+proper management of pharmaceutical products.
+
+The proposed system addresses these operational concerns through product and
+purchase records, batch-number fields, expiry-date records, stock-movement
+records, low-stock indicators, expiry reports, and an internal compliance
+exception report. It also provides rule-based reorder suggestions and short-term
+demand estimates calculated from recorded sales history.
+
+These functions should be understood as operational support features. They do
+not independently certify drug potency, guarantee product safety, replace
+pharmacist judgment, or constitute official regulatory reporting. The system
+updates stock records when purchase or sales transactions are saved and produces
+reports when requested; this should not be described as continuous real-time
+data synchronization unless that behavior has been separately tested.
+
+Reason:
+This is consistent with the code. The system records purchase and sales data,
+handles expiry, batch, and low-stock conditions, and generates reports through the
+reporting module. However, there is no code that proves official regulatory
+reporting, product safety certification, or continuous real-time synchronization.
+
+======================================================================
+PAGE 14 - B. FOREIGN STUDIES
+======================================================================
+
+Old:
+International studies on health informatics commonly examine the transition from
+manual pharmaceutical tracking to digital information systems. These studies may
+report that centralized systems can reduce repeated manual recording and improve
+access to inventory and transaction information when the systems are properly
+designed, implemented, and used.
+
+In the proposed system, medicine, supplier, purchase, sales, stock movement,
+batch, expiry, and user records are stored in a centralized Laravel application.
+The system can identify selected low-stock, expiry, traceability, and stock-
+movement conditions through reports and internal notifications. It also supports
+POS and sales recording, barcode-based product lookup, and CSV report export.
+
+These functions may support operational control, but they do not eliminate human
+error, guarantee that expired products cannot be sold, establish regulatory
+compliance, or demonstrate financial improvement without operational and financial
+evaluation. The implementation provides transaction-triggered stock updates and
+on-demand reports rather than verified continuous real-time monitoring.
+
+Enhanced:
+International studies on health informatics commonly examine the transition from
+manual pharmaceutical tracking to digital information systems. These studies may
+report that centralized systems can reduce repeated manual recording and improve
+access to inventory and transaction information when the systems are properly
+designed, implemented, and used.
+
+In the proposed system, medicine, supplier, purchase, sales, stock movement,
+batch, expiry, and user records are stored in a centralized Laravel application.
+The system can identify selected low-stock, expiry, traceability, and stock-
+movement conditions through reports and internal notifications. It also supports
+POS and sales recording, barcode-based product lookup, and CSV report export.
+
+These functions may support operational control, but they do not eliminate human
+error, guarantee that expired products cannot be sold, establish regulatory
+compliance, or demonstrate financial improvement without operational and financial
+evaluation. The implementation provides transaction-triggered stock updates and
+on-demand reports rather than verified continuous real-time monitoring.
+
+Reason:
+This wording reflects the actual features in the system. The application supports
+stock movement tracking, sale records, barcode lookup, low-stock conditions,
+reports, and notification-related logic, but no evidence in the code proves full
+regulatory compliance or real-time synchronization.
+
+======================================================================
+PAGE 15 - C. LOCAL LITERATURE
+======================================================================
+
+Old:
+Within the Philippines, pharmacy operations may be guided by applicable laws,
+regulations, and official requirements concerning product registration, storage,
+recordkeeping, traceability, and expiry monitoring. The proposed system supports
+these administrative concerns by recording product and supplier information,
+purchase records, batch numbers, expiry dates, stock movements, and selected
+audit events.
+
+The system also provides an internal compliance exception report that can identify
+selected missing or potentially problematic records, such as missing batch
+numbers, missing barcodes, missing expiry information, expired stock, and low-stock
+conditions. These functions may assist internal review, but they should not be
+described as automatic compliance with Philippine FDA requirements or as an
+official regulatory submission.
+
+The audit feature records selected authenticated write requests, including user,
+action, route, method, IP address, and request metadata. It should be described
+as an application audit log. The reviewed implementation does not establish a
+cryptographically immutable audit trail, append-only enforcement, complete
+field-level before-and-after history, or official inspection documentation.
+
+Enhanced:
+Within the Philippines, pharmacy operations may be guided by applicable laws,
+regulations, and official requirements concerning product registration, storage,
+recordkeeping, traceability, and expiry monitoring. The proposed system supports
+these administrative concerns by recording product and supplier information,
+purchase records, batch numbers, expiry dates, stock movements, and selected
+audit events.
+
+The system also provides an internal compliance exception report that can identify
+selected missing or potentially problematic records, such as missing batch
+numbers, missing barcodes, missing expiry information, expired stock, and low-stock
+conditions. These functions may assist internal review, but they should not be
+described as automatic compliance with Philippine FDA requirements or as an
+official regulatory submission.
+
+The audit feature records selected authenticated write requests, including user,
+action, route, method, IP address, and request metadata. It should be described
+as an application audit log. The reviewed implementation does not establish a
+cryptographically immutable audit trail, append-only enforcement, complete
+field-level before-and-after history, or official inspection documentation.
+
+Reason:
+The code clearly includes purchase records, batch information, expiry dates,
+stock movement, and selected audit logging. However, it does not prove official
+FDA compliance or a cryptographically immutable audit trail, so the wording should
+remain limited to internal monitoring and review support.
+
+======================================================================
+PAGE 16 - D. LOCAL STUDIES
+======================================================================
+
+Old:
+In the Philippine setting, studies of pharmacy inventory modernization may examine
+how small and medium-sized pharmacies manage stock, purchases, sales, and expiry
+information. Some pharmacy operations may continue to use paper-based or
+spreadsheet-based records, depending on their available resources and existing
+procedures. Manual recording may increase the possibility of delayed updates,
+inconsistent records, and overlooked expiry information.
+
+Expired or unsold stock may contribute to product waste and financial loss;
+however, the extent of this problem should be supported by verified local
+empirical studies, pharmacy records, or field data. Localized web-based solutions
+may be considered for smaller pharmacies, but their cost-effectiveness and
+suitability should be evaluated according to deployment cost, hardware
+requirements, connectivity, maintenance, training, and user acceptance.
+
+Enhanced:
+In the Philippine setting, studies of pharmacy inventory modernization may examine
+how small and medium-sized pharmacies manage stock, purchases, sales, and expiry
+information. Some pharmacy operations may continue to use paper-based or
+spreadsheet-based records, depending on their available resources and existing
+procedures. Manual recording may increase the possibility of delayed updates,
+inconsistent records, and overlooked expiry information.
+
+Expired or unsold stock may contribute to product waste and financial loss;
+however, the extent of this problem should be supported by verified local
+empirical studies, pharmacy records, or field data. Localized web-based solutions
+may be considered for smaller pharmacies, but their cost-effectiveness and
+suitability should be evaluated according to deployment cost, hardware
+requirements, connectivity, maintenance, training, and user acceptance.
+
+Reason:
+This is a careful academic wording that remains faithful to the code. The system
+records pharmacy transactions and stock movements, but it does not prove how all
+local pharmacies actually operate or quantify financial loss in a verified local
+setting.
+
+======================================================================
+PAGE 17 - E. SYNTHESIS
+======================================================================
+
+Old:
+The reviewed foreign and local literature and studies indicate that organized
+digital records may support pharmacy inventory control, expiry monitoring,
+transaction recording, and operational decision-making. Foreign sources provide
+theoretical and technical context for information systems, inventory management,
+user acceptance, and pharmaceutical recordkeeping. Local sources provide context
+for the needs of Philippine pharmacies, subject to verification of the specific
+regulations, studies, and operational conditions cited.
+
+The proposed system applies these concepts through a centralized web-based
+application that integrates medicine, supplier, purchase, sales, stock movement,
+batch, expiry, user-permission, and report records. It provides barcode-based
+product lookup, POS and sales recording, low-stock and expiry monitoring, a
+rule-based reorder suggestion, short-term demand estimates based on recorded
+sales, prescription status records, manual temperature logs, application audit
+logs, and internal compliance exception reports.
+
+Enhanced:
+The reviewed foreign and local literature and studies indicate that organized
+digital records may support pharmacy inventory control, expiry monitoring,
+transaction recording, and operational decision-making. Foreign sources provide
+theoretical and technical context for information systems, inventory management,
+user acceptance, and pharmaceutical recordkeeping. Local sources provide context
+for the needs of Philippine pharmacies, subject to verification of the specific
+regulations, studies, and operational conditions cited.
+
+The proposed system applies these concepts through a centralized web-based
+application that integrates medicine, supplier, purchase, sales, stock movement,
+batch, expiry, user-permission, and report records. It provides barcode-based
+product lookup, POS and sales recording, low-stock and expiry monitoring, a
+rule-based reorder suggestion, short-term demand estimates based on recorded
+sales, prescription status records, manual temperature logs, application audit
+logs, and internal compliance exception reports.
+
+The reorder and demand-estimation functions are based on configured stock
+thresholds and recorded sales history. The compliance report identifies selected
+internal data exceptions and does not certify compliance with Philippine FDA
+requirements. The application audit log does not by itself establish an immutable
+or complete regulatory audit trail. The system may support evidence-informed
+operational decisions, but its usability, cost-effectiveness, local suitability,
+regulatory alignment, and contribution to pharmacy performance should be assessed
+through technical, usability, cost, and operational evaluation.
+
+Reason:
+The code supports the major features written in this section, especially inventory
+records, POS and sales, barcode lookup, low-stock and expiry checks, reorder
+suggestions, and audit logging. The chapter should present these as operational
+support functions rather than as proof of full regulatory compliance or international
+standard conformance.
+
+======================================================================
+PAGE 18 - CONTINUATION OF SYNTHESIS
+======================================================================
+
+Old:
+The literature and implementation together provide an academic and practical
+basis for developing a web-based pharmacy inventory and sales management system
+with stock monitoring and expiry tracking. The system should not be described as
+meeting international standards unless the study identifies the standards and
+maps the implementation to their specific requirements.
+
+Enhanced:
+The literature and implementation together provide an academic and practical
+basis for developing a web-based pharmacy inventory and sales management system
+with stock monitoring and expiry tracking. The system should not be described as
+meeting international standards unless the study identifies the standards and
+maps the implementation to their specific requirements.
+
+Reason:
+This keeps the final claim accurate. The code proves implemented features, but it
+does not demonstrate complete conformance to all international standards or formal
+regulatory certification.
+
+======================================================================
+END OF FINAL UPDATE GUIDE 2
+======================================================================

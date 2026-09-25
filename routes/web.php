@@ -18,6 +18,14 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\PosController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\PrescriptionController;
+use App\Http\Controllers\Admin\TemperatureController;
+use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\InventoryCheckController;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,8 +37,9 @@ use App\Http\Controllers\Admin\SupplierController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::middleware(['auth'])->group(function(){
+Route::middleware(['auth', 'audit'])->group(function(){
     Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
+    Route::get('dashboard/resources',[DashboardController::class,'resources'])->name('dashboard.resources');
     Route::get('home', function(){
         return redirect()->route('dashboard');
     });
@@ -40,7 +49,14 @@ Route::middleware(['auth'])->group(function(){
     Route::get('profile',[UserController::class,'profile'])->name('profile');
     Route::post('profile/{user}',[UserController::class,'updateProfile'])->name('profile.update');
     Route::put('profile/update-password/{user}',[UserController::class,'updatePassword'])->name('update-password');
+    Route::post('profile/two-factor/send',[UserController::class,'sendTwoFactorCode'])->name('two-factor.send');
+    Route::post('profile/two-factor/enable',[UserController::class,'enableTwoFactor'])->name('two-factor.enable');
+    Route::post('profile/two-factor/disable',[UserController::class,'disableTwoFactor'])->name('two-factor.disable');
     Route::post('logout',[LogoutController::class,'index'])->name('logout');
+    Route::get('verify-account',[RegisterController::class,'choice'])->name('verification.choice');
+    Route::post('verify-account/send',[RegisterController::class,'sendCode'])->name('verification.send');
+    Route::get('verify-account/code',[RegisterController::class,'form'])->name('verification.form');
+    Route::post('verify-account/code',[RegisterController::class,'verify'])->name('verification.verify');
 
     Route::resource('users',UserController::class);
     Route::resource('permissions',PermissionController::class)->only(['index','store','destroy']);
@@ -49,25 +65,74 @@ Route::middleware(['auth'])->group(function(){
     Route::resource('suppliers',SupplierController::class);
     Route::resource('categories',CategoryController::class)->only(['index','store','destroy']);
     Route::put('categories',[CategoryController::class,'update'])->name('categories.update');
+    Route::delete('purchases/bulk-delete',[PurchaseController::class,'bulkDestroy'])->name('purchases.bulk-destroy');
+    Route::delete('purchases/supplier/{supplier}/delete',[PurchaseController::class,'destroySupplier'])->name('purchases.supplier-destroy');
     Route::resource('purchases',PurchaseController::class)->except('show');
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
     Route::resource('products',ProductController::class)->except('show');
+    Route::post('products/{product}/status',[ProductController::class,'toggleStatus'])->name('products.toggle-status');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
-    Route::get('products/scan',[ProductController::class,'scan'])->name('products.scan');
-    Route::post('products/scan',[ProductController::class,'lookupByBarcode'])->name('products.lookup');
-    Route::get('products/scan/result',[ProductController::class,'lookupByBarcodeGet'])->name('products.lookup.get');
     Route::resource('sales',SaleController::class)->except('show');
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
 
+    Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show');
+
+    Route::get('prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+    Route::post('prescriptions', [PrescriptionController::class, 'store'])->name('prescriptions.store');
+    Route::patch('prescriptions/{prescription}/status', [PrescriptionController::class, 'updateStatus'])->name('prescriptions.status');
+    Route::get('temperature', [TemperatureController::class, 'index'])->name('temperature.index');
+    Route::post('temperature', [TemperatureController::class, 'store'])->name('temperature.store');
+    Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('inventory-check', [InventoryCheckController::class, 'index'])->name('inventory-check.index');
+
+    // POS / Cashier (PharMac-styled) — replaces the old Webby barcode scanner
+    Route::get('pos/orders',           [PosController::class, 'index'])->name('pos.orders');
+    Route::get('pos/orders/history',   [PosController::class, 'history'])->name('pos.orders.history');
+    Route::get('pos/orders/orders',    [PosController::class, 'ordersList'])->name('pos.orders.list');
+    Route::get('pos/orders/report',    [PosController::class, 'report'])->name('pos.orders.report');
+    Route::post('pos/orders/scan',     [PosController::class, 'scan'])->name('pos.orders.scan');
+    Route::get('pos/orders/{sale}/receipt', [PosController::class, 'receipt'])->name('pos.orders.receipt');
+
+    // POS sessions (cashier shift timer)
+    Route::post('pos/session/start',   [PosController::class, 'sessionStart'])->name('pos.session.start');
+    Route::post('pos/session/end',     [PosController::class, 'sessionEnd'])->name('pos.session.end');
+    Route::get('pos/session/history',  [PosController::class, 'sessionHistory'])->name('pos.session.history');
+
     Route::get('backup', [BackupController::class,'index'])->name('backup.index');
+    Route::get('archive', [BackupController::class,'archiveIndex'])->name('archive.index');
     Route::put('backup/create', [BackupController::class,'create'])->name('backup.store');
-    Route::get('backup/download/{file_name?}', [BackupController::class,'download'])->name('backup.download');
-    Route::delete('backup/delete/{file_name?}', [BackupController::class,'destroy'])->where('file_name', '(.*)')->name('backup.destroy');
+    Route::post('backup/import', [BackupController::class,'importBundle'])->name('backup.import');
+    Route::get('backup/download', [BackupController::class,'download'])->name('backup.download');
+    Route::delete('backup/delete', [BackupController::class,'destroy'])->name('backup.destroy');
+    Route::post('backup/archive/{archive}/recover', [BackupController::class,'recoverArchive'])->name('backup.archive.recover');
+    Route::delete('backup/archive/{archive}', [BackupController::class,'destroyArchive'])->name('backup.archive.destroy');
+    Route::post('backup/archive/generic/{archive}/recover', [BackupController::class,'restoreGenericArchive'])->name('backup.archive.generic.recover');
+    Route::delete('backup/archive/generic/{archive}', [BackupController::class,'destroyGenericArchive'])->name('backup.archive.generic.destroy');
 
     Route::get('settings',[SettingController::class,'index'])->name('settings');
+
+    Route::get('storage/system/{folder}/{filename}', function ($folder, $filename) {
+        abort_unless(in_array($folder, ['purchases', 'profiles', 'prescriptions'], true), 404);
+        abort_if($filename === '' || basename($filename) !== $filename, 404);
+        $path = storage_path('app/system/'.$folder.'/'.$filename);
+        if (!is_file($path)) {
+            $legacyPath = $folder === 'purchases'
+                ? storage_path('app/purchases/'.$filename)
+                : ($folder === 'profiles' ? public_path('storage/users/'.$filename) : public_path('storage/prescriptions/'.$filename));
+            $path = is_file($legacyPath) ? $legacyPath : null;
+        }
+        abort_unless($path, 404);
+        return Response::file($path);
+    })->where(['folder' => 'purchases|profiles|prescriptions', 'filename' => '[A-Za-z0-9_.\-]+']);
+
+    Route::get('storage/purchases/{filename}', function ($filename) {
+        return redirect('storage/system/purchases/'.$filename, 301);
+    })->where('filename', '[A-Za-z0-9_.\-]+');
 });
 
 Route::middleware(['guest'])->group(function () {
@@ -77,6 +142,7 @@ Route::middleware(['guest'])->group(function () {
 
     Route::get('login',[LoginController::class,'index'])->name('login');
     Route::post('login',[LoginController::class,'login']);
+    Route::post('login/two-factor',[LoginController::class,'verifyTwoFactor'])->name('login.two-factor');
 
     Route::get('register',[RegisterController::class,'index'])->name('register');
     Route::post('register',[RegisterController::class,'store']);

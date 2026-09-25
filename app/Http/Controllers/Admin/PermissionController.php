@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
+use App\Services\ArchiveService;
 
 class PermissionController extends Controller
 {
@@ -25,16 +26,15 @@ class PermissionController extends Controller
                         return date_format(date_create($row->created_at),'D M Y');
                     })
                     ->addColumn('action',function ($row){
-                        $editbtn = '<a data-id="'.$row->id.'" data-name="'.$row->name.'" href="javascript:void(0)" class="editbtn"><button class="btn btn-primary"><i class="fa fa-edit"></i></button></a>';
-                        $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('permissions.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn"><button class="btn btn-danger"><i class="fa fa-trash"></i></button></a>';
+                        $editbtn = '<a data-id="'.$row->id.'" data-name="'.$row->name.'" href="javascript:void(0)" class="dropdown-item editbtn"><i class="fa fa-edit mr-2"></i>Edit</a>';
+                        $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('permissions.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fa fa-trash mr-2"></i>Delete</a>';
                         if(!auth()->user()->hasPermissionTo('edit-permission')){
                             $editbtn = '';
                         }
                         if(!auth()->user()->hasPermissionTo('destroy-permission')){
                             $deletebtn = '';
                         }
-                        $btn = $editbtn.' '.$deletebtn;
-                        return $btn;
+                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle permission-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Permission actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
                     })
                     ->rawColumns(['action'])
                     ->make(true);
@@ -94,6 +94,8 @@ class PermissionController extends Controller
      */
     public function destroy(Request $request)
     {
-        return Permission::findOrFail($request->id)->delete();  
+        $permission = Permission::findOrFail($request->id);
+        ArchiveService::record($permission, 'Permission: '.$permission->name);
+        return $permission->delete();
     }
 }

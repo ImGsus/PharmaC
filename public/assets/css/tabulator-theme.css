@@ -1,0 +1,157 @@
+/*
+   Neutral Tabulator theme.
+   This file intentionally keeps the shared table appearance generic so the page-specific
+   custom styling on the Profile screen remains the only place where the table looks changed.
+*/
+
+:root {
+    --ph-tab-bg: #ffffff;
+    --ph-tab-border: #e5e7eb;
+    --ph-tab-radius: 8px;
+    --ph-tab-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+
+    --ph-header-bg: #f8fafc;
+    --ph-header-text: #374151;
+    --ph-header-border: #e5e7eb;
+    --ph-header-font-size: 0.75rem;
+    --ph-header-font-weight: 700;
+    --ph-header-text-transform: uppercase;
+    --ph-header-hover-bg: #f1f5f9;
+    --ph-header-hover-text: #111827;
+    --ph-cell-border: #e5e7eb;
+    --ph-row-text: #1f2937;
+    --ph-row-font-size: 0.875rem;
+    --ph-row-even-bg: transparent;
+    --ph-row-odd-bg: transparent;
+    --ph-row-hover-bg: #f8fafc;
+    --ph-row-hover-text: #111827;
+    --ph-selected-bg: rgba(59, 130, 246, 0.08);
+
+    --ph-footer-bg: #ffffff;
+    --ph-footer-border: #e5e7eb;
+    --ph-footer-text: #6b7280;
+    --ph-footer-font-size: 0.8125rem;
+    --ph-accent: #2563eb;
+    --ph-page-btn-bg: #ffffff;
+    --ph-page-btn-border: #d1d5db;
+    --ph-page-btn-text: #374151;
+    --ph-page-btn-active-bg: #2563eb;
+    --ph-page-btn-border-active: #2563eb;
+    --ph-page-btn-text-active: #ffffff;
+    --ph-page-btn-disabled-text: #9ca3af;
+    --ph-sort-arrow: #94a3b8;
+    --ph-input-bg: #ffffff;
+    --ph-input-border: #d1d5db;
+    --ph-input-text: #111827;
+}
+
+body.dark-mode {
+    --ph-tab-bg: #111827;
+    --ph-tab-border: rgba(255, 255, 255, 0.12);
+    --ph-header-bg: #1f2937;
+    --ph-header-text: #e5e7eb;
+    --ph-header-border: rgba(255, 255, 255, 0.12);
+    --ph-header-hover-bg: #374151;
+    --ph-header-hover-text: #ffffff;
+    --ph-cell-border: rgba(255, 255, 255, 0.08);
+    --ph-row-text: #f3f4f6;
+    --ph-row-hover-bg: #1f2937;
+    --ph-row-hover-text: #ffffff;
+    --ph-selected-bg: rgba(96, 165, 250, 0.18);
+    --ph-footer-bg: #111827;
+    --ph-footer-border: rgba(255, 255, 255, 0.12);
+    --ph-footer-text: #cbd5e1;
+    --ph-page-btn-bg: #111827;
+    --ph-page-btn-border: rgba(255, 255, 255, 0.15);
+    --ph-page-btn-text: #e5e7eb;
+    --ph-input-bg: #111827;
+    --ph-input-border: rgba(255, 255, 255, 0.15);
+    --ph-input-text: #f3f4f6;
+}
+
+.tabulator {
+    background-color: var(--ph-tab-bg);
+    border: 1px solid var(--ph-tab-border);
+    border-radius: var(--ph-tab-radius);
+    box-shadow: var(--ph-tab-shadow);
+    color: var(--ph-row-text);
+}
+
+.tabulator .tabulator-header {
+    background-color: var(--ph-header-bg);
+    border-bottom: 1px solid var(--ph-header-border);
+    color: var(--ph-header-text);
+    font-size: var(--ph-header-font-size);
+    font-weight: var(--ph-header-font-weight);
+    text-transform: var(--ph-header-text-transform);
+}
+
+.tabulator .tabulator-header .tabulator-col {
+    background-color: var(--ph-header-bg);
+    border-right: 1px solid var(--ph-cell-border);
+    color: var(--ph-header-text);
+}
+
+.tabulator .tabulator-header .tabulator-col:hover {
+    background-color: var(--ph-header-hover-bg);
+    color: var(--ph-header-hover-text);
+}
+
+.tabulator .tabulator-row {
+    background-color: var(--ph-tab-bg);
+    border-bottom: 1px solid var(--ph-cell-border);
+    color: var(--ph-row-text);
+    font-size: var(--ph-row-font-size);
+}
+
+.tabulator .tabulator-row.tabulator-row-even {
+    background-color: var(--ph-row-even-bg);
+}
+
+.tabulator .tabulator-row.tabulator-row-odd {
+    background-color: var(--ph-row-odd-bg);
+}
+
+.tabulator .tabulator-row.tabulator-row-hover {
+    background-color: var(--ph-row-hover-bg) !important;
+    color: var(--ph-row-hover-text) !important;
+}
+
+.tabulator .tabulator-row.tabulator-selected {
+    background-color: var(--ph-selected-bg) !important;
+}
+
+.tabulator .tabulator-row .tabulator-cell {
+    border-right: 1px solid var(--ph-cell-border);
+    color: var(--ph-row-text);
+}
+
+.tabulator .tabulator-row .tabulator-cell:last-of-type {
+    border-right: 0;
+}
+
+.tabulator .tabulator-footer {
+    background-color: var(--ph-footer-bg);
+    border-top: 1px solid var(--ph-footer-border);
+    color: var(--ph-footer-text);
+    font-size: var(--ph-footer-font-size);
+}
+
+.tabulator .tabulator-footer .tabulator-page {
+    background-color: var(--ph-page-btn-bg);
+    border: 1px solid var(--ph-page-btn-border);
+    color: var(--ph-page-btn-text);
+    border-radius: 5px;
+}
+
+.tabulator .tabulator-footer .tabulator-page.active {
+    background-color: var(--ph-page-btn-active-bg);
+    border-color: var(--ph-page-btn-border-active);
+    color: var(--ph-page-btn-text-active);
+}
+
+.tabulator .tabulator-footer .tabulator-page:disabled,
+.tabulator .tabulator-footer .tabulator-page.disabled {
+    opacity: 0.5;
+    color: var(--ph-page-btn-disabled-text);
+}

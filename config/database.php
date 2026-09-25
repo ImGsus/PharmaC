@@ -59,7 +59,18 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA         => env('MYSQL_ATTR_SSL_CA'),
+                // Pin every new MySQL session to UTC so that timestamp
+                // round-trips match Laravel's app.timezone=UTC. Without
+                // this, the MySQL server's SYSTEM timezone (often UTC+8 on
+                // shared hosts) silently shifts columns by the server's
+                // offset on each UPDATE — which is exactly the bug that
+                // produced `started_at` 8 hours after `ended_at` in
+                // pos_sessions and made the Sessions modal show "8 hr"
+                // for every shift. Setting the session zone here means
+                // whatever string Laravel sends ("Y-m-d H:i:s") is
+                // interpreted as UTC on both read and write.
+                PDO::MYSQL_ATTR_INIT_COMMAND   => "SET time_zone = '+00:00'",
             ]) : [],
         ],
 

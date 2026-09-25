@@ -1,0 +1,626 @@
+/*
+ |--------------------------------------------------------------------------
+ | Tailwind CSS v4 — CSS-first configuration
+ |--------------------------------------------------------------------------
+ |
+ | Tailwind v4 no longer uses tailwind.config.js. All configuration lives
+ | here in CSS using @import, @theme, @plugin, and @source directives.
+ |
+ | IMPORTANT: We skip Tailwind's own preflight (CSS reset) because Bootstrap
+ | is already handling that. Importing only theme + utilities keeps both
+ | frameworks working side-by-side without conflicts.
+ */
+
+/* --- Tailwind v4: theme tokens (CSS custom properties) --- */
+@import "tailwindcss/theme" layer(theme);
+
+/* --- Tailwind v4: utility classes (no preflight/reset) --- */
+@import "tailwindcss/utilities" layer(utilities);
+
+/*
+ |--------------------------------------------------------------------------
+ | Content scanning — tell Tailwind where to look for class names
+ |--------------------------------------------------------------------------
+ */
+@source "../../resources/views/**/*.blade.php";
+@source "../../resources/js/**/*.js";
+@source "../../public/assets/js/**/*.js";
+
+/*
+ |--------------------------------------------------------------------------
+ | daisyUI v5 plugin
+ |--------------------------------------------------------------------------
+ |
+ | Registers all daisyUI component classes (btn, card, modal, etc.) and
+ | theme CSS variables. Works alongside existing Bootstrap components.
+ */
+@plugin "daisyui";
+
+/*
+ |--------------------------------------------------------------------------
+ | Custom theme overrides
+ |--------------------------------------------------------------------------
+ */
+@layer theme {
+    :root {
+        /* PharmaC brand green (matches existing sidebar active color) */
+        --color-primary: oklch(65% 0.18 155);
+        --color-primary-content: oklch(98% 0.01 155);
+    }
+}
+
+/*
+ |--------------------------------------------------------------------------
+ | Global Modern UI Overrides — Cards, Boxes, Buttons, and Inputs
+ |--------------------------------------------------------------------------
+ */
+@layer utilities {
+    /* ─── Modern Card & Box Aesthetics ─── */
+    .card {
+        border-radius: 16px !important;
+        border: 1px solid rgba(226, 232, 240, 0.85) !important;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+        transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+    }
+
+    body.dark-mode .card {
+        background-color: rgb(28, 32, 37) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    .card-header {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+        padding: 1.15rem 1.4rem !important;
+    }
+
+    body.dark-mode .card-header {
+        border-bottom-color: rgba(255, 255, 255, 0.07) !important;
+    }
+
+    .card-title {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.01em;
+        color: #1e293b;
+        margin-bottom: 0;
+    }
+
+    body.dark-mode .card-title {
+        color: rgb(241, 245, 249) !important;
+    }
+
+    /* ─── Modern Buttons ─── */
+    .btn {
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.01em;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        border: none !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28) !important;
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.38) !important;
+        transform: translateY(-1px);
+        color: #ffffff !important;
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    /* ─── Modern Inputs ─── */
+    .form-control {
+        border-radius: 9px !important;
+        border-color: #d1d5db !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .form-control:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+    }
+
+    body.dark-mode .form-control:focus {
+        border-color: #34d399 !important;
+        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2) !important;
+    }
+
+    /* ─── Modern Page Header & Breadcrumbs ─── */
+    .page-title {
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+    }
+
+    body.dark-mode .page-title {
+        color: #f8fafc !important;
+    }
+
+    .breadcrumb {
+        background: transparent !important;
+        padding: 0 !important;
+        margin-top: 0.25rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    .breadcrumb-item a {
+        color: #64748b !important;
+        text-decoration: none !important;
+        transition: color 0.15s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #10b981 !important;
+    }
+
+    body.dark-mode .breadcrumb-item a {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-mode .breadcrumb-item a:hover {
+        color: #34d399 !important;
+    }
+
+    /* ─── Search Toolbar Modernization ─── */
+    .pharma-table-toolbar .dataTables_filter input {
+        border-radius: 10px !important;
+        height: 36px !important;
+        padding: 6px 12px !important;
+        border: 1px solid #d1d5db !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .pharma-table-toolbar .dataTables_filter input:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+        outline: none !important;
+    }
+
+    body.dark-mode .pharma-table-toolbar .dataTables_filter input {
+        border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+
+    body.dark-mode .pharma-table-toolbar .dataTables_filter input:focus {
+        border-color: #34d399 !important;
+        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2) !important;
+    }
+
+    /* ─── Mobile Responsiveness ─── */
+    @media (max-width: 767px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar.opened {
+            transform: translateX(0);
+        }
+        .page-wrapper {
+            margin-left: 0 !important;
+        }
+        .content.container-fluid {
+            padding: 1rem 0.85rem !important;
+        }
+        .dashboard-hero {
+            padding: 1.4rem 1.25rem !important;
+            border-radius: 14px !important;
+        }
+        .dashboard-hero h3 {
+            font-size: 1.4rem !important;
+        }
+        .dashboard-indicators-row {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+            gap: 0.75rem !important;
+        }
+        .dashboard-card {
+            border-radius: 14px !important;
+        }
+        .dashboard-card .card-body {
+            padding: 1rem 1.15rem !important;
+        }
+        .dashboard-card .dash-count-val {
+            font-size: 1.4rem !important;
+        }
+        .card {
+            border-radius: 14px !important;
+        }
+    }
+}
+
+/* ==========================================================================
+   BOOTSTRAP 4 MODAL RESCUE — must stay UNLAYERED (plain CSS, no @layer).
+   Why: daisyUI v5 ships `.modal{visibility:hidden;pointer-events:none}` and
+   only reveals it with `.modal-open`/`[open]`. Bootstrap 4 reveals modals
+   with `.show`, so every popup (Add Product, Sell Product, delete, POS
+   modals, reports, profile…) stayed invisible even though Bootstrap's JS
+   correctly added `.show`. Unlayered CSS beats ANY @layered CSS
+   (Tailwind v4 / daisyUI), so these rules always win. Scoped to
+   `div.modal` so daisyUI `<dialog class="modal">` is untouched.
+   ========================================================================== */
+div.modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    inset: 0 !important;
+    z-index: 1050 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    outline: 0 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    background-color: transparent !important;
+    display: none !important;
+}
+div.modal.fade {
+    opacity: 0 !important;
+    transition: opacity 0.15s linear !important;
+}
+div.modal.fade.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+div.modal .modal-dialog {
+    position: relative !important;
+    pointer-events: none !important;
+}
+div.modal .modal-content {
+    position: relative !important;
+    pointer-events: auto !important;
+    background-clip: padding-box !important;
+}
+
+/* ==========================================================================
+   BOOTSTRAP 4 COMPONENTS RESCUE (card / table / buttons / tabs / dropdowns)
+   daisyUI v5 redefines `.card` (display:flex column), `.table`, `.btn`,
+   `.card-body`, `.card-title`, `.tabs`/`.tab`, etc. Because your whole admin
+   theme is Bootstrap 4, those daisyUI definitions collapse the Profile
+   About/Security cards, the security table and its action buttons
+   (dropdowns render empty). These unlayered rules restore the Bootstrap 4
+   look ONLY for classic Bootstrap markup; daisyUI-specific markup
+   (`<dialog class="modal">`, `.tabs`/`.tab`, `.card-side`, `.stats`, …)
+   is left alone.
+   ========================================================================== */
+/* --- Bootstrap card (only when it is NOT a daisyUI card: no card-side/bordered/etc.) --- */
+div.card:not(.card-side):not(.card-bordered):not(.stats) {
+    display: block !important;
+    flex-direction: unset !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+    outline: none !important;
+    background-color: #fff !important;
+    position: relative !important;
+}
+body.dark-mode div.card:not(.card-side):not(.card-bordered):not(.stats) {
+    background-color: rgb(28, 32, 37) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+    color: #e7e9ec !important;
+}
+div.card:not(.card-side):not(.card-bordered):not(.stats) > div.card-body {
+    display: block !important;
+    padding: 1.25rem !important;
+    color: inherit !important;
+    position: static !important;
+}
+div.card:not(.card-side):not(.card-bordered):not(.stats) h5.card-title {
+    display: flex !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+    color: #1e293b !important;
+    margin-bottom: 0.75rem !important;
+}
+body.dark-mode div.card:not(.card-side):not(.card-bordered):not(.stats) h5.card-title {
+    color: rgb(241, 245, 249) !important;
+}
+/* --- Roomy, breathable tables everywhere (Bootstrap .table + Tabulator grids) --- */
+div.card table.table th,
+div.card table.table td,
+div.tab-content.profile-tab-cont table th,
+div.tab-content.profile-tab-cont table td,
+#security_tab table th,
+#security_tab table td {
+    padding: 0.9rem 1rem !important;
+    line-height: 1.55 !important;
+}
+/* --- Bootstrap table inside cards (undo daisyUI grid-ish table) --- */
+div.card table.table {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    font-size: 0.9rem !important;
+    text-align: left !important;
+    border-radius: 0 !important;
+    position: static !important;
+    background-color: transparent !important;
+    color: inherit !important;
+}
+div.card table.table thead { display: table-header-group !important; }
+div.card table.table tbody { display: table-row-group !important; }
+div.card table.table tr { display: table-row !important; }
+div.card table.table th,
+div.card table.table td {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+body.dark-mode div.card table.table th,
+body.dark-mode div.card table.table td {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+    color: #e7e9ec !important;
+}
+body.dark-mode div.card table.table thead th {
+    color: #f1f5f9 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+/* --- Bootstrap buttons that daisyUI turned into inline-flex pills --- */
+.btn.btn-sm.btn-secondary.dropdown-toggle,
+.btn-group .btn.btn-sm {
+    display: inline-block !important;
+}
+/* --- Bootstrap tab panes (daisyUI .tabs never used here) --- */
+div.tab-content.profile-tab-cont {
+    display: block !important;
+    overflow: visible !important;
+}
+div.tab-content.profile-tab-cont > div.tab-pane {
+    display: none !important;
+    opacity: 1 !important;
+}
+div.tab-content.profile-tab-cont > div.tab-pane.show,
+div.tab-content.profile-tab-cont > div.tab-pane.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+div.tab-content.profile-tab-cont .card,
+div.tab-content.profile-tab-cont .card-body,
+div.tab-content.profile-tab-cont .profile-details-list,
+div.tab-content.profile-tab-cont h5.card-title,
+div.tab-content.profile-tab-cont .profile-details-list p,
+div.tab-content.profile-tab-cont .table-responsive {
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    width: auto !important;
+    visibility: visible !important;
+}
+div.tab-content.profile-tab-cont table {
+    display: table !important;
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+    visibility: visible !important;
+}
+div.tab-content.profile-tab-cont table th,
+div.tab-content.profile-tab-cont table td {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    width: auto !important;
+    font-size: 0.9rem !important;
+}
+div.tab-content.profile-tab-cont table th:last-child,
+div.tab-content.profile-tab-cont table td:last-child {
+    text-align: right !important;
+    width: 110px !important;
+    white-space: nowrap !important;
+}
+#security_tab table,
+#security_tab table thead,
+#security_tab table tbody {
+    display: revert !important;
+}
+#security_tab table {
+    display: table !important;
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+}
+#security_tab table tr {
+    display: table-row !important;
+}
+#security_tab table th,
+#security_tab table td {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    border-top: 1px solid #dee2e6 !important;
+    font-size: 0.9rem !important;
+}
+body.dark-mode #security_tab table th,
+body.dark-mode #security_tab table td {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+    color: #e7e9ec !important;
+}
+#security_tab table th:last-child,
+#security_tab table td:last-child {
+    text-align: right !important;
+    width: 110px !important;
+}
+div.tab-content.profile-tab-cont .btn-group,
+div.tab-content.profile-tab-cont .btn.btn-sm.btn-secondary.dropdown-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+/* --- Bootstrap dropdown menus inside cards --- */
+div.card .table-responsive {
+    overflow-x: visible !important;
+}
+div.card .dropdown-menu {
+    position: absolute !important;
+    display: none !important;
+    float: left !important;
+    min-width: 12rem !important;
+    z-index: 1050 !important;
+}
+div.card .dropdown-menu.show {
+    display: block !important;
+}
+
+/* ==========================================================================
+   TABULATOR ACTION DROPDOWNS — stop the cell clipping the menu.
+   Tabulator ships `.tabulator-cell { overflow:hidden }` (confirmed in
+   public/assets/plugins/tabulator/css/tabulator.min.css) and
+   `.tabulator-tableholder { overflow:auto; transform:translateZ(0) }`.
+   The cell box was cutting off the dropdown ("..." box not loading correctly)
+   and translateZ(0) turns the holder into a containing block, which would also
+   trap `position:fixed` menus. Fix: only the action cells/wrappers go visible
+   (scrolling still handled by the tableholder), keep menus above rows, and
+   `fixDropdowns()` in tabulator-server.js strips translateZ(0) while a menu
+   is open so fixed positioning escapes the scroll holder.
+   ========================================================================== */
+.tabulator .tabulator-row:has(.dropdown-toggle),
+.tabulator .tabulator-row:has(.dropdown-toggle) .tabulator-cell,
+.tabulator .tabulator-row .tabulator-cell:has(.dropdown-toggle) {
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+.tabulator .dropdown-menu {
+    position: absolute !important;
+    min-width: 12rem !important;
+    z-index: 1051 !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18) !important;
+}
+body.dark-mode .tabulator .dropdown-menu {
+    background-color: #1f2937 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+}
+.tabulator .dropdown-item {
+    color: inherit !important;
+}
+body.dark-mode .tabulator .dropdown-item {
+    color: #e5e7eb !important;
+}
+body.dark-mode .tabulator .dropdown-item:hover,
+body.dark-mode .tabulator .dropdown-item:focus {
+    background-color: #374151 !important;
+    color: #fff !important;
+}
+
+/* ==========================================================================
+   SHARED TABLE ACTION BUTTON SHADOWS
+   Keep the compact Categories/Supplier treatment for every table action menu.
+   The main Products menu has its own status-aware shadow and is excluded.
+   ========================================================================== */
+.tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button),
+table .btn-secondary.dropdown-toggle:not(.product-status-action-button) {
+    box-shadow: 0 3px 2px -2px rgba(96, 165, 250, .8),
+                0 4px 3px -2px rgba(96, 165, 250, .8) !important;
+}
+.tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+.tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+.tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button).show,
+table .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+table .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+table .btn-secondary.dropdown-toggle:not(.product-status-action-button).show {
+    box-shadow: 0 3px 2px -2px rgba(59, 130, 246, .9),
+                0 4px 3px -2px rgba(59, 130, 246, .9) !important;
+}
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button),
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button).show,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button),
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button).show {
+    box-shadow: 0 3px 2px -2px rgba(134, 239, 172, .8),
+                0 4px 3px -2px rgba(134, 239, 172, .8) !important;
+}
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+body.dark-mode .tabulator .btn-secondary.dropdown-toggle:not(.product-status-action-button).show,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button):hover,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button):focus,
+body.dark-mode table .btn-secondary.dropdown-toggle:not(.product-status-action-button).show {
+    box-shadow: 0 3px 2px -2px rgba(52, 211, 153, .9),
+                0 4px 3px -2px rgba(52, 211, 153, .9) !important;
+}
+
+
+/* ==========================================================================
+   TABULATOR GRIDS — breathing room + dark-mode text you can actually read.
+   Your Categories screenshot (image 2) is a Tabulator grid, NOT a Bootstrap
+   table: `tabulator-theme.css` only styles header/footer chrome, while
+   rows/cells inherit page colors. In dark-mode the page flips dark but the
+   row text stayed near-white-on-white (invisible). These unlayered rules
+   give every cell generous padding and force readable row text in both
+   modes. This covers ALL Tabulator tables (categories, products, sales…).
+   ========================================================================== */
+.tabulator .tabulator-header .tabulator-col,
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 0.85rem 1rem !important;
+}
+.tabulator .tabulator-row .tabulator-cell {
+    padding: 0.9rem 1rem !important;
+    line-height: 1.55 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+body.dark-mode .tabulator,
+body.dark-mode .tabulator .tabulator-tableholder,
+body.dark-mode .tabulator .tabulator-table,
+body.dark-mode .tabulator .tabulator-row,
+body.dark-mode .tabulator .tabulator-row .tabulator-cell,
+body.dark-mode .tabulator .tabulator-row.tabulator-row-even,
+body.dark-mode .tabulator .tabulator-row.tabulator-row-odd {
+    background-color: #111827 !important;
+    background: #111827 !important;
+    color: #f3f4f6 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode .tabulator .tabulator-header,
+body.dark-mode .tabulator .tabulator-header .tabulator-col {
+    background-color: #1f2937 !important;
+    background: #1f2937 !important;
+    color: #e5e7eb !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+body.dark-mode .tabulator .tabulator-row:hover,
+body.dark-mode .tabulator .tabulator-row.tabulator-row-hover,
+body.dark-mode .tabulator .tabulator-row:hover .tabulator-cell {
+    background-color: #1f2937 !important;
+    background: #1f2937 !important;
+    color: #ffffff !important;
+}
+body.dark-mode .tabulator .tabulator-footer {
+    background-color: #111827 !important;
+    background: #111827 !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+body.dark-mode .tabulator .tabulator-footer .tabulator-page {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #e5e7eb !important;
+}
+
+/* ==========================================================================
+   FROM-DOM SOURCE TABLES — keep the original <table> hidden once Tabulator
+   takes over. `fromDom()` hides it with !important inline style + d-none,
+   but Turbo re-renders / CSS rescues can reveal it again, producing the
+   duplicated Backups + Archive tables (Tabulator grid on top, raw table
+   below). This unlayered rule is the final backstop: only the FIRST table
+   (the Tabulator grid) stays visible.
+   ========================================================================== */
+table[data-pharma-tabulator-hidden="1"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}

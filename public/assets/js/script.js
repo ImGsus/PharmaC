@@ -22,25 +22,68 @@ $(document).ready(function(){
 
     var themeKey = 'pharmacy-theme';
 
-    function applyTheme(isDark) {
-        $('body').toggleClass('dark-mode', isDark);
-        localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
+    function updateLogoForTheme(isDark) {
+        var $logo = $('#site-logo');
+		if ($logo.length) {
+			var customLogo = $logo.data('custom-logo');
+			var lightLogo = $logo.data('light-logo');
+			var darkLogo = $logo.data('dark-logo');
+			if (isDark) {
+				$logo.attr('src', darkLogo || customLogo || lightLogo);
+			} else {
+				$logo.attr('src', customLogo || lightLogo);
+			}
+        }
 
-        $('#loginThemeToggle .toggle-icon').text(isDark ? '☀️' : '🌙');
-        $('#loginThemeToggle .toggle-text').text(isDark ? 'Light Mode' : 'Night Mode');
-        $('#dashboardThemeToggle .toggle-icon').text(isDark ? '☀️' : '🌙');
-        $('#dashboardThemeToggle .toggle-text').text(isDark ? 'Light Mode' : 'Night Mode');
+		var $plainLogo = $('#plain-site-logo');
+		if ($plainLogo.length) {
+			$plainLogo.attr('src', isDark ? $plainLogo.data('dark-logo') : $plainLogo.data('light-logo'));
+        }
     }
 
-    $(document).ready(function() {
-        var storedTheme = localStorage.getItem(themeKey);
-        applyTheme(storedTheme === 'dark');
+	function applyTheme(isDark) {
+		var root = document.documentElement;
+		var body = document.body;
 
-        $('#loginThemeToggle, #dashboardThemeToggle').on('click', function() {
-            var isDark = !$('body').hasClass('dark-mode');
-            applyTheme(isDark);
-        });
-    });
+		if (root) {
+			root.classList.toggle('dark-mode', isDark);
+			root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+			root.style.colorScheme = isDark ? 'dark' : 'light';
+		}
+
+		if (body) {
+			body.classList.toggle('dark-mode', isDark);
+			body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+		}
+
+		localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
+
+		$('#loginThemeToggle').toggleClass('is-dark', isDark);
+		$('#dashboardThemeToggle').toggleClass('is-dark', isDark);
+
+		$('#loginThemeToggle, #dashboardThemeToggle')
+			.attr('aria-checked', isDark ? 'true' : 'false')
+			.attr('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+
+		updateLogoForTheme(isDark);
+		document.dispatchEvent(new CustomEvent('pharmacy:theme-changed', { detail: { isDark: isDark } }));
+	}
+
+	$(document).ready(function() {
+		var storedTheme = localStorage.getItem(themeKey);
+		var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+		var isDark = storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark);
+
+		applyTheme(isDark);
+		document.documentElement.classList.remove('theme-initializing');
+
+		$('#loginThemeToggle, #dashboardThemeToggle')
+			.off('click.theme')
+			.on('click.theme', function() {
+				var nextIsDark = !document.documentElement.classList.contains('dark-mode');
+				applyTheme(nextIsDark);
+			});
+	});
 	
 	// Variables declarations
 	
@@ -49,15 +92,65 @@ $(document).ready(function(){
 	var $slimScrolls = $('.slimscroll');
 
 	// alert
-	$("div.alert").delay(3000).slideUp(750);
+	$("div.alert").not('.login-validation-alerts .alert, .form-validation-alerts .alert').delay(3000).slideUp(750);
 	
 	// Sidebar
 	var Sidemenu = function() {
 		this.$menuItem = $('#sidebar-menu a');
 	};
 	// select2
-	$('.select2').select2({
-		placeholder: 'Select an option'
+	function initCommonWidgets() {
+		if (!$.fn.select2) {
+			return;
+		}
+
+		$('.select2').each(function() {
+			// Destroy existing select2 instance if present
+			if ($(this).hasClass('select2-hidden-accessible')) {
+				$(this).select2('destroy');
+			}
+			// Initialize/reinitialize select2
+			$(this).select2({
+				placeholder: 'Select an option'
+			});
+		});
+	}
+
+	window.pharmacyCommonWidgetsInit = initCommonWidgets;
+	initCommonWidgets();
+
+	var activeDataTableRequests = {};
+	$(document).on('preXhr.dt', function(event, settings) {
+		var requestKey = settings.ajax && typeof settings.ajax === 'string'
+			? settings.ajax
+			: settings.sAjaxSource || settings.nTable?.id;
+
+		if (requestKey) {
+			settings._pharmacyRequestKey = requestKey;
+		}
+	});
+
+	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+		var requestData = options.data;
+		var isDataTableRequest = requestData && (
+			(typeof requestData === 'string' && /(draw|start|length|search%5B|search\[)/.test(requestData)) ||
+			(typeof requestData === 'object' && ('draw' in requestData || 'start' in requestData || 'length' in requestData))
+		);
+
+		if (!isDataTableRequest) {
+			return;
+		}
+
+		var requestKey = options.url;
+		if (activeDataTableRequests[requestKey]) {
+			activeDataTableRequests[requestKey].abort();
+		}
+		activeDataTableRequests[requestKey] = jqXHR;
+		jqXHR.always(function() {
+			if (activeDataTableRequests[requestKey] === jqXHR) {
+				delete activeDataTableRequests[requestKey];
+			}
+		});
 	});
 
 	function setSelect2HoverStyle(element) {
@@ -91,22 +184,87 @@ $(document).ready(function(){
 		
 	function init() {
 		var $this = Sidemenu;
-		$('#sidebar-menu a').on('click', function(e) {
-			if($(this).parent().hasClass('submenu')) {
-				e.preventDefault();
+		function getMenuKey(link) {
+			return $.trim($(link).find('span').first().text() || link.textContent).toLowerCase();
+		}
+
+		$(document).off('click.sidebarMenu', '#sidebar-menu a').on('click.sidebarMenu', '#sidebar-menu a', function(e) {
+			if (!$(this).parent().hasClass('submenu')) {
+				return;
 			}
+
+			var menuKey = getMenuKey(this);
+			var isOpening = !$(this).hasClass('subdrop');
+			e.preventDefault();
 			if(!$(this).hasClass('subdrop')) {
-				$('ul', $(this).parents('ul:first')).slideUp(350);
-				$('a', $(this).parents('ul:first')).removeClass('subdrop');
-				$(this).next('ul').slideDown(350);
-				$(this).addClass('subdrop');
+				$(this).addClass('sidebar-label-hidden');
+				$('#sidebar-menu > ul > li.submenu > a').not(this).removeClass('active subdrop');
+				$('#sidebar-menu > ul > li.submenu > ul').not($(this).next('ul')).stop(true, true).slideUp(200);
+				$(this).next('ul').stop(true, true).slideDown(350);
+				$(this).removeClass('active').addClass('subdrop');
 			} else if($(this).hasClass('subdrop')) {
-				$(this).removeClass('subdrop');
-				$(this).next('ul').slideUp(350);
+				$(this).removeClass('subdrop sidebar-label-hidden').trigger('blur');
+				$(this).next('ul').stop(true, true).slideUp(350);
+			}
+
+			window.pharmacyOpenMenu = isOpening ? menuKey : '';
+		});
+
+		$(document).off('click.sidebarMenuOutside').on('click.sidebarMenuOutside', function(e) {
+			if ($(e.target).closest('#sidebar-menu').length) {
+				return;
+			}
+
+			var $openLinks = $('#sidebar-menu > ul > li.submenu > a.subdrop');
+			if (!$('body').hasClass('mini-sidebar')) {
+				var $activeSubmenu = $('#sidebar-menu ul ul a.active').parents('li.submenu').first();
+				if (!$activeSubmenu.length || $openLinks.is($activeSubmenu.children('a:first'))) {
+					return;
+				}
+
+				$openLinks.removeClass('active subdrop sidebar-label-hidden').trigger('blur');
+				$openLinks.next('ul').stop(true, true).slideUp(200);
+				$activeSubmenu.children('a:first').addClass('active subdrop');
+				$activeSubmenu.children('ul:first').stop(true, true).slideDown(200);
+				window.pharmacyOpenMenu = getMenuKey($activeSubmenu.children('a:first'));
+				return;
+			}
+
+			var $activeSubmenu = $('#sidebar-menu ul ul a.active').parents('li.submenu').first();
+			$openLinks.removeClass('active subdrop sidebar-label-hidden').trigger('blur');
+			$openLinks.next('ul').stop(true, true).slideUp(200);
+			if ($activeSubmenu.length) {
+				$activeSubmenu.children('a:first').addClass('active');
+				window.pharmacyOpenMenu = getMenuKey($activeSubmenu.children('a:first'));
+			} else {
+				window.pharmacyOpenMenu = '';
 			}
 		});
-		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
+
+		$(document).off('click.sidebarSubmenuItem', '#sidebar-menu ul ul a').on('click.sidebarSubmenuItem', '#sidebar-menu ul ul a', function() {
+			var $parentSubmenu = $(this).closest('li.submenu');
+			var $parentLink = $parentSubmenu.children('a:first');
+
+			// Keep the parent menu open while Turbo replaces the page.
+			window.pharmacyOpenMenu = getMenuKey($parentLink);
+			$parentLink.addClass('active subdrop');
+			$parentSubmenu.children('ul:first').stop(true, true).show();
+		});
+
+		var $activeSubmenu = $('#sidebar-menu ul ul a.active').parents('li.submenu').first();
+		$('#sidebar-menu > ul > li.submenu > a').removeClass('active subdrop');
+		var $openSubmenu = $activeSubmenu;
+
+		if ($openSubmenu.length) {
+			$openSubmenu.children('a:first').addClass('active');
+			if (!$('body').hasClass('mini-sidebar')) {
+				$openSubmenu.children('a:first').addClass('subdrop');
+				$openSubmenu.children('ul:first').show();
+			}
+		}
 	}
+
+	window.pharmacySidebarInit = init;
 	
 	// Sidebar Initiate
 	init();
@@ -230,9 +388,21 @@ $(document).ready(function(){
     }
 	
 	// Sidebar Slimscroll
+	function initSidebarSlimScroll() {
+		var $currentSlimScrolls = $('.slimscroll');
+		if ($currentSlimScrolls.length === 0) {
+			return;
+		}
 
-	if($slimScrolls.length > 0) {
-		$slimScrolls.slimScroll({
+		$currentSlimScrolls.each(function() {
+			var $item = $(this);
+			if ($item.data('slimscroll-initialized')) {
+				$item.slimScroll({ destroy: true });
+				$item.removeData('slimscroll-initialized');
+			}
+		});
+
+		$currentSlimScrolls.slimScroll({
 			height: 'auto',
 			width: '100%',
 			position: 'right',
@@ -242,59 +412,79 @@ $(document).ready(function(){
 			wheelStep: 10,
 			touchScrollStep: 100
 		});
+		$currentSlimScrolls.data('slimscroll-initialized', true);
+
 		var wHeight = $(window).height() - 60;
-		$slimScrolls.height(wHeight);
+		$currentSlimScrolls.height(wHeight);
 		$('.sidebar .slimScrollDiv').height(wHeight);
-		$(window).resize(function() {
-			var rHeight = $(window).height() - 60;
-			$slimScrolls.height(rHeight);
-			$('.sidebar .slimScrollDiv').height(rHeight);
-		});
 	}
+
+	window.pharmacySidebarSlimScrollInit = initSidebarSlimScroll;
+	initSidebarSlimScroll();
+	$(window).off('resize.sidebarSlimScroll').on('resize.sidebarSlimScroll', function() {
+		var rHeight = $(window).height() - 60;
+		$('.slimscroll').height(rHeight);
+		$('.sidebar .slimScrollDiv').height(rHeight);
+	});
 	
 	// Small Sidebar
+	var sidebarStateKey = 'pharmacy-sidebar-collapsed';
+
+	function updateSidebarToggleState() {
+		var isCollapsed = $('body').hasClass('mini-sidebar');
+		$('#toggle_btn').attr('aria-expanded', isCollapsed ? 'false' : 'true');
+		try {
+			localStorage.setItem(sidebarStateKey, isCollapsed ? 'true' : 'false');
+		} catch (error) {
+		}
+	}
 
 	$(document).on('click', '#toggle_btn', function() {
 		if($('body').hasClass('mini-sidebar')) {
 			$('body').removeClass('mini-sidebar');
-			$('.subdrop + ul').slideDown();
+			var openMenuKey = window.pharmacyOpenMenu || '';
+			var $activeSubmenu = $('#sidebar-menu li.submenu').filter(function() {
+				var link = $(this).children('a:first');
+				var label = $.trim(link.find('span').first().text() || link.text()).toLowerCase();
+				return openMenuKey && label === openMenuKey;
+			}).first();
+			if (!$activeSubmenu.length) {
+				$activeSubmenu = $('#sidebar-menu ul ul a.active').parents('li.submenu').first();
+			}
+			$('#sidebar-menu > ul > li.submenu > a').removeClass('active subdrop');
+			if ($activeSubmenu.length) {
+				$activeSubmenu.children('a:first').addClass('subdrop');
+				if ($activeSubmenu.find('ul a.active').length) {
+					$activeSubmenu.children('a:first').addClass('active');
+				}
+				$activeSubmenu.children('ul:first').stop(true, true).show();
+			}
 		} else {
 			$('body').addClass('mini-sidebar');
-			$('.subdrop + ul').slideUp();
+			$('#sidebar-menu > ul > li.submenu > a').removeClass('subdrop');
+			$('#sidebar-menu > ul > li.submenu > ul').stop(true, true).hide();
 		}
-		setTimeout(function(){ 
-			mA.redraw();
-			mL.redraw();
-		}, 300);
+		updateSidebarToggleState();
+
+		// Let responsive widgets (Chart.js, DataTables) re-measure after the
+		// sidebar width transition finishes; otherwise they keep their stale
+		// pixel widths and leave a gap next to the content.
+		if (window.pharmacySidebarReflowTimer) {
+			clearTimeout(window.pharmacySidebarReflowTimer);
+		}
+		window.pharmacySidebarReflowTimer = setTimeout(function () {
+			window.dispatchEvent(new Event('resize'));
+		}, 450);
+
 		return false;
 	});
-	$(document).on('mouseover', function(e) {
-		e.stopPropagation();
-		if($('body').hasClass('mini-sidebar') && $('#toggle_btn').is(':visible')) {
-			var targ = $(e.target).closest('.sidebar').length;
-			if(targ) {
-				$('body').addClass('expand-menu');
-				$('.subdrop + ul').slideDown();
-			} else {
-				$('body').removeClass('expand-menu');
-				$('.subdrop + ul').slideUp();
-			}
-			return false;
-		}
-	});
-	
-	
-
 	$(document).ready(function(){
 		
-		// delete confirmation modal
-		$('.deletebtn').on('click',function (){
-			event.preventDefault();
-			jQuery.noConflict();
+		// Delete confirmation modal (delegated: rows are re-rendered by Tabulator/AJAX/Turbo)
+		$(document).off('click.pharmacyDelete').on('click.pharmacyDelete', '.deletebtn, #deletebtn', function (e){
+			e.preventDefault();
+			$('#delete_id').val($(this).data('id'));
 			$('#deleteConfirmModal').modal('show');
-			var id = $(this).data('id');
-			console.log(id);
-			$('#delete_id').val(id);
 		});
 		
 		

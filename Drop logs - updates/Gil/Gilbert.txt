@@ -1,0 +1,82 @@
+ph-Employee can steal by discount 
+-Same Dashboard, different design for admin UI and the cashier UI
+-Backups needs to know what is their purpose and the backups need to add a import file to retain the data
+-Remove the BOX when clicking the side panel example -> products -> animation -> box moving 
+-Transforming it to mysqlite 
+-Mastering the nightmode. ✅
+-Remove the Discount for the add product ✅
+-Add a check and uncheck for the products "check means live and available and unchecked for not live but existing" ✅
+-Setting "Performance" the purpose of it is to use some power or ram not much but enough to run a good effect and animation ✅
+-Category For none expiry date for the tools and expiry date for some valid product ✅
+-Generate a 
+-Change the Resources table: table purchase,
+-For the beginning - If the system is freshly started the system offer the owner or the user to take the admin name it, and generate and migrate some info and then reload
+-User Dashboard / User: Remove the "Avatar" and add a view on the actions including the persons picture with the persons info ✅
+-Remove the default picture of no image picture the "Man with wow face" and change to what's correct image on the corresponding image type ✅
+-Update the outstock Products/ Outstock make it similar to like the products details ✅
+-Remove the exiry date at the table in Product's Dashboard / Products ✅
+-Change the "wow image man" to correct "no image" to insure the accurate thing ✅
+-improve the mailer for "verfy your PharMac Account" the design and some other mailer related thing
+-improve the "make sale button" on the dashboard ✅
+-improve the Purchase details including the name of the product to ensure that if the product has a "long name" on it it will go "HELLO MY NAME I... ✅
+-improve the Sale's Dashboard / Sales action button at edit make it pop up tab for edit and etc..✅
+-improve the Sale's Dashboard / Supplier action button at the edit make it pop up tab and etc... ✅
+-Fix the table at the Permission's Dashboard / Permissions where the action is is bearly see when the open menu is been activated. ✅
+-improve the Role's Dashboard / Roles at the action button at the edit to make it pop up tab ✅
+-Fix the open menu and make it stay when clicking the action button exp: "Access Control" when i hover or move my mouse around it dont close the option tab where i goes around.✅
+-Fix the user and improve it ✅
+-Improve the User's Dashboard / Users action button at edit make it pop up tab ✅
+-Know the purpose of the Create Backup and improve it to be useful. ✅
+-Improve the Web page where if i resize it to the small portion some of the buttons may not been clickable. 
+-Improve the Archive's Dashboard / Archive where it supposedly archive the specific data that needs to be achieve and make it when i recover it, it will be restore completely without a missing 
+data's ✅
+-Fix some bugs on the tables when open and closing the tab menu ✅
+-Fix the add users password and confirm password, add a revealing eye for the hide and unhide password
+-Userdashboard: add a active and inactive accounts freature ✅
+-Add a dot on the side of the side menu when the menu is close so the meaning of dot is that icon has many "options" inside.
+-Add a Arror " < , > " for the Today sales and resource tab for more visual improvements. "optional"
+
+THE ONE
+-Integrating the features of the panelist
+
+
+Web-Based Pharmacy Inventory Management System with Stock Monitoring and Expiry Tracking
+
+Suggested Report Generation
+1.	Current Stock Inventory Report ✅
+2.	Low Stock Alert Report ✅
+3.	Expiring and Expired Medicines Report ✅
+4.	Stock Movement Report ✅
+5.	Purchase Order Report ✅
+6.	Supplier Performance Report ✅
+7.	Sales and Dispensing Report ✅
+8.	Inventory Valuation Report ✅
+9.	Batch and Lot Tracking Report ✅
+10.	Regulatory Compliance Report ✅ - https://www.youtube.com/watch?v=2_OtPKebyic
+
+Additional Features
+•	Barcode Scanning ✅
+•	Batch and Lot Number Tracking ✅ - https://www.youtube.com/watch?v=8dbuNcVhWYQ
+•	Automated Reorder Suggestions ✅
+•	Supplier Management ✅
+•	Prescription Verification ✅
+•	Role-Based Access Control ✅
+•	Audit Trail ✅
+•	Mobile Inventory Checking ✅
+•	Temperature Monitoring Integration ✅
+•	Forecasting for Medicine Demand ✅
+
+
+
+
+
+Big PLAN
+-Make it executable using .exe file and the user agreement
+
+Design suggestion
+Johann - Depth, light and darkmode, Second attempt verification for deletion 
+The POS product product box icon 
+
+My solution
+a switch for the light and darkmode
+a default picture for the no image male or female also for the product no image default

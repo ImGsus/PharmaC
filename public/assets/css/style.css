@@ -62,7 +62,7 @@ body {
 	height: 100%;
 	line-height: 1.5;
 	overflow-x: hidden;
-	transition: background-color 0.4s ease, color 0.4s ease;
+	transition: none;
 }
 
 body.dark-mode {
@@ -78,8 +78,8 @@ body.dark-mode .card,
 body.dark-mode .dropdown-menu,
 body.dark-mode .sidebar,
 body.dark-mode .header {
-	background-color: #111827;
-	color: #e2e8f0;
+	background-color: rgb(28, 32, 37);
+	color: rgb(231, 233, 236);
 }
 
 body.dark-mode .header {
@@ -88,7 +88,7 @@ body.dark-mode .header {
 
 body.dark-mode .header,
 body.dark-mode .sidebar {
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 body.dark-mode .header .nav-link,
@@ -108,6 +108,58 @@ body.dark-mode .form-control {
 	background-color: #111827;
 	border-color: #0f172a;
 	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .modal-header,
+body.dark-mode .modal-body,
+body.dark-mode .modal-footer {
+	background-color: rgb(28, 32, 37);
+	border-color: rgba(255, 255, 255, 0.08);
+	color: rgb(231, 233, 236);
+}
+
+body.dark-mode .modal-title,
+body.dark-mode .modal-header .close,
+body.dark-mode .modal label {
+	color: rgb(231, 233, 236);
+}
+
+body.dark-mode .profile-header,
+body.dark-mode .profile-menu {
+	background-color: rgb(28, 32, 37);
+	border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .profile-user-info .user-name,
+body.dark-mode .profile-user-info h6 {
+	color: rgb(231, 233, 236);
+}
+
+body.dark-mode .btn-primary,
+body.dark-mode .btn-info {
+	background-color: rgb(61, 185, 133);
+	border-color: rgb(61, 185, 133);
+	color: #fff;
+}
+
+body.dark-mode .btn-primary:hover,
+body.dark-mode .btn-primary:focus,
+body.dark-mode .btn-primary:active,
+body.dark-mode .btn-info:hover,
+body.dark-mode .btn-info:focus,
+body.dark-mode .btn-info:active {
+	background-color: rgb(105, 217, 170);
+	border-color: rgb(105, 217, 170);
+	color: #fff;
+}
+
+body.dark-mode .profile-menu .nav-tabs.nav-tabs-solid > li > a.active,
+body.dark-mode .profile-menu .nav-tabs.nav-tabs-solid > li > a.active:hover,
+body.dark-mode .profile-menu .nav-tabs.nav-tabs-solid > li > a.active:focus {
+	background-color: rgb(61, 185, 133);
+	border-color: rgb(61, 185, 133);
+	color: #fff;
 }
 
 .form-control,
@@ -158,7 +210,7 @@ body.dark-mode .page-wrapper .dashboard-card,
 body.dark-mode .page-wrapper .card.card-table,
 body.dark-mode .page-wrapper #sales-table,
 body.dark-mode .page-wrapper .card.card-chart {
-	background-color: #0f172a !important;
+	background-color: rgb(28, 32, 37) !important;
 	color: #f8fafc !important;
 	border-color: rgba(255, 255, 255, 0.12) !important;
 	border-radius: 10px !important;
@@ -240,35 +292,73 @@ body.dark-mode .pagination .page-link:hover {
 .theme-switch-btn {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.45rem;
+	justify-content: center;
+	/* Change width and height together to resize the icon button. */
+	width: 2.75rem;
+	height: 2.75rem;
+	/* Use margin-left to move left/right; adjust top to move up/down. */
 	margin-left: 1rem;
-	padding: 0.4rem 0.9rem;
+	padding: 0;
 	border: none;
-	border-radius: 999px;
-	background: #111827;
-	color: #ffffff;
-	font-size: 0.85rem;
-	font-weight: 600;
+	border-radius: 50%;
+	background: transparent;
+	color: #f59e0b;
 	cursor: pointer;
-	box-shadow: 0 6px 16px rgba(17, 24, 39, 0.18);
-	transition: all 0.35s ease;
-	position: relative; /* change to absolute if you want fixed placement */
-	top: 13px;   /* adjust up/down: negative = up, positive = down */
-	right: 0; /* adjust left/right: negative = left, positive = right when positioned absolute */
+	transition: color .35s ease, transform .2s ease;
+	position: relative;
+	top: 9px; /* adjust up/down: negative = up, positive = down */
+	right: 0; /* with position:absolute, negative = left, positive = right */
 }
 
 .theme-switch-btn:hover {
-	background: #6b7280;
-	transform: translateY(-1px);
+	background: transparent;
+	transform: scale(1.08);
 }
 
-body.dark-mode .theme-switch-btn {
-	background: #ffffff;
-	color: #111827;
+.theme-switch-icon {
+	width: 1.75rem;
+	height: 1.75rem;
+	overflow: visible;
+	transform: rotate(90deg);
+	transition: transform .55s cubic-bezier(.4, 1.6, .6, 1);
 }
 
-body.dark-mode .theme-switch-btn:hover {
-	background: #d1d5db;
+.theme-switch-sun {
+	fill: currentColor;
+	transition: r .55s cubic-bezier(.4, 1.6, .6, 1), fill .35s ease;
+}
+
+.theme-switch-mask {
+	transition: cx .55s cubic-bezier(.4, 1.6, .6, 1), cy .55s cubic-bezier(.4, 1.6, .6, 1);
+}
+
+.theme-switch-rays {
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	opacity: 1;
+	transition: opacity .35s ease;
+}
+
+.theme-switch-btn.is-dark {
+	color: #f8fafc;
+}
+
+.theme-switch-btn.is-dark .theme-switch-icon {
+	transform: rotate(40deg);
+}
+
+.theme-switch-btn.is-dark .theme-switch-sun {
+	r: 9;
+}
+
+.theme-switch-btn.is-dark .theme-switch-mask {
+	cx: 12px;
+	cy: 5.52px;
+}
+
+.theme-switch-btn.is-dark .theme-switch-rays {
+	opacity: 0;
 }
 
 h1,
@@ -738,23 +828,23 @@ body.dark-mode .dashboard-hero p {
     color: #b8bdc1!important;
 }
 .border-primary {
-    border-color: #00d0f1!important;
+	border-color: rgb(118, 167, 247)!important;
 }
 .btn-primary {
-	background-color: #00d0f1;
-    border: 1px solid #00d0f1;
+	background-color: rgb(118, 167, 247);
+    border: 1px solid rgb(118, 167, 247);
 }
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary.active,
 .btn-primary:active,
 .open > .dropdown-toggle.btn-primary {
-	background-color: #19c1dc;
-	border: 1px solid #19c1dc;
+	background-color: rgb(76, 144, 255);
+	border: 1px solid rgb(76, 144, 255);
 }
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
     color: #fff;
-    background-color: #00d0f1;
+	background-color: rgb(118, 167, 247);
 }
 .btn-primary.active.focus,
 .btn-primary.active:focus,
@@ -765,14 +855,14 @@ body.dark-mode .dashboard-hero p {
 .open > .dropdown-toggle.btn-primary.focus,
 .open > .dropdown-toggle.btn-primary:focus,
 .open > .dropdown-toggle.btn-primary:hover {
-	background-color: #19c1dc;
-	border: 1px solid #19c1dc;
+	background-color: rgb(76, 144, 255);
+	border: 1px solid rgb(76, 144, 255);
 }
 .btn-primary.active:not(:disabled):not(.disabled),
 .btn-primary:active:not(:disabled):not(.disabled),
 .show > .btn-primary.dropdown-toggle {
-	background-color: #19c1dc;
-	border-color: #19c1dc;
+	background-color: rgb(76, 144, 255);
+	border-color: rgb(76, 144, 255);
 	color: #fff;
 }
 .btn-primary.active:focus:not(:disabled):not(.disabled), 
@@ -781,8 +871,8 @@ body.dark-mode .dashboard-hero p {
 	box-shadow: unset;
 }
 .btn-primary.disabled, .btn-primary:disabled {
-    background-color: #00d0f1;
-    border-color: #00d0f1;
+	background-color: rgb(118, 167, 247);
+	border-color: rgb(118, 167, 247);
     color: #fff;
 }
 .btn-secondary.active:focus:not(:disabled):not(.disabled), 
@@ -833,16 +923,16 @@ body.dark-mode .dashboard-hero p {
     color: #fff;
 }
 .btn-info {
-	background-color: #009efb;
-	border: 1px solid #009efb
+	background-color: rgb(118, 167, 247);
+	border: 1px solid rgb(118, 167, 247)
 }
 .btn-info:hover,
 .btn-info:focus,
 .btn-info.active,
 .btn-info:active,
 .open > .dropdown-toggle.btn-info {
-	background-color: #028ee1;
-	border: 1px solid #028ee1
+	background-color: rgb(76, 144, 255);
+	border: 1px solid rgb(76, 144, 255)
 }
 .btn-info.active.focus,
 .btn-info.active:focus,
@@ -853,14 +943,14 @@ body.dark-mode .dashboard-hero p {
 .open > .dropdown-toggle.btn-info.focus,
 .open > .dropdown-toggle.btn-info:focus,
 .open > .dropdown-toggle.btn-info:hover {
-	background-color: #028ee1;
-	border: 1px solid #028ee1
+	background-color: rgb(76, 144, 255);
+	border: 1px solid rgb(76, 144, 255)
 }
 .btn-info.active:not(:disabled):not(.disabled),
 .btn-info:active:not(:disabled):not(.disabled),
 .show > .btn-info.dropdown-toggle {
-	background-color: #028ee1;
-	border-color: #028ee1;
+	background-color: rgb(76, 144, 255);
+	border-color: rgb(76, 144, 255);
 	color: #fff;
 }
 .btn-info.active:focus:not(:disabled):not(.disabled), 
@@ -869,8 +959,8 @@ body.dark-mode .dashboard-hero p {
 	box-shadow: unset;
 }
 .btn-info.disabled, .btn-info:disabled {
-    background-color: #009efb;
-    border-color: #009efb;
+	background-color: rgb(118, 167, 247);
+	border-color: rgb(118, 167, 247);
     color: #fff;
 }
 .btn-warning {
@@ -1166,15 +1256,18 @@ body:not(.dark-mode) .card:focus-within {
 }
 
 body.dark-mode .card {
-	background-color: #111827;
+	background-color: rgb(28, 32, 37);
 	border-color: rgba(148, 163, 184, 0.24);
 	box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+	/* Keep the same bottom spacing as light mode so cards
+	   don't collapse together when dark mode is enabled. */
+	margin-bottom: 1.875rem;
 }
 
 body.dark-mode .card-body,
 body.dark-mode .card-header,
 body.dark-mode .card-footer {
-	background-color: #111827;
+	background-color: rgb(28, 32, 37);
 }
 
 body.dark-mode .card-title,
@@ -1271,7 +1364,7 @@ body.dark-mode .dataTables_wrapper th,
 body.dark-mode .dataTables_wrapper td,
 body.dark-mode .dropdown-menu li a,
 body.dark-mode .list-group-item {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 	color: #f8fafc !important;
 }
 
@@ -1280,7 +1373,7 @@ body.dark-mode .table.dataTable,
 body.dark-mode .dataTables_wrapper table,
 body.dark-mode #sales-table,
 body.dark-mode .card-table .table {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 	color: #f8fafc !important;
 	border-collapse: separate !important;
 	border-spacing: 0 !important;
@@ -1288,11 +1381,11 @@ body.dark-mode .card-table .table {
 }
 
 body.dark-mode .table {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 }
 
 body.dark-mode .table thead {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 	border-bottom: 2px solid rgba(255, 255, 255, 0.18) !important;
 }
 
@@ -1342,11 +1435,19 @@ body.dark-mode .table-hover tbody tr:hover td {
 }
 
 body.dark-mode .table-striped tbody tr:nth-of-type(even) {
-	background-color: rgba(255, 255, 255, 0.06) !important;
+	background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-	background-color: rgba(255, 255, 255, 0.09) !important;
+	background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.dark-mode .table td.actions,
+body.dark-mode .table th.actions,
+body.dark-mode .table td.action-btn,
+body.dark-mode .table th.action-btn {
+	background-color: rgb(28, 32, 37) !important;
+	border-color: rgba(255, 255, 255, 0.10) !important;
 }
 
 body.dark-mode .table-bordered {
@@ -1392,7 +1493,7 @@ body.dark-mode .card.card-chart,
 body.dark-mode .card.card-table .card-body,
 body.dark-mode .card.card-table .card-header,
 body.dark-mode .card.card-table .card-footer {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 	border-color: rgba(255, 255, 255, 0.10) !important;
 	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
 }
@@ -1409,7 +1510,7 @@ body.dark-mode .card.card-table .table thead th,
 body.dark-mode .card.card-table .table thead td,
 body.dark-mode .card.card-table .table thead tr th,
 body.dark-mode .card.card-table .table thead tr td {
-	background-color: #111827 !important;
+	background-color: rgb(28, 32, 37) !important;
 	border-bottom: 2px solid rgba(255, 255, 255, 0.16) !important;
 }
 
@@ -1670,8 +1771,8 @@ body.dark-mode .select2-container--default .select2-results__option.cursor-hover
 .nav-tabs.nav-tabs-solid > .active > a,
 .nav-tabs.nav-tabs-solid > .active > a:hover,
 .nav-tabs.nav-tabs-solid > .active > a:focus {
-	background-color: #00d0f1;
-	border-color: #00d0f1;
+	background-color: rgb(118, 167, 247);
+	border-color: rgb(118, 167, 247);
 	color: #fff;
 }
 .tab-content {
@@ -1702,9 +1803,13 @@ body.dark-mode .select2-container--default .select2-results__option.cursor-hover
 .nav-tabs.nav-tabs-solid > li > a.active,
 .nav-tabs.nav-tabs-solid > li > a.active:hover,
 .nav-tabs.nav-tabs-solid > li > a.active:focus {
-	background-color: #00d0f1;
-	border-color: #00d0f1;
+	background-color: rgb(118, 167, 247);
+	border-color: rgb(118, 167, 247);
 	color: #fff;
+}
+
+body.dark-mode .profile-menu .nav-tabs.nav-tabs-solid > li > a:not(.active) {
+	color: rgb(231, 233, 236);
 }
 .nav-tabs.nav-tabs-solid.nav-tabs-rounded {
 	border-radius: 50px;
@@ -2028,11 +2133,13 @@ body.dark-mode .select2-container--default .select2-results__option.cursor-hover
 	background: #fff;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.40);
 	left: 0;
+	box-sizing: border-box;
 	position: fixed;
 	right: 0;
 	top: 0;
 	z-index: 1001;
 	height: 60px;
+	width: 100%;
 }
 
 .header .header-left {
@@ -2050,15 +2157,54 @@ body.dark-mode .header .header-left {
 	text-align: center;
 	width: 240px;
 	z-index: 1;
-	transition: all 0.2s ease-in-out;
+	transition: none;
 }
 .header .header-left .logo {
 	display: inline-block;
+	height: 60px;
 	line-height: 60px;
 }
-.header .header-left .logo img {
-	max-height: 38px;
-	width: auto;
+
+/* Shared header logo controls. Category rows cannot affect these values. */
+.header .header-left .logo:not(.logo-small) {
+	--header-logo-width: auto; /* Set a value such as 150px to change width. */
+	--header-logo-height: 44px; /* Change this value to resize the logo. */
+	--header-logo-move-x: 0px; /* Negative = left, positive = right. */
+	--header-logo-move-y: 0px; /* Negative = up, positive = down. */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: normal;
+	position: absolute;
+	left: calc(50% + var(--header-logo-move-x));
+	top: calc(50% + var(--header-logo-move-y));
+	transform: translate(-50%, -50%);
+	width: 100%;
+}
+.header .header-left .logo:not(.logo-small) img {
+	display: inline-block;
+	height: var(--header-logo-height) !important;
+	max-height: var(--header-logo-height);
+	max-width: 100%;
+	object-fit: contain;
+	vertical-align: middle;
+	width: var(--header-logo-width);
+	transition: none;
+}
+
+.header .theme-switch-btn {
+	top: 0;
+	height: 60px !important;
+	width: 60px !important;
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+.header .theme-switch-btn:focus,
+.header .theme-switch-btn:focus-visible,
+.header .theme-switch-btn:active {
+	outline: none !important;
+	box-shadow: none !important;
 }
 .header-left .logo.logo-small {
     display: none;
@@ -2076,6 +2222,28 @@ body.dark-mode .header .header-left {
 	align-items: center;
 	height: 60px;
 	padding: 0 16px;
+}
+.sidebar-toggle-icon {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 4px;
+	height: 22px;
+	width: 24px;
+}
+.sidebar-toggle-icon span {
+	display: block;
+	height: 3px;
+	width: 18px;
+	border-radius: 1px;
+	background: #333;
+}
+.sidebar-toggle-icon span:nth-child(2) {
+	width: 24px;
+}
+body.dark-mode .sidebar-toggle-icon span {
+	background: #f5f5f5;
 }
 .header .has-arrow .dropdown-toggle:after {
 	border-top: 0;
@@ -2138,6 +2306,18 @@ body.dark-mode .header .header-left {
 .user-menu .dropdown-menu {
     min-width: 200px;
     padding: 0;
+	left: auto;
+	right: 8px;
+	z-index: 1050;
+}
+
+/* Keep the profile menu inside the viewport when wide dashboard content overflows. */
+.header .user-menu > .dropdown > .dropdown-menu {
+	position: fixed;
+	top: 60px !important;
+	left: auto !important;
+	right: 8px !important;
+	transform: none !important;
 }
 .user-menu .dropdown-menu .dropdown-item {
     padding: 7px 15px;
@@ -2242,6 +2422,13 @@ body.dark-mode .header .header-left {
 .user-header .user-text h6 {
     margin-bottom: 2px;
 }
+body.dark-mode .user-menu .user-header {
+	background-color: rgb(28, 32, 37);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+body.dark-mode .user-menu .user-header .user-text h6 {
+	color: rgb(231, 233, 236);
+}
 .menu-title {
     color: #a3a3a3;
     display: block;
@@ -2321,8 +2508,8 @@ html.menu-opened body {
 -----------------------*/
 
 .sidebar {
-	background: linear-gradient(180deg,#0b315d 0%, #00a6d6 100%);
-	box-shadow: 0 6px 18px rgba(8,40,71,0.12);
+	background: rgb(28, 32, 37);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 	bottom: 0;
 	left: 0;
 	margin-top: 0;
@@ -2331,6 +2518,7 @@ html.menu-opened body {
 	transition: all 0.2s ease-in-out 0s;
 	width: 240px;
 	z-index: 1001;
+	border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 .sidebar.opened {
 	-webkit-transition: all 0.4s ease;
@@ -2343,66 +2531,73 @@ html.menu-opened body {
 	transition: all 0.2s ease-in-out 0s;
 }
 .sidebar-menu {
-    padding: 15px;
+    padding: 1rem 0.75rem;
 }
 .sidebar-menu ul {
-	font-size: 15px;
+	font-size: 14px;
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 	position: relative;
 }
 .sidebar-menu li a {
-	color: #fff;
+	color: rgb(201, 203, 207);
 	display: block;
-	font-size: 16px;
+	font-size: 15px;
 	height: auto;
-	padding: 0 20px;
+	padding: 0 15px;
+	transition: all 0.2s ease-in-out;
 }
 .sidebar-menu li a:hover {
-    color: #5ae8ff;
+    color: rgb(61, 185, 133);
+	background-color: rgba(61, 185, 133, 0.1);
 }
 .sidebar-menu > ul > li > a:hover {
-	background-color: #19c1dc;
-    color: #fff;
+	background-color: rgba(61, 185, 133, 0.1);
+    color: rgb(61, 185, 133);
 }
 .sidebar-menu > ul > li.active > a:hover {
-    background-color: #19c1dc;
-    color: #fff;
+    background-color: rgba(61, 185, 133, 0.15);
+    color: rgb(61, 185, 133);
 }
 .sidebar-menu li.active a {
-    background-color: #00d0f1;
-    color: #fff;
+    background-color: rgba(61, 185, 133, 0.2);
+    color: rgb(61, 185, 133);
+	font-weight: 500;
 }
 .menu-title {
-    color: #ebebeb;
+    color: rgb(140, 145, 150);
     display: flex;
-    font-size: 14px;
+    font-size: 12px;
     opacity: 1;
-    padding: 5px 15px;
+    padding: 1.25rem 1rem 0.75rem 1rem;
     white-space: nowrap;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	font-weight: 600;
 }
 .menu-title > i {
 	float: right;
 	line-height: 40px;
 }
 .sidebar-menu li.menu-title a {
-    color: #ff9b44;
+    color: rgb(140, 145, 150);
     display: inline-block;
     margin-left: auto;
     padding: 0;
 }
 .sidebar-menu li.menu-title a.btn {
-    color: #fff;
+    color: rgb(231, 233, 236);
     display: block;
     float: none;
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 15px;
     padding: 10px 15px;
 }
 .sidebar-menu ul ul a.active {
-	color: #20e3ff;
-	text-decoration: underline;
+	color: rgb(61, 185, 133);
+	text-decoration: none;
+	background-color: rgba(61, 185, 133, 0.15);
 }
 .mobile_btn {
 	display: none;
@@ -2411,8 +2606,18 @@ html.menu-opened body {
 .sidebar .sidebar-menu > ul > li > a span {
 	transition: all 0.2s ease-in-out 0s;
 	display: inline-block;
-	margin-left: 10px;
+	margin-left: 12px;
 	white-space: nowrap;
+	font-size: 15px;
+	font-weight: 500;
+}
+.sidebar .sidebar-menu > ul > li.active > a span,
+.sidebar .sidebar-menu > ul > li > a:hover span {
+	color: rgb(61, 185, 133);
+}
+body:not(.dark-mode) .sidebar .sidebar-menu > ul > li.active > a span,
+body:not(.dark-mode) .sidebar .sidebar-menu > ul > li > a:hover span {
+	color: rgb(76, 144, 255);
 }
 .sidebar .sidebar-menu > ul > li > a span.chat-user {
     margin-left: 0;
@@ -2424,18 +2629,52 @@ html.menu-opened body {
 }
 .sidebar-menu ul ul a {
     display: block;
-    font-size: 15px;
-    padding: 7px 10px 7px 45px;
+    font-size: 13px;
+    padding: 8px 12px 8px 50px;
     position: relative;
+	color: rgb(140, 145, 150);
+	transition: all 0.2s ease-in-out;
+	border-left: none;
+	margin-left: 0;
+	padding-left: 20px;
+}
+.sidebar-menu ul ul a::before {
+	content: '';
+	position: absolute;
+	left: -8px;
+	top: 50%;
+	width: 8px;
+	height: 2px;
+	background-color: rgba(140, 145, 150, 0.4);
+	transform: translateY(-50%);
+	transition: all 0.2s ease-in-out;
+}
+.sidebar-menu ul ul a:hover {
+	color: rgb(61, 185, 133);
+	background-color: rgba(61, 185, 133, 0.1);
+}
+.sidebar-menu ul ul a:hover::before {
+	background-color: rgba(61, 185, 133, 0.6);
+}
+.sidebar-menu ul ul a.active {
+	color: rgb(61, 185, 133);
+}
+.sidebar-menu ul ul a.active::before {
+	background-color: rgb(61, 185, 133);
 }
 .sidebar-menu ul ul {
 	display: none;
+	padding: 0.5rem 0 0.5rem 0;
+	border-left: 2px solid rgba(140, 145, 150, 0.4);
+	margin-left: 0;
+	padding-left: 20px;
+	position: relative;
 }
 .sidebar-menu ul ul ul a {
-	padding-left: 65px;
+	padding-left: 70px;
 }
 .sidebar-menu ul ul ul ul a {
-	padding-left: 85px;
+	padding-left: 90px;
 }
 .sidebar-menu > ul > li {
     margin-bottom: 3px;
@@ -2445,55 +2684,91 @@ html.menu-opened body {
     margin-bottom: 0;
 }
 .sidebar-menu .menu-arrow {
-	-webkit-transition: -webkit-transform 0.15s;
-	-o-transition: -o-transform 0.15s;
-	transition: transform .15s;
+	transition: transform 0.2s ease-in-out, border-color 0.2s ease-in-out;
 	position: absolute;
-	right: 15px;
+	right: 12px;
 	display: inline-block;
-	font-family: 'FontAwesome';
-	text-rendering: auto;
-	line-height: 40px;
-	font-size: 16px;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	-webkit-transform: translate(0, 0);
-	-ms-transform: translate(0, 0);
-	-o-transform: translate(0, 0);
-	transform: translate(0, 0);
-	line-height: 18px;
-	top: 11px;
+	width: 7px;
+	height: 7px;
+	top: 10px;
+	border-right: 1.5px solid rgba(255, 255, 255, 0.6);
+	border-bottom: 1.5px solid rgba(255, 255, 255, 0.6);
+	transform: rotate(45deg);
+	color: rgba(255, 255, 255, 0.4);
 }
 .sidebar-menu .menu-arrow:before {
-	content: "\f105";
+	content: none;
 }
 .sidebar-menu li a.subdrop .menu-arrow {
-	-ms-transform: rotate(90deg);
-	-webkit-transform: rotate(90deg);
-	-o-transform: rotate(90deg);
-	transform: rotate(90deg);
+	transform: rotate(225deg);
+	color: rgb(61, 185, 133);
+	border-color: rgb(61, 185, 133);
 }
 .sidebar-menu ul ul a .menu-arrow {
 	top: 10px;
 }
 .sidebar-menu > ul > li > a {
     align-items: center;
-    border-radius: 3px;
+    border-radius: 8px;
     display: flex;
     justify-content: flex-start;
-    padding: 8px 15px;
+    padding: 10px 12px;
     position: relative;
     transition: all 0.2s ease-in-out 0s;
-	color: #f1f1f1;
+	color: rgb(201, 203, 207);
+	margin: 0.5rem 0;
 }
 .sidebar-menu ul li a i {
 	display: inline-block;
-	font-size: 24px;
-	line-height: 24px;
+	font-size: 18px;
+	line-height: 20px;
 	text-align: left;
 	vertical-align: middle;
-	width: 20px;
+	width: 24px;
 	transition: all 0.2s ease-in-out 0s;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+body:not(.dark-mode) .sidebar {
+	background: #ffffff;
+	border-right-color: rgba(15, 23, 42, 0.10);
+	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+body:not(.dark-mode) .sidebar-menu li a,
+body:not(.dark-mode) .sidebar-menu > ul > li > a {
+	color: #475569;
+}
+body:not(.dark-mode) .sidebar-menu li a:hover,
+body:not(.dark-mode) .sidebar-menu > ul > li > a:hover {
+	background-color: rgba(118, 167, 247, 0.12);
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu li.active a,
+body:not(.dark-mode) .sidebar-menu > ul > li.active > a {
+	background-color: rgba(118, 167, 247, 0.18);
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu ul li a i {
+	color: #94a3b8;
+}
+body:not(.dark-mode) .sidebar-menu > ul > li > a:hover i,
+body:not(.dark-mode) .sidebar-menu > ul > li.active > a i {
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu .menu-arrow {
+	border-color: #94a3b8;
+}
+body:not(.dark-mode) .sidebar-menu li a.subdrop .menu-arrow {
+	border-color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu ul ul a.active,
+body:not(.dark-mode) .sidebar-menu ul ul a:hover {
+	background-color: rgba(118, 167, 247, 0.12);
+	color: rgb(76, 144, 255);
+}
+.sidebar-menu > ul > li > a:hover i,
+.sidebar-menu > ul > li.active > a i {
+	color: rgb(61, 185, 133);
 }
 .sidebar-menu ul li.menu-title a i {
 	font-size: 16px !important;
@@ -2503,6 +2778,29 @@ html.menu-opened body {
 }
 .sidebar-menu li a > .badge {
     color: #fff;
+}
+
+body:not(.dark-mode) .sidebar-menu li a:hover,
+body:not(.dark-mode) .sidebar-menu > ul > li > a:hover,
+body:not(.dark-mode) .sidebar-menu > ul > li.active > a:hover {
+	background-color: rgba(118, 167, 247, 0.12);
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu li.active a {
+	background-color: rgba(118, 167, 247, 0.18);
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu ul ul a.active,
+body:not(.dark-mode) .sidebar-menu ul ul a:hover {
+	background-color: rgba(118, 167, 247, 0.12);
+	color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu li a.subdrop .menu-arrow {
+	border-color: rgb(76, 144, 255);
+}
+body:not(.dark-mode) .sidebar-menu ul ul a.active::before,
+body:not(.dark-mode) .sidebar-menu ul ul a:hover::before {
+	background-color: rgb(76, 144, 255);
 }
 /*-----------------
 	6. Toggle Button
@@ -2925,6 +3223,24 @@ html.menu-opened body {
     float: right;
     font-size: 12px;
     text-transform: uppercase;
+}
+
+body.dark-mode .topnav-dropdown-header .notification-title,
+body.dark-mode .topnav-dropdown-footer a,
+body.dark-mode .notifications .noti-title,
+body.dark-mode .notifications .noti-details,
+body.dark-mode .notifications .notification-time {
+	color: #f8fafc !important;
+}
+
+body.dark-mode .notifications .media,
+body.dark-mode .notifications ul.notification-list > li {
+	border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .notifications ul.notification-list > li a:hover,
+body.dark-mode .notifications .media a:hover {
+	background-color: rgba(255, 255, 255, 0.06);
 }
 .noti-time {
     margin: 0;
@@ -4245,6 +4561,100 @@ table.table-inbox tbody tr.checked {
     max-width: 120px;
     width: 120px;
 }
+.profile-image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.profile-header img.verified-account {
+    border: 3px solid #2f6fed;
+    box-sizing: border-box;
+}
+.profile-image-wrapper.super-admin-wrapper img.super-admin-verified {
+    border: 3px solid;
+    animation: rgb-border-animation 3s infinite;
+    box-sizing: border-box;
+}
+@keyframes rgb-border-animation {
+    0% {
+        border-color: rgb(255, 0, 0);
+    }
+    16.67% {
+        border-color: rgb(255, 127, 0);
+    }
+    33.33% {
+        border-color: rgb(255, 255, 0);
+    }
+    50% {
+        border-color: rgb(0, 255, 0);
+    }
+    66.67% {
+        border-color: rgb(0, 0, 255);
+    }
+    83.33% {
+        border-color: rgb(75, 0, 130);
+    }
+    100% {
+        border-color: rgb(255, 0, 0);
+    }
+}
+.verification-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #2f6fed;
+    color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+.verification-badge.super-admin-badge {
+    background-color: transparent;
+    animation: super-admin-badge-glow 3s infinite;
+}
+@keyframes super-admin-badge-glow {
+    0% {
+        background-color: rgb(255, 0, 0);
+        box-shadow: 0 0 8px rgb(255, 0, 0), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    16.67% {
+        background-color: rgb(255, 127, 0);
+        box-shadow: 0 0 8px rgb(255, 127, 0), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    33.33% {
+        background-color: rgb(255, 255, 0);
+        box-shadow: 0 0 8px rgb(255, 255, 0), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        background-color: rgb(0, 255, 0);
+        box-shadow: 0 0 8px rgb(0, 255, 0), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    66.67% {
+        background-color: rgb(0, 0, 255);
+        box-shadow: 0 0 8px rgb(0, 0, 255), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    83.33% {
+        background-color: rgb(75, 0, 130);
+        box-shadow: 0 0 8px rgb(75, 0, 130), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    100% {
+        background-color: rgb(255, 0, 0);
+        box-shadow: 0 0 8px rgb(255, 0, 0), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+}
+body.dark-mode .profile-header img.verified-account {
+    border-color: #21b573;
+}
+body.dark-mode .verification-badge {
+    background-color: #21b573;
+}
 .profile-tab-cont {
 	padding-top: 1.875rem;
 }
@@ -4975,8 +5385,10 @@ table.table-inbox tbody tr.checked {
 	.mini-sidebar .sidebar {
 		width: 78px;
 	}
-	.mini-sidebar.expand-menu .sidebar {
-		width: 240px;
+	.mini-sidebar .sidebar-inner,
+	.mini-sidebar .sidebar-inner.slimscroll,
+	.mini-sidebar .sidebar .slimScrollDiv {
+		overflow: visible !important;
 	}
 	.mini-sidebar .menu-title {
 		visibility: hidden;
@@ -4992,20 +5404,98 @@ table.table-inbox tbody tr.checked {
 		visibility: visible;
 	}
 	.modal-open.mini-sidebar .sidebar {
-		z-index: 1051;
+		/* Keep collapsed sidebar icons behind Bootstrap modal backdrops. */
+		z-index: 1039;
 	}
 	.mini-sidebar .sidebar .sidebar-menu ul > li > a span {
 		display: none;
 		transition: all 0.2s ease-in-out;
 		opacity: 0;
 	}
-	.mini-sidebar.expand-menu .sidebar .sidebar-menu ul > li > a span {
-		display: inline;
-		opacity: 1;
+	.mini-sidebar .sidebar .sidebar-menu > ul > li > a.active {
+		background-color: rgba(118, 167, 247, 0.18);
+		color: rgb(76, 144, 255);
 	}
-	.mini-sidebar.expand-menu .sidebar .sidebar-menu > ul > li > a i {
-		font-size: 24px;
-		width: 20px;
+	.mini-sidebar .sidebar .sidebar-menu > ul > li > a.active i {
+		color: rgb(76, 144, 255);
+	}
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li > a.active,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li > a.active {
+		background-color: rgba(61, 185, 133, 0.2) !important;
+		color: rgb(61, 185, 133) !important;
+	}
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li > a.active i,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li > a.active i {
+		color: rgb(61, 185, 133) !important;
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li > a[data-sidebar-label]::after {
+		background: #1f2937;
+		border-radius: 4px;
+		box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+		color: #fff;
+		content: attr(data-sidebar-label);
+		font-size: 13px;
+		font-weight: 500;
+		left: 68px;
+		opacity: 0;
+		padding: 7px 10px;
+		pointer-events: none;
+		position: absolute;
+		top: 50%;
+		transform: translate(-6px, -50%);
+		transition: opacity 0.15s ease, transform 0.15s ease;
+		white-space: nowrap;
+		z-index: 1100;
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li > a[data-sidebar-label]:not(.sidebar-label-hidden):hover::after,
+	.mini-sidebar .sidebar .sidebar-menu > ul > li > a[data-sidebar-label]:not(.sidebar-label-hidden):focus-visible::after {
+		opacity: 1;
+		transform: translate(0, -50%);
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul {
+		background: #fff;
+		border: 1px solid rgba(148, 163, 184, 0.28);
+		border-radius: 8px;
+		box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18);
+		left: 70px;
+		margin: 0;
+		min-width: 190px;
+		padding: 8px 6px;
+		position: absolute;
+		top: 0;
+		z-index: 1101;
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a {
+		border-radius: 6px;
+		color: #334155;
+		font-size: 15px;
+		margin: 1px 0;
+		padding: 8px 12px;
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a::before,
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a .menu-arrow {
+		display: none;
+	}
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a:hover,
+	.mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a.active {
+		background: rgba(118, 167, 247, 0.14);
+		color: rgb(76, 144, 255);
+	}
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul {
+		background: #1f2937 !important;
+		border-color: rgba(255, 255, 255, 0.14) !important;
+	}
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a {
+		color: #e5e7eb !important;
+	}
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a:hover,
+	body.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a.active,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a:hover,
+	html.dark-mode .mini-sidebar .sidebar .sidebar-menu > ul > li.submenu > ul > li > a.active {
+		background: rgba(61, 185, 133, 0.2) !important;
+		color: rgb(61, 185, 133) !important;
 	}
 	.mini-sidebar .page-wrapper {
 		margin-left: 78px;
@@ -5158,6 +5648,9 @@ table.table-inbox tbody tr.checked {
 		padding: 0 15px;
 	}
 	.header .header-left .logo {
+		display: none;
+	}
+	.header .header-left .logo:not(.logo-small) {
 		display: none;
 	}
 	.header-left .logo.logo-small {
@@ -5323,4 +5816,173 @@ table.table-inbox tbody tr.checked {
 	.page-header .breadcrumb {
 		display: none;
 	}
+}
+
+/* ── Global table header hover readability (all existing tables) ──
+   Prevents white-on-white text when hovering sortable column titles,
+   e.g. dashboard Today Sales PRODUCT / QUANTITY / TOTAL PRICE / DATE. */
+body.dark-mode .table thead th:hover,
+body.dark-mode .table thead td:hover,
+body.dark-mode table.dataTable thead th:hover,
+body.dark-mode table.dataTable thead td:hover {
+	background: rgb(34, 40, 47) !important;
+	background-color: rgb(34, 40, 47) !important;
+	color: #ffffff !important;
+}
+
+body.dark-mode .table thead th:hover a,
+body.dark-mode .table thead td:hover a,
+body.dark-mode .table thead th:hover span,
+body.dark-mode .table thead td:hover span {
+	color: #ffffff !important;
+}
+
+/* Keep every dark-mode table hover state readable, including DataTables sort cells. */
+body.dark-mode .table-hover tbody tr:hover,
+body.dark-mode .card-table .table tbody tr:hover,
+body.dark-mode table.dataTable tbody tr:hover {
+	background: rgb(34, 40, 47) !important;
+	background-color: rgb(34, 40, 47) !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover > td,
+body.dark-mode .table-hover tbody tr:hover > th,
+body.dark-mode .card-table .table tbody tr:hover > td,
+body.dark-mode .card-table .table tbody tr:hover > th,
+body.dark-mode table.dataTable tbody tr:hover > td,
+body.dark-mode table.dataTable tbody tr:hover > th {
+	background: transparent !important;
+	background-color: transparent !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode table.dataTable thead th.sorting:hover,
+body.dark-mode table.dataTable thead th.sorting_asc:hover,
+body.dark-mode table.dataTable thead th.sorting_desc:hover,
+body.dark-mode table.dataTable thead td.sorting:hover,
+body.dark-mode table.dataTable thead td.sorting_asc:hover,
+body.dark-mode table.dataTable thead td.sorting_desc:hover {
+	background: rgb(34, 40, 47) !important;
+	background-color: rgb(34, 40, 47) !important;
+	color: #ffffff !important;
+}
+
+/* Keep header task and notification icons visible on dark-mode hover/focus. */
+body.dark-mode .header .user-menu.nav > li > a:hover,
+body.dark-mode .header .user-menu.nav > li > a:focus,
+body.dark-mode .header .user-menu.nav > li > a:active {
+	background-color: rgb(34, 40, 47) !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode .header .user-menu.nav > li > a:hover i,
+body.dark-mode .header .user-menu.nav > li > a:focus i,
+body.dark-mode .header .user-menu.nav > li > a:active i {
+	color: #f8fafc !important;
+}
+
+body.dark-mode .header .user-menu.nav > li > a:hover .badge,
+body.dark-mode .header .user-menu.nav > li > a:focus .badge,
+body.dark-mode .header .user-menu.nav > li > a:active .badge {
+	color: #ffffff !important;
+	background-color: #1677ff !important;
+}
+
+body.dark-mode .header .has-arrow .dropdown-toggle:hover:after,
+body.dark-mode .header .has-arrow .dropdown-toggle:focus:after {
+	border-color: #f8fafc !important;
+}
+
+/* Product names in sales tables are interactive detail links. */
+body:not(.dark-mode) .sale-product-detail-link {
+	color: #1677ff !important;
+	cursor: pointer;
+}
+
+body:not(.dark-mode) .sale-product-detail-link:hover,
+body:not(.dark-mode) .sale-product-detail-link:focus {
+	color: #0b5ed7 !important;
+	text-decoration: underline;
+}
+
+body.dark-mode .sale-product-detail-link {
+	color: #3db985 !important;
+	cursor: pointer;
+}
+
+body.dark-mode .sale-product-detail-link:hover,
+body.dark-mode .sale-product-detail-link:focus {
+	color: #69d9aa !important;
+	text-decoration: underline;
+}
+
+/* Shared dark-mode styling for action menus inside every table. */
+body.dark-mode .table-responsive .actions .dropdown-toggle,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-toggle,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-toggle,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-toggle {
+	background-color: rgb(82, 92, 103) !important;
+	border-color: rgb(82, 92, 103) !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode .table-responsive .actions .dropdown-toggle:hover,
+body.dark-mode .table-responsive .actions .dropdown-toggle:focus,
+body.dark-mode .table-responsive .actions .dropdown-toggle:active,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-toggle:hover,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-toggle:focus,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-toggle:active,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-toggle:hover,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-toggle:focus,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-toggle:active,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-toggle:hover,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-toggle:focus,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-toggle:active,
+body.dark-mode .table-responsive td:has(.dropdown-menu.show) .dropdown-toggle,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-menu.show) .dropdown-toggle {
+	background-color: rgb(34, 40, 47) !important;
+	border-color: rgba(255, 255, 255, 0.24) !important;
+	color: #ffffff !important;
+}
+
+body.dark-mode .table-responsive .actions .dropdown-menu,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu {
+	background-color: rgb(23, 27, 31) !important;
+	border: 1px solid rgba(255, 255, 255, 0.12) !important;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55) !important;
+}
+
+body.dark-mode .table-responsive .actions .dropdown-menu > li > a,
+body.dark-mode .table-responsive .actions .dropdown-menu .dropdown-item,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu > li > a,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu .dropdown-item,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu > li > a,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu .dropdown-item,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu > li > a,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu .dropdown-item {
+	background-color: transparent !important;
+	color: #f8fafc !important;
+}
+
+body.dark-mode .table-responsive .actions .dropdown-menu > li > a:hover,
+body.dark-mode .table-responsive .actions .dropdown-menu > li > a:focus,
+body.dark-mode .table-responsive .actions .dropdown-menu .dropdown-item:hover,
+body.dark-mode .table-responsive .actions .dropdown-menu .dropdown-item:focus,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu > li > a:hover,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu > li > a:focus,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu .dropdown-item:hover,
+body.dark-mode .table-responsive td:has(.dropdown-toggle) .dropdown-menu .dropdown-item:focus,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu > li > a:hover,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu > li > a:focus,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu .dropdown-item:hover,
+body.dark-mode table.datatable td:has(.dropdown-toggle) .dropdown-menu .dropdown-item:focus,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu > li > a:hover,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu > li > a:focus,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu .dropdown-item:hover,
+body.dark-mode .tabulator .tabulator-cell:has(.dropdown-toggle) .dropdown-menu .dropdown-item:focus {
+	background-color: rgb(34, 40, 47) !important;
+	color: #ffffff !important;
 }

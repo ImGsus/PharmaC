@@ -13,6 +13,15 @@ use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
+    public function resources()
+    {
+        return response()->json([
+            'purchases' => Purchase::count(),
+            'suppliers' => Supplier::count(),
+            'sales' => Sale::count(),
+        ]);
+    }
+
     public function index(){
         $title = 'dashboard';
         $total_purchases = Purchase::count();
@@ -22,7 +31,8 @@ class DashboardController extends Controller
         Product::markExpiredProducts();
         $total_barcoded_products = Product::whereNotNull('barcode')->count();
         $today = Carbon::today()->toDateString();
-        
+
+        $pieChartData = [$total_purchases, $total_suppliers, $total_sales];
         $pieChart = app()->chartjs
                 ->name('pieChart')
                 ->type('pie')
@@ -32,14 +42,29 @@ class DashboardController extends Controller
                     [
                         'backgroundColor' => ['#FF6384', '#36A2EB','#7bb13c'],
                         'hoverBackgroundColor' => ['#FF6384', '#36A2EB','#7bb13c'],
-                        'data' => [$total_purchases, $total_suppliers,$total_sales]
+                        'data' => $pieChartData
                     ]
                 ])
                 ->options([
                     'responsive' => true,
                     'maintainAspectRatio' => false,
-                    'legend' => ['position' => 'bottom'],
-                    'layout' => ['padding' => ['top' => 8, 'bottom' => 8]],
+                    // PIE LEGEND CONTROLS: adjust the labels shown below the pie.
+                    'legend' => [
+                        'position' => 'bottom', // Keep the labels below the pie. Use 'top' to place them above.
+                        'align' => 'center', // Use 'start' to move left or 'end' to move right.
+                        'labels' => [
+                            'fontSize' => 12, // Change the label text size.
+                            'padding' => 30, // Increase to add more space between the pie and these labels.
+                        ],
+                    ],
+                    'layout' => [
+                        'padding' => [
+                            'top' => 8, // Increase to add space above the whole chart.
+                            'bottom' => 8, // Increase to add space below the legend.
+                            'left' => 0, // Increase to move the whole chart right.
+                            'right' => 0, // Increase to move the whole chart left.
+                        ],
+                    ],
                 ]);
         
         $total_expired_products = Product::where('expired', true)->count();

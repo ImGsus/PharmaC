@@ -1,0 +1,1064 @@
+FINAL UPDATE GUIDE 3
+Chapter III: Methodology
+Pages 15-33
+
+Purpose
+This guide compares the Chapter 3 methodology statements with the implemented
+Laravel pharmacy management system. The Enhanced wording preserves the intended
+research methodology while clearly separating verified application structure from
+research activities that require supporting documents, raw data, or evaluation
+records.
+
+======================================================================
+CODE VERIFICATION AGAINST THE PROJECT IMPLEMENTATION
+======================================================================
+The Chapter III statements in this file are checked against the actual Laravel
+application in the repository. The implemented code verifies the following:
+
+- product, category, supplier, purchase, sales/POS, stock movement, expiry,
+  reporting, and access-control workflows are present in the application code
+  and routes.
+- barcode lookup and POS transaction processing are implemented in
+  app/Http/Controllers/Admin/PosController.php.
+- report generation, low-stock alerts, reorder suggestions, expiry monitoring,
+  and compliance exception reporting are implemented in
+  app/Http/Controllers/Admin/ReportController.php.
+- audit logging is implemented through app/Http/Middleware/AuditRequests.php and
+  app/Services/AuditLogger.php.
+- prescription submission and verification are implemented in
+  app/Http/Controllers/Admin/PrescriptionController.php.
+
+The Chapter III wording should therefore describe the project as a verified
+Laravel-based pharmacy management system with operational support features,
+but it should avoid claiming completed ISO compliance, formal regulatory
+certification, verified real-time monitoring, or complete end-to-end testing
+unless supporting records and evidence exist.
+
+======================================================================
+FIRST: LIST OF WHAT NEEDS TO CHANGE
+======================================================================
+
+1. Page 15 - Chapter overview: change the system name to include inventory and
+sales/POS workflows and avoid claiming effectiveness or reliability without test
+and evaluation evidence.
+
+2. Pages 15-16 - Research Design: retain the descriptive-developmental approach,
+but identify interviews, observations, and requirements analysis as research
+activities that need supporting artifacts.
+
+3. Pages 15-16 - Descriptive Phase: qualify claims about manual ledgers,
+spreadsheet use, expired-stock accumulation, and communication bottlenecks.
+
+4. Pages 15-16 - Developmental Phase: describe the Laravel artifact and avoid
+claiming documented user feedback or formal Agile optimization without records.
+
+5. Page 16 - Evidence-Based Design and Iterative Problem Solving: explain that
+features are intended to address requirements; do not claim that the code proves
+those requirements came from interviews or resolved real-world problems.
+
+6. Pages 16-17 - Data Collection: change interviews, direct observation, and
+questionnaires from completed activities to planned methods unless transcripts,
+notes, completed questionnaires, and consent records are available.
+
+7. Pages 17-19 - Agile SDLC: qualify the Agile claim. The repository shows
+incremental code changes, but no sprint plans, backlog, retrospectives, or formal
+feedback records were verified.
+
+8. Pages 18-20 - Agile phases: distinguish verified development artifacts from
+unverified planning, testing, deployment, and maintenance activities.
+
+9. Pages 20-21 - Database Design: revise the database description to match the
+migration-backed schema. There is no dedicated Inventory or Reports table.
+
+10. Pages 21-24 - Context Diagram and DFD: revise actors and data flows to match
+configured roles, routes, controllers, and actual transaction behavior.
+
+11. Pages 24-26 - ERD: remove Inventory and Reports as ordinary entities and use
+actual tables such as stock_movements, pos_sessions, prescriptions,
+temperature_readings, audit_logs, and permission tables.
+
+12. Pages 26-28 - Use Case Diagram: replace Pharmacist and Pharmacy Manager as
+configured roles unless those roles are separately created and assigned.
+
+13. Pages 28-29 - Development Tools: qualify MySQL, XAMPP, and Visual Studio
+Code claims. MySQL is the default connection; XAMPP and VS Code use are not
+proven by the repository alone.
+
+14. Pages 29-30 - Evaluation Procedure: change ISO 25010 claims from completed
+results to a proposed or selected evaluation framework unless raw evaluation
+data and administration records are available.
+
+15. Pages 29-30 - Evaluation Tool: describe the questionnaire as adapted from
+selected ISO/IEC 25010 characteristics, not as proof of ISO compliance.
+
+16. Pages 30-31 - Respondents: verify or qualify the claimed 40 users, 10 IT
+experts, and total 50 respondents using participant records and completed forms.
+
+17. Pages 31-33 - Statistical Tools: retain the formulas as proposed methods,
+but do not present weighted means or Likert results without raw response data.
+
+18. Pages 15-33 - Replace terms such as real-time monitoring, full reliability,
+ISO effectiveness, regulatory compliance, clinical prescription verification,
+and complete system validation unless they are supported by tests and evidence.
+
+======================================================================
+SECOND: OLD AND ENHANCED WORDING
+======================================================================
+
+---------------------------------------------------------------------
+PAGE 15 - CHAPTER III OVERVIEW
+---------------------------------------------------------------------
+
+Old:
+
+CHAPTER III
+METHODOLOGY
+
+This chapter presented the research methodology used in the development of the
+Web-Based Pharmacy Inventory Management System. It discussed the research design,
+system development process, respondents of the study, data gathering procedures,
+software and hardware requirements, and testing methods used to ensure the
+effectiveness and reliability of the system. The chapter also explained how the
+researchers designed, developed, and evaluated the system to help pharmacies
+manage medicine inventory, monitor stock levels, and track product expiration dates
+efficiently.
+
+Enhanced:
+
+CHAPTER III
+METHODOLOGY
+
+This chapter presents the methodology used in the design and development of the
+Web-Based Pharmacy Inventory and Sales Management System with Stock Monitoring
+and Expiry Tracking. It discusses the research design, data-gathering procedures,
+system development process, database and system models, development tools,
+evaluation instrument, respondents, and statistical procedures.
+
+The implemented application includes product, category, supplier, purchase,
+inventory, sales/POS, stock movement, expiry, reporting, user-permission,
+prescription-record, temperature-record, and audit-log workflows. The chapter
+also describes the procedures proposed or performed by the researchers to design,
+develop, test, and evaluate the system. Claims about effectiveness, reliability,
+usability, security, or performance should be supported by completed test and
+evaluation records.
+
+Reason for update:
+The code verifies the application modules and structure, but it does not by itself
+prove that the system was effective or reliable in actual pharmacy operations.
+Those claims require test results, evaluation forms, and operational evidence.
+
+---------------------------------------------------------------------
+PAGES 15-16 - A. RESEARCH DESIGN
+---------------------------------------------------------------------
+
+Old:
+
+A. Research Design
+
+The study utilized a Descriptive-Developmental Research Design. This dual-phased
+approach is structured to systematically investigate existing operational
+conditions and subsequently engineer an applied technical solution to address
+identified gaps.
+
+Descriptive Phase: This phase focused on examining, documenting, and analyzing the
+current operational workflows, manual inventory pain points, and reporting
+requirements inherent in small-to-medium pharmacy operations. Through systematic
+data gathering, this phase identified the operational inefficiencies, risks of
+expired stock accumulation, and communication bottlenecks associated with
+traditional paper-based ledgers and unintegrated spreadsheets.
+
+Developmental Phase: Guided by the insights gathered during the descriptive phase,
+this phase focused on the practical application of software engineering principles.
+It encompassed the design, coding, testing, and refinement of the web-based
+inventory management system utilizing the Agile development framework, ensuring
+iterative feedback loops and continuous system optimization.
+
+Enhanced:
+
+A. Research Design
+
+The study used a descriptive-developmental approach. The descriptive component
+was intended to document pharmacy requirements, inventory workflows, expiry
+monitoring needs, reporting requirements, and related operational concerns. The
+developmental component involved designing, implementing, and refining a web-based
+application based on the identified requirements.
+
+The developmental output is represented by the Laravel application, including
+migrations, Eloquent models, controllers, routes, Blade views, JavaScript, CSS,
+notifications, permissions, and report workflows. The repository verifies the
+developed software artifact. However, the descriptive research activities and the
+claim that the features were derived from specific participants should be
+supported by interview records, observation notes, requirement documents, survey
+responses, or other research artifacts.
+
+Reason for update:
+The code proves that an application was developed. It cannot prove that the
+descriptive phase, requirements investigation, or user-feedback process occurred
+without supporting research documents.
+
+---------------------------------------------------------------------
+PAGES 15-16 - DESCRIPTIVE AND DEVELOPMENTAL PHASES
+---------------------------------------------------------------------
+
+Old:
+
+Descriptive Phase: The researchers examined manual inventory pain points,
+paper-based ledgers, spreadsheets, expired-stock risks, and communication
+bottlenecks in small-to-medium pharmacies.
+
+Developmental Phase: The developmental phase was guided by insights gathered from
+the descriptive phase and used Agile development to ensure iterative feedback
+loops and continuous system optimization.
+
+Enhanced:
+
+Descriptive Phase: The study intended to examine pharmacy workflows, inventory
+requirements, expiry monitoring, purchasing, sales recording, reporting needs, and
+user-access requirements. Claims about paper-based ledgers, spreadsheet use,
+communication bottlenecks, or expired-stock accumulation should be retained only
+when supported by interview transcripts, observation records, survey results,
+pharmacy records, or cited external studies.
+
+Developmental Phase: The developmental phase produced a Laravel web application
+through database migrations, Eloquent models, controllers, routes, Blade views,
+JavaScript, CSS, notifications, permission configuration, and report logic. The
+repository contains implementation changes and feature additions, but it does not
+independently establish that every change resulted from documented user feedback
+or formal iteration reviews.
+
+Reason for update:
+No interview transcripts, observation notes, completed surveys, or formal Agile
+review artifacts were verified in the repository.
+
+---------------------------------------------------------------------
+PAGE 16 - SUITABILITY OF THE APPROACH
+---------------------------------------------------------------------
+
+Old:
+
+The descriptive-developmental approach is highly suitable for this capstone
+project because the research objective extends beyond mere theoretical inquiry
+into tangible software artifact creation:
+
+Evidence-Based Design: The descriptive component ensures that the system features
+are directly rooted in the real-world operational challenges and requirements of
+pharmacy staff and owners.
+
+Iterative Problem Solving: The developmental component allows the researchers to
+iteratively build, test, and improve the software solution, ensuring that
+technical capabilities such as automated expiry tracking and low-stock alerts
+directly resolve the problems documented in the descriptive phase.
+
+Enhanced:
+
+The descriptive-developmental approach is suitable for this capstone project
+because the study combines requirements investigation with the creation of a
+working software artifact.
+
+Evidence-Based Design: The approach is intended to connect system features with
+pharmacy requirements and operational concerns. The connection between specific
+requirements and individual features should be demonstrated through requirements
+documents, interview results, observation notes, or validation records.
+
+Iterative Problem Solving: The developmental process allows the researchers to
+build, test, and improve the software solution. The application contains features
+for inventory, expiry, stock monitoring, sales, reporting, and access control.
+However, evidence that these features resolved documented pharmacy problems
+requires traceable issue histories, test cases, user feedback, or validation
+records.
+
+Reason for update:
+ReportController.php and the purchase/sales controllers verify feature logic, but
+code alone does not prove that features were directly derived from participants or
+that they resolved measured operational problems.
+
+---------------------------------------------------------------------
+PAGES 16-17 - B. DATA COLLECTION
+---------------------------------------------------------------------
+
+Old:
+
+B. Data Collection
+
+To gather comprehensive and accurate information for both the descriptive analysis
+and system evaluation phases, data is collected using three primary methods:
+
+Interviews: Semi-structured interviews are conducted with pharmacy personnel,
+administrators, and owners. These sessions aimed to establish core functional
+requirements, such as essential product details, optimal low-stock threshold
+parameters, batch management practices, and specific reporting needs required for
+daily pharmacy operations.
+
+Direct Observation: The researchers conducted direct observations of pharmacy
+workflows, specifically observing staff during stock-in activities, inventory
+audits, and shelf-expiry checking. This method allowed the development team to
+accurately model data flows, map out user role requirements, and understand the
+physical constraints of pharmacy environments.
+
+Questionnaires: Structured questionnaires, administered during the system
+evaluation phase, utilized standardized instruments based on the ISO 25010 software
+quality model. These questionnaires are distributed to end-users and Information
+Technology experts to systematically measure system usability, functional
+suitability, performance efficiency, and security.
+
+Enhanced:
+
+B. Data Collection
+
+The study proposed interviews, direct observation, and structured questionnaires
+as data-collection methods for requirements analysis and system evaluation.
+
+Interviews: Semi-structured interviews may be used to gather information about
+product details, stock thresholds, batch records, expiry monitoring, reporting
+needs, user roles, and pharmacy workflows. Interview guides, participant records,
+transcripts, notes, and consent documentation should be retained as evidence that
+these interviews were conducted.
+
+Direct Observation: Direct observation may be used to examine stock-in activities,
+inventory checking, expiry review, sales recording, and reporting workflows.
+Observation checklists, dates, locations, notes, and researcher records should be
+retained to support claims based on observation.
+
+Questionnaires: A structured questionnaire informed by selected ISO/IEC 25010
+software-quality characteristics may be administered to intended users and
+technical evaluators. Completed questionnaires, respondent codes, administration
+dates, raw responses, and computation records should be retained to substantiate
+any reported evaluation results.
+
+Reason for update:
+The codebase contains no interview guides or transcripts, observation checklists
+or notes, completed questionnaires, consent records, respondent forms, or survey
+dataset. Therefore, completed data collection should not be claimed based only on
+the application source code.
+
+---------------------------------------------------------------------
+PAGES 17-19 - C. SYSTEM DEVELOPMENT LIFE CYCLE
+---------------------------------------------------------------------
+
+Old:
+
+C. System Development Life Cycle
+
+The study used the Agile Model as the Software Development Life Cycle (SDLC)
+approach. The Agile Model is an iterative and flexible software development
+methodology focused on continuous improvement, regular feedback, and incremental
+system development. This approach allowed the researchers to develop the system
+in smaller phases called iterations or sprints, making it easier to identify
+problems, improve features, and adapt to user needs during the development process.
+
+The Agile Model is suitable for the Web-Based Pharmacy Inventory Management System
+because it allowed continuous testing and enhancement of system features such as
+inventory management, stock monitoring, expiry tracking, notifications, and report
+generation.
+
+Enhanced:
+
+C. System Development Life Cycle
+
+The study used an incremental development approach informed by Agile principles.
+The project was implemented through Laravel, PHP, Eloquent, Blade, JavaScript,
+CSS, database migrations, and package configuration. The available repository
+shows successive feature additions and schema changes.
+
+A formal Agile claim should be supported by sprint plans, product backlogs,
+iteration records, issue tracking, review notes, retrospectives, pull requests,
+or dated change histories. Without those records, the process should be described
+as Agile-inspired or incrementally developed rather than as a fully documented
+Agile implementation.
+
+The development work includes inventory, purchasing, supplier, sales/POS, expiry,
+stock movement, reports, barcode lookup, prescriptions, temperature records,
+permissions, and audit-log features. Continuous testing, user feedback, and
+system improvement should be claimed only when corresponding evidence is available.
+
+Reason for update:
+The repository contains code and migrations, but no sprint backlog, burndown
+records, retrospectives, meeting notes, or formal Agile documentation were verified.
+
+---------------------------------------------------------------------
+PAGES 17-19 - AGILE DEVELOPMENT PHASES
+---------------------------------------------------------------------
+
+Old:
+
+The Agile process followed in the study includes:
+
+a. Planning
+b. Designing
+c. Developing
+d. Testing
+e. Deployment
+f. Review and Improvement
+
+This process repeats continuously until the system becomes fully functional and
+meets the requirements of the users.
+
+Enhanced:
+
+The incremental development process described for the study includes:
+
+a. Planning - identify requirements, priorities, and implementation tasks.
+b. Designing - prepare database, interface, route, and workflow designs.
+c. Developing - implement application features and database changes.
+d. Testing - execute documented functional, integration, usability, performance,
+   and security checks where applicable.
+e. Deployment - make the application available in the configured local or hosted
+   environment.
+f. Review and Improvement - analyze verified defects, feedback, and required
+   changes.
+
+The repository verifies development artifacts and subsequent schema or feature
+changes. It does not independently verify that each listed phase was completed
+through formal meetings, sprint records, user reviews, deployment logs, or
+maintenance reports.
+
+Phase-specific corrections:
+
+Planning Phase
+
+Old:
+During this phase, the researchers identified system requirements and objectives
+through interviews, observations, and consultations with pharmacy staff and
+pharmacists.
+
+Enhanced:
+The planning phase was intended to identify system requirements and objectives.
+Interviews, observations, and consultations should be cited as completed activities
+only when supported by research records.
+
+System Design Phase
+
+Old:
+In this phase, the researchers created the system design including database
+structure, user interface layout, navigation flow, and system architecture.
+
+Enhanced:
+The implementation contains database migrations, Eloquent models, routes,
+controllers, Blade views, layouts, and front-end assets representing the database
+structure, user interface, navigation, and application architecture. The exact
+design process, diagrams, approvals, and revision history should be documented
+separately.
+
+Development Phase
+
+Old:
+The researchers began coding and developing the system using PHP, MySQL, HTML,
+CSS, and JavaScript.
+
+Enhanced:
+The system was implemented using PHP and Laravel, with Eloquent for database
+access, Blade for server-rendered views, JavaScript and CSS for front-end behavior,
+and database migrations for schema changes. MySQL is the default configured
+database connection, while the Laravel configuration also supports SQLite.
+
+Testing Phase
+
+Old:
+After every development iteration, the system was subjected to functionality,
+usability, error-checking, and system-validation testing.
+
+Enhanced:
+The study may define functional, usability, error-checking, and system-validation
+tests for the implemented features. The repository contains the default example
+tests in `tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php`, but it
+does not evidence a complete test suite covering all application workflows.
+Comprehensive testing claims should be supported by test cases, execution results,
+defect records, and acceptance records.
+
+Deployment Phase
+
+Old:
+Once the tested features are completed, the system is deployed in a local or
+web-based environment where pharmacy staff and administrators can access and use
+the system.
+
+Enhanced:
+The application can be served in a local Laravel environment and is structured as
+a browser-based system. Actual deployment and use by pharmacy staff or
+administrators should be supported by server logs, deployment records, access
+records, or documented operational use.
+
+Review and Maintenance Phase
+
+Old:
+The researchers continuously monitored and improved the system after deployment.
+Feedback from users was collected to enhance system performance, fix errors, and
+add improvements when necessary.
+
+Enhanced:
+Subsequent migrations and feature changes indicate continued implementation
+activity. Formal post-deployment monitoring, user feedback, maintenance records,
+incident logs, and performance measurements should be supplied before claiming
+continuous operational maintenance.
+
+Reason for update:
+Each phase is plausible, but only the application artifact and its changes are
+verifiable from the repository.
+
+---------------------------------------------------------------------
+PAGES 20-21 - D. DATABASE DESIGN
+---------------------------------------------------------------------
+
+Old:
+
+Database design is the process of organizing and structuring data to ensure
+efficient storage, retrieval, and management of information. The proposed system
+uses MySQL as its database management system, while Laravel's Eloquent ORM manages
+communication between the application and the database.
+
+The database stores information related to users, products, suppliers, purchases,
+sales, categories, inventory records, notifications, reports, and system settings.
+Proper database design ensures data integrity, minimizes redundancy, and supports
+efficient processing of pharmacy transactions.
+
+Enhanced:
+
+Database design is the process of organizing and structuring data for efficient
+storage, retrieval, and management. The project configures MySQL as the default
+database connection and uses Laravel migrations and Eloquent ORM for schema
+creation and database access. SQLite is also supported by the Laravel configuration,
+so MySQL should not be described as the only possible runtime database unless the
+deployment environment has been verified.
+
+The implemented schema includes users, roles, permissions, suppliers, categories,
+purchases, products, sales, POS sessions, stock movements, prescriptions,
+temperature readings, audit logs, notifications, archive records, and related
+support tables. Stock quantity is recorded through purchase-related records and
+stock movement history. Reports are calculated on demand by the report controller
+and are not stored as a normal `reports` table unless a separate table is added.
+
+Reason for update:
+MySQL and Eloquent are supported by the project configuration and models, but the
+actual runtime database depends on the environment. There is no dedicated
+`inventory` table or ordinary persisted `reports` table in the reviewed schema.
+
+Database corrections:
+
+- Do not list Inventory as a table unless it is created in a migration.
+- Do not list Reports as a table unless a reports migration and model exist.
+- Use the actual migration-backed primary keys, generally `id`.
+- Include stock_movements, pos_sessions, prescriptions, temperature_readings,
+  audit_logs, notifications, and permission pivot tables.
+- Describe reports as calculated views or CSV exports generated on request.
+
+---------------------------------------------------------------------
+PAGES 21-22 - 1. CONTEXT DIAGRAM
+---------------------------------------------------------------------
+
+Old:
+
+The Context Diagram presents the Pharmacy Inventory Management System as a single
+process and shows its interaction with external entities such as System
+Administrator, Pharmacist, Pharmacy Staff, and Pharmacy Manager.
+
+Enhanced:
+
+The Context Diagram presents the web-based pharmacy inventory and sales management
+application as a single system process and shows its interaction with authorized
+users and operational data sources. The diagram should use configured application
+roles or neutral actor names such as administrative user, sales/POS user, and
+authorized report user.
+
+In the reviewed repository, the seeded roles are `super-admin` and
+`sales-person`. Domain titles such as pharmacist and pharmacy manager may be used
+as respondent or stakeholder classifications, but they should not be presented as
+configured application roles unless corresponding roles and permissions are added.
+
+The system handles authenticated workflows for products, purchases, sales/POS,
+suppliers, reports, prescriptions, temperature readings, backups, archives, and
+audit records.
+
+Reason for update:
+The actor labels in the diagram are broader than the roles verified in
+RolesAndPermissionsSeeder.php. The diagram should represent actual permissions or
+clearly label domain stakeholders separately from system actors.
+
+---------------------------------------------------------------------
+PAGES 21-22 - CONTEXT DIAGRAM DATA FLOWS
+---------------------------------------------------------------------
+
+Old:
+
+System Administrator manages user accounts, assigns roles and permissions,
+configures settings, maintains the database, generates reports, and monitors
+system performance.
+
+Pharmacist reviews medicine availability, monitors inventory, checks expiry dates,
+reviews inventory records, and receives low-stock alerts.
+
+Pharmacy Staff adds and updates products, records purchases and sales, monitors
+stock levels, tracks expiry dates, and receives stock notifications.
+
+Pharmacy Manager reviews reports, monitors inventory performance, analyzes sales
+and purchases, and uses reports for business decision-making.
+
+Enhanced:
+
+The application provides authenticated users with access to configured workflows
+for product and category management, purchases, sales/POS, supplier records,
+stock monitoring, expiry reports, report generation, prescription records,
+temperature readings, audit records, and user permissions. The exact assignment
+of each flow should be based on the configured role and permission records.
+
+The diagram should not state that a user maintains the database, performs clinical
+prescription verification, or monitors system performance unless those activities
+are explicitly implemented and documented. Reports may support management
+decisions, but the system does not itself make business decisions.
+
+Reason for update:
+Routes in routes/web.php are primarily protected by authentication and audit
+middleware, while permission checks are also used in interfaces and controllers.
+The complete actor-to-route permission matrix should be verified before drawing
+strict role-specific flows.
+
+---------------------------------------------------------------------
+PAGES 22-24 - 2. DATA FLOW DIAGRAM
+---------------------------------------------------------------------
+
+Old:
+
+A Data Flow Diagram (DFD) is a graphic representation of the flow of information
+inside a system, process, or organization. DFDs allow researchers to determine
+where data originates, who interacts with it, how it evolves, and where it ends up.
+The DFD shows medicine management, stock monitoring, expiry tracking, report
+generation, and user authentication.
+
+Enhanced:
+
+A Data Flow Diagram (DFD) represents how data enters, is processed by, and leaves
+the system. The Chapter 3 DFD should reflect the actual application workflows and
+schema rather than only the original inventory-only scope.
+
+Recommended major processes:
+
+1. Product and Category Management - creates, updates, and removes product and
+   category records.
+2. Purchase and Supplier Management - records purchase information, suppliers,
+   quantities, dates, prices, batch details, and expiry information.
+3. Sales and POS Processing - records sales, customer or transaction information,
+   payment method, cashier, and product quantities; it updates stock records when
+   the transaction is saved.
+4. Stock Movement Management - records incoming, outgoing, and adjustment activity
+   with quantities, balances, references, and users.
+5. Expiry and Stock Monitoring - identifies expiry, low-stock, and out-of-stock
+   conditions through application logic and reports.
+6. Report Generation - calculates and displays inventory, sales, purchase, supplier,
+   expiry, valuation, batch, forecasting, movement, and compliance information.
+7. User Authentication and Permissions - verifies credentials and applies configured
+   access checks.
+8. Prescription and Temperature Records - stores prescription statuses and manual
+   temperature readings with related users and notes.
+9. Audit and Archive Operations - records selected write requests and manages
+   archived or backed-up information where configured.
+
+Use "transaction-triggered stock updates and on-demand reports" instead of
+"real-time monitoring" unless live synchronization has been tested and documented.
+Use "internal compliance exception reporting" instead of "automated regulatory
+compliance reporting."
+
+Reason for update:
+The broad DFD processes correspond to routes and controllers, but the embedded
+arrows, labels, actors, and data stores should be checked against the actual
+migration schema and route behavior.
+
+---------------------------------------------------------------------
+PAGES 24-26 - 3. ENTITY RELATIONSHIP DIAGRAM
+---------------------------------------------------------------------
+
+Old:
+
+The ERD shows Users, Products, Categories, Suppliers, Purchases, Sales, Inventory,
+and Reports entities. Inventory tracks stock movement and reports store generated
+reports for inventory monitoring and business analysis.
+
+Enhanced:
+
+The Entity Relationship Diagram illustrates the migration-backed database
+structure and the relationships among users, products, categories, suppliers,
+purchases, sales, POS sessions, stock movements, prescriptions, temperature
+readings, audit logs, notifications, roles, permissions, and related support tables.
+
+The ERD should not show `Inventory` or `Reports` as ordinary application entities
+unless separate migrations and models are added. Stock quantity and movement
+information are represented through purchase and stock-movement records. Reports
+are calculated by ReportController and exported as CSV when requested.
+
+Recommended relationships:
+
+- Supplier 1:N Purchase
+- Category 1:N Purchase
+- Purchase and Product relationships as defined by the migrations and Eloquent
+  models
+- Product 1:N Sale
+- Purchase 1:N StockMovement
+- Product 1:N StockMovement
+- User 1:N Sale through the cashier relationship where configured
+- User 1:N StockMovement
+- User 1:N Prescription as submitter or verifier
+- User 1:N TemperatureReading
+- User 1:N AuditLog
+- Users, roles, and permissions through the Spatie permission tables
+
+Reason for update:
+The diagram shown in the chapter contains entities and key names that do not
+match the migration-backed schema. The actual database evidence is in the files
+under database/migrations and the related models under app/Models.
+
+Specific corrections:
+
+- Replace `inventory_id` with the actual stock and movement structure.
+- Replace `report_id` with report-generation logic unless a report table exists.
+- Avoid describing every foreign key as a primary key.
+- Use the actual table and column names from the migrations.
+- Add stock_movements, pos_sessions, prescriptions, temperature_readings,
+  audit_logs, notifications, roles, permissions, and pivot tables where relevant.
+
+---------------------------------------------------------------------
+PAGES 26-28 - 4. USE CASE DIAGRAM
+---------------------------------------------------------------------
+
+Old:
+
+The Use Case Diagram illustrates the interactions between users and the Pharmacy
+Inventory Management System. It defines functions that each user can perform
+according to their assigned role: System Administrator, Pharmacy Staff,
+Pharmacist, and Pharmacy Manager.
+
+Enhanced:
+
+The Use Case Diagram should illustrate interactions between authenticated users
+and the pharmacy inventory and sales management application according to configured
+roles and permissions. The seeded application roles verified in the repository are
+`super-admin` and `sales-person`.
+
+The `super-admin` role receives the configured administrative permissions. The
+`sales-person` role receives sales-related permissions including `view-sales`,
+`view-reports`, and `create-sale`, subject to the current permission configuration.
+Other job titles may be described as domain stakeholders or respondent groups, but
+should not be shown as configured system actors unless their roles and permissions
+are added and tested.
+
+Recommended use cases include:
+
+Super-admin or authorized administrative user:
+- Manage users, roles, and permissions.
+- Manage products, categories, suppliers, and purchases.
+- View reports and inventory information.
+- Manage configured system records and settings.
+- Review audit, prescription, temperature, archive, and backup workflows where
+  permissions permit.
+
+Sales/POS user:
+- Search products and use barcode-based lookup.
+- Record sales and POS transactions.
+- Record customer or transaction information and payment method.
+- View permitted sales and report information.
+
+Authorized report or inventory user:
+- Review stock, expiry, purchase, sales, movement, valuation, batch, forecasting,
+  and compliance reports when assigned the required permission.
+
+The use-case diagram should not claim that the system performs clinical
+prescription verification, makes business decisions, maintains the database
+manually, or guarantees pharmacist-specific access unless those functions are
+explicitly configured and tested.
+
+Reason for update:
+RolesAndPermissionsSeeder.php is the strongest evidence for configured roles. The
+application records prescription submissions and status changes, but it does not
+perform independent clinical validation.
+
+---------------------------------------------------------------------
+PAGES 28-29 - E. DEVELOPMENT TOOLS
+---------------------------------------------------------------------
+
+Old:
+
+The study used Laravel, PHP, MySQL, Blade Templating Engine, Bootstrap, HTML, CSS,
+JavaScript, Laravel Mix, Composer, XAMPP, and Visual Studio Code.
+
+Enhanced:
+
+The project uses or is configured for the following development technologies:
+
+- Laravel 8: PHP framework for routing, authentication, controllers, models,
+  middleware, views, and database operations.
+- PHP: server-side language declared in composer.json as ^7.3|^8.0|^8.1. The
+  exact runtime version should be stated only after checking the deployment
+  environment.
+- MySQL: default configured database connection. SQLite is also supported in the
+  Laravel configuration.
+- Eloquent ORM: Laravel's database abstraction used by the application models.
+- Blade: server-rendered template engine used under resources/views.
+- Bootstrap and front-end assets: used for responsive layouts and interface
+  styling where present in public/assets.
+- HTML, CSS, and JavaScript: used for page structure, styling, and interaction.
+- Laravel Mix: asset compilation configured in package.json and webpack.mix.js.
+- Composer: PHP dependency manager defined by composer.json.
+- XAMPP: include this tool only if the researchers actually used it and can
+  document the local server setup.
+- Visual Studio Code: include this tool as a development tool only if its use is
+  supported by the project documentation or research records.
+
+Reason for update:
+Laravel, PHP, Eloquent, Blade, Laravel Mix, Composer, and front-end files are
+verifiable in the repository. MySQL is configured by default, but the runtime
+database depends on the environment. XAMPP and VS Code use cannot be proven by
+source files alone.
+
+---------------------------------------------------------------------
+PAGES 29-30 - F. EVALUATION PROCEDURE
+---------------------------------------------------------------------
+
+Old:
+
+The system is evaluated using ISO 25010 that provides a standard for assessing the
+system's quality based on functional suitability, reliability, usability,
+performance efficiency, and security.
+
+Enhanced:
+
+The study proposed evaluating selected software-quality characteristics using an
+adapted questionnaire informed by ISO/IEC 25010. The selected characteristics
+were functional suitability, reliability, usability, performance efficiency, and
+security.
+
+Functional suitability concerns whether the implemented features support the
+intended requirements. Reliability concerns consistent operation under the tested
+conditions. Usability concerns whether intended users can learn and use the
+interface. Performance efficiency concerns response time and resource use under
+specified test conditions. Security concerns authentication, authorization,
+data protection, and protection against unauthorized modification.
+
+Completed questionnaires, respondent records, administration dates, test cases,
+execution results, and calculation records should be retained to substantiate the
+evaluation. The application source code alone does not prove ISO/IEC 25010
+compliance or successful evaluation results.
+
+Reason for update:
+No ISO questionnaire, response table, evaluation module, raw data, or statistical
+processing code was verified in the repository. Use "selected characteristics"
+rather than implying that the complete ISO/IEC 25010 model was evaluated.
+
+Recommended terminology:
+
+- "Functional suitability" instead of only "functionality."
+- "Selected ISO/IEC 25010 characteristics" instead of "ISO 25010 effectiveness."
+- "Evaluation based on an adapted questionnaire" instead of "ISO-certified
+  evaluation."
+
+---------------------------------------------------------------------
+PAGES 29-30 - G. EVALUATION TOOL
+---------------------------------------------------------------------
+
+Old:
+
+The primary research instrument for this study is an evaluation questionnaire
+using the ISO 25010 software quality standards.
+
+Enhanced:
+
+The proposed primary research instrument is a four-point Likert questionnaire
+informed by selected ISO/IEC 25010 software-quality characteristics. The
+questionnaire contains statements concerning functional suitability, reliability,
+performance efficiency, usability, and security.
+
+The repository contains no completed questionnaires, response dataset, respondent
+codes, administration records, or calculation file. Therefore, the questionnaire
+should be described as an evaluation instrument or proposed instrument unless the
+completed research materials are supplied separately.
+
+The four-point response scale is:
+
+4 - Strongly Agree
+3 - Agree
+2 - Disagree
+1 - Strongly Disagree
+
+Reason for update:
+The chapter contains a questionnaire format, but the codebase does not show that
+the questionnaire was administered or that the displayed results were calculated
+from actual responses.
+
+---------------------------------------------------------------------
+PAGES 30-31 - H. RESPONDENTS OF THE STUDY
+---------------------------------------------------------------------
+
+Old:
+
+The study involved two groups of respondents: user respondents and technical
+experts. The user respondents consisted of 40 pharmacy personnel individuals,
+including pharmacists, pharmacy staff, and pharmacy managers. The technical experts
+were composed of 10 Information Technology professionals. A total of 50 respondents
+participated in the evaluation phase.
+
+Enhanced:
+
+The planned evaluation sample consisted of two respondent groups: pharmacy-related
+users and information-technology evaluators. The proposed sample included 40
+pharmacy-related users and 10 IT professionals, for a proposed total of 50
+respondents.
+
+The actual respondent count, participant qualifications, sampling method, consent
+process, completed responses, and inclusion criteria must be verified using
+respondent lists, signed or coded instruments, consent records, or encoded survey
+data. The application roles `super-admin` and `sales-person` should not be used as
+proof that the respondents were pharmacists, pharmacy staff, or pharmacy managers.
+Those are research classifications and must be supported by study records.
+
+Reason for update:
+No respondent list, completed questionnaire, consent documentation, or evaluation
+database was verified in the repository. The code cannot prove the count of 40
+users, 10 IT experts, or 50 total respondents.
+
+---------------------------------------------------------------------
+PAGES 31-33 - I. STATISTICAL TOOLS
+---------------------------------------------------------------------
+
+Old:
+
+The following statistical tools are used in the study: Frequency Distribution,
+Percentage Distribution, Weighted Mean, and Likert Scale.
+
+Enhanced:
+
+The proposed questionnaire analysis uses frequency distribution, percentage
+distribution, weighted mean, and a four-point Likert scale. These procedures are
+appropriate for summarizing agreement responses, but their use in this study must
+be demonstrated through the raw response counts, denominator, treatment of missing
+responses, and reproducible calculations.
+
+Frequency Distribution:
+The number of responses in each category is counted.
+
+Percentage Distribution:
+
+Percentage = (f / n) x 100
+
+where f is the frequency of a response and n is the number of valid responses.
+
+Weighted Mean:
+
+Weighted Mean = (4f4 + 3f3 + 2f2 + 1f1) / n
+
+where f4, f3, f2, and f1 are the frequencies for Strongly Agree, Agree, Disagree,
+and Strongly Disagree, respectively, and n is the number of valid responses.
+
+Likert Scale:
+The four-point scale may be interpreted using the study-defined intervals:
+
+4 - Strongly Agree
+3 - Agree
+2 - Disagree
+1 - Strongly Disagree
+
+The interval table and verbal interpretation rules should be retained only if
+approved by the research adviser and applied consistently to the computed values.
+
+Reason for update:
+The formulas in the chapter describe proposed research procedures, but no raw
+data or calculation script was found in the repository. Do not present weighted
+means or interpretations as results unless the underlying responses reproduce them.
+
+---------------------------------------------------------------------
+PAGES 31-33 - EVALUATION TABLES AND RESULTS
+---------------------------------------------------------------------
+
+Old:
+
+The system received positive evaluations, including weighted means and Strongly
+Agree interpretations, from 40 users and 10 technical experts.
+
+Enhanced:
+
+The evaluation tables present the selected quality criteria and the response scale
+used by the study. Reported frequencies, percentages, weighted means, verbal
+interpretations, and respondent totals should be presented as findings only after
+the completed questionnaires and calculations have been verified.
+
+If the response forms and raw data are not available, label the tables as sample
+formats or proposed evaluation tables rather than actual results. The application
+source code cannot establish user satisfaction, usability, reliability,
+performance efficiency, security quality, functional suitability, ISO/IEC 25010
+compliance, or successful deployment.
+
+Reason for update:
+The repository contains only the default example tests in
+`tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php`. It does not
+contain survey results or evidence for the numerical evaluation findings.
+
+======================================================================
+IMPLEMENTATION FACTS TO USE CONSISTENTLY
+======================================================================
+
+1. Application structure
+   Laravel routes, controllers, models, migrations, Blade views, JavaScript, CSS,
+   notifications, permissions, reports, and database configuration are present.
+
+2. Database
+   MySQL is the default configured connection, but SQLite is also supported in
+   Laravel configuration. The actual runtime database depends on the environment.
+
+3. Actual data entities
+   The reviewed schema includes users, roles, permissions, suppliers, categories,
+   purchases, products, sales, POS sessions, stock movements, prescriptions,
+   temperature readings, audit logs, notifications, archive records, and support
+   tables. There is no verified dedicated Inventory or Reports table.
+
+4. Reports
+   Reports are calculated by ReportController and exported as CSV when configured.
+   They are not stored as ordinary report rows unless a separate table is added.
+
+5. User roles
+   The seeded roles verified in RolesAndPermissionsSeeder.php are `super-admin`
+   and `sales-person`. Pharmacist, pharmacy staff, and pharmacy manager may be
+   domain or respondent labels, but they are not verified seeded application roles.
+
+6. Testing
+   The repository contains default example tests but no verified comprehensive
+   functional, integration, usability, performance, or security test suite.
+
+7. Deployment
+   The application is structured as a browser-based Laravel system and can be
+   served locally. Actual operational deployment in a pharmacy is not proven by
+   the source tree.
+
+8. ISO evaluation
+   The chapter provides an ISO/IEC 25010-informed questionnaire format, but no
+   completed questionnaire data or calculation records are verified in the codebase.
+
+9. Statistical results
+   Frequency, percentage, weighted mean, and Likert scale are proposed analysis
+   methods. Any numerical results require raw response data and reproducible
+   calculations.
+
+======================================================================
+FINAL CHECKLIST BEFORE SUBMISSION
+======================================================================
+
+[ ] Update the Chapter III title description to include inventory and sales/POS
+    workflows.
+[ ] Qualify the descriptive-developmental research claims with actual research
+    records.
+[ ] Add or attach interview guides, transcripts, observation notes, and
+    requirements records if those activities were completed.
+[ ] Add Agile sprint plans, backlogs, issue histories, reviews, or retrospectives
+    if Agile is claimed as the formal SDLC.
+[ ] Replace Inventory and Reports in the ERD unless those tables actually exist.
+[ ] Add stock_movements, POS sessions, prescriptions, temperature readings, audit
+    logs, roles, permissions, and related tables to the ERD where appropriate.
+[ ] Replace Pharmacist and Pharmacy Manager as application roles unless those
+    roles are configured and tested.
+[ ] Correct database primary keys and foreign-key names using the migrations.
+[ ] Qualify MySQL as the default connection and verify the actual deployment DB.
+[ ] Retain XAMPP and Visual Studio Code only if their use can be documented.
+[ ] Describe ISO/IEC 25010 as a selected evaluation framework or adapted tool.
+[ ] Verify the actual respondent count of 40 users, 10 IT experts, and 50 total.
+[ ] Attach completed questionnaires and raw responses before reporting weighted
+    means or Strongly Agree findings.
+[ ] Verify functional, usability, reliability, performance, and security results
+    with test records and evaluation evidence.
+[ ] Replace claims of real-time monitoring with transaction-triggered updates and
+    on-demand reports unless live synchronization is tested.
+
+END OF FINAL UPDATE GUIDE 3
