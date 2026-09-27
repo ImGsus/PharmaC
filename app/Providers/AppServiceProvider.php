@@ -26,39 +26,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $appUrl = (string) config('app.url');
-        $isHttps = str_starts_with($appUrl, 'https://')
-            || $this->app->environment('production')
-            || (request()->server('HTTP_X_FORWARDED_PROTO') === 'https');
+        $isHttps = $this->app->environment('production')
+            || str_starts_with($appUrl, 'https://')
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            || (request()->server('HTTP_X_FORWARDED_PROTO') === 'https')
+            || request()->isSecure();
 
         if ($isHttps) {
             URL::forceScheme('https');
         }
 
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && !empty($appUrl)) {
             URL::forceRootUrl($appUrl);
             if ($isHttps) {
                 URL::forceScheme('https');
-            }
-        } else {
-            try {
-                $request = request();
-                if (str_starts_with($appUrl, 'https://')) {
-                    URL::forceRootUrl($appUrl);
-                    URL::forceScheme('https');
-                } else {
-                    URL::forceRootUrl($request->getSchemeAndHttpHost());
-                    if ($isHttps || $request->isSecure()) {
-                        URL::forceScheme('https');
-                    } else {
-                        URL::forceScheme($request->getScheme());
-                    }
-                }
-            } catch (\Throwable $e) {
-                // no request available, use app url
-                URL::forceRootUrl($appUrl);
-                if ($isHttps) {
-                    URL::forceScheme('https');
-                }
             }
         }
 
