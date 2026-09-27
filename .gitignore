@@ -16,3 +16,6 @@ ngrok.exe
 public/ngrok.exe
 /.idea
 /.vscode
+/.venv
+/ngrok
+*.ps1
