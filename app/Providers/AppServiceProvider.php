@@ -42,11 +42,16 @@ class AppServiceProvider extends ServiceProvider
         } else {
             try {
                 $request = request();
-                URL::forceRootUrl($request->getSchemeAndHttpHost());
-                if ($isHttps || $request->isSecure()) {
+                if (str_starts_with($appUrl, 'https://')) {
+                    URL::forceRootUrl($appUrl);
                     URL::forceScheme('https');
                 } else {
-                    URL::forceScheme($request->getScheme());
+                    URL::forceRootUrl($request->getSchemeAndHttpHost());
+                    if ($isHttps || $request->isSecure()) {
+                        URL::forceScheme('https');
+                    } else {
+                        URL::forceScheme($request->getScheme());
+                    }
                 }
             } catch (\Throwable $e) {
                 // no request available, use app url
