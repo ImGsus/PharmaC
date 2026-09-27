@@ -96,8 +96,5 @@ return [
     'controller' => '\App\Http\Controllers\Admin\SettingController',
 
     // settings group
-    'setting_group' => function() {
-        // return 'user_'.auth()->id();
-        return 'default';
-    }
+    'setting_group' => 'default'
 ];

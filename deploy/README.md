@@ -28,3 +28,63 @@ and what has to change for the app to be reachable from a phone.
 
 **Recommendation:** use **E** today for the demo, build **A** as the real deployment, keep **B** as the
 zero-effort fallback if Oracle's free capacity ("out of host capacity") fights you. Don't spend effort on C.
+
+## 3. Free domain + HTTPS recipe (for options A / D)
+
+1. `yourname.duckdns.org` → point it at the VM's public IP (free, instant, refresh with a 1-line cron).
+2. Optional, nicer: Cloudflare **free** plan — add your own domain, create a `CNAME`
+   (e.g. `pharmac.example.dev`) to `yourname.duckdns.org`, proxy it. Free CDN + SSL + bot filtering.
+   Behind Cloudflare, set the proxies in `app/Http/Middleware/TrustProxies.php` to `'*'`
+   (otherwise audit logs record Cloudflare IPs instead of the cashier's real IP).
+3. Let's Encrypt via `certbot` (the setup script runs it). Also check the GitHub Student Pack page for a
+   rotating free-domain partner (historically Name.com / `.tech`) if you want a real TLD for free.
+
+## 4. Files in this folder
+
+| File | Use |
+|---|---|
+| `oracle/setup.sh` | One-shot provisioning of an Ubuntu 22.04 VM: PHP 8.2 + nginx + MySQL 8 + Composer + cron + certbot |
+| `oracle/nginx-pharmac.conf` | nginx vhost (doc root = `public/`, upload caching, 160 MB body limit) |
+| `oracle/env.production.example` | `.env` template for the VM |
+| `oracle/README.md` | Step-by-step: Oracle sign-up → VM → security lists → run setup → restore data |
+| `shared-hosting/htdocs-index.php` | `htdocs/index.php` bootstrap for hosts that won't point the doc root at `public/` |
+| `shared-hosting/webcron-route.php` | token-protected route so a free web-cron can run `schedule:run` (no shell needed) |
+| `shared-hosting/env.example` | `.env` template for shared hosting |
+| `shared-hosting/README.md` | Upload layout, what works / what is degraded, how to schedule the daily job |
+| `vercel/*` | Reference only for the (not recommended) serverless path + the refactor checklist |
+
+## 5. Moving your existing data off this PC
+
+```powershell
+# 1. dump (dev MySQL is on port 3307 here)
+mysqldump -h 127.0.0.1 -P 3307 -u root --single-transaction --routines --triggers pharmacy > pharmac.sql
+
+# 2. zip the uploads exactly as the app's own backup feature stores them
+Compress-Archive -Path public\storage\* -DestinationPath uploads.zip
+
+# 3. on the server
+mysql -u pharmac -p pharmacy < pharmac.sql
+unzip uploads.zip -d /var/www/pharmac/public/storage
+chown -R www-data:www-data /var/www/pharmac/public/storage
+```
+
+Keep `APP_KEY` from `.env` — `two_factor_secret`, `remember_token` and anything `Crypt::encrypt()`ed is
+unreadable if the key changes. Copy the value across instead of running `key:generate` on the server.
+
+## 6. Gotchas that bite this specific app
+
+- **Oracle's "out of host capacity"** on the ARM shape: try another availability domain or another
+  always-free region bucket; the 2 × AMD micro (1 GB) shapes also work with swap (the script adds 2 GB).
+- **Two firewalls on Oracle**: the VCN security list (ingress 80/443) *and* the instance's own
+  firewall. `certbot` fails silently-ish when only one is open.
+- **MySQL 8 → MariaDB import** fails on `utf8mb4_0900_ai_ci`; the script installs MySQL 8 so the dump
+  restores unchanged. If you switch to MariaDB, run
+  `sed -i 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' pharmac.sql` first.
+- **`php artisan storage:link` is not what serves uploads here** — `public/storage` is a real directory
+  and `config/filesystems.php` picks it up; don't delete it, don't replace it with a symlink.
+- **Free tier inactivity**: Render/Oracle can sleep or reclaim idle always-free instances. A
+  uptime-kuma/UptimeRobot ping every 5 min keeps Render awake; Oracle mails you before reclaiming.
+- **This is a pharmacy system with patient-adjacent data** (prescriptions, sales, cashier accounts).
+  Free tiers are fine for a demo/thesis, but for real dispensing: `APP_DEBUG=false`, HTTPS only,
+  daily off-site copy of `storage/app/backups`, and no `APP_DEBUG=true` on a public host.
+
