@@ -6,6 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-gd": "*",
+        "ext-zip": "*",
         "doctrine/dbal": "^3.3",
         "fruitcake/laravel-cors": "^2.0",
         "fx3costa/laravelchartjs": "^2.9",
