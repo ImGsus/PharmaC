@@ -94,19 +94,6 @@
         return typeof opts.el === "string" ? document.getElementById(opts.el) : opts.el;
     }
 
-    /* Hide the source <table> AND any earlier Tabulator copy for the same key,
-       so only ONE grid is ever visible (fixes the duplicated Backups/Archive
-       tables where the original <table> re-appeared under the Tabulator grid). */
-    function hideSourceTable(el) {
-        if (!el) return;
-        el.style.setProperty("display", "none", "important");
-        el.setAttribute("data-pharma-tabulator-hidden", "1");
-        el.classList.add("d-none");
-        // Belt-and-braces: an unlayered CSS rule below also hides
-        // table[data-pharma-tabulator-hidden="1"], so even if inline styles
-        // are stripped and the page re-renders, the duplicate stays hidden.
-    }
-
     /* Builds the small toolbar (Search + optional Export) that DataTables used to give */
     function buildSearchToolbar(opts, table, state) {
         var el = getEl(opts);
@@ -122,6 +109,7 @@
         input.setAttribute("aria-label", "Search");
 
         var label = document.createElement("label");
+        label.appendChild(document.createTextNode("Search: "));
         label.appendChild(input);
 
         var filterWrap = document.createElement("div");
@@ -216,7 +204,6 @@
                 buildSearchToolbar(opts, table, state);
             }
 
-            this.fixDropdowns();
             return table;
         },
 
@@ -229,6 +216,15 @@
             if (localRegistry[key]) {
                 try { localRegistry[key].destroy(); } catch (e) {}
                 delete localRegistry[key];
+            }
+
+            var existingWrapper = el.parentNode && el.parentNode.querySelector('.tabulator-wrapper[data-table-key="' + key + '"]');
+            if (existingWrapper) {
+                existingWrapper.remove();
+            }
+
+            if (el.dataset.tabulatorConverted === 'true') {
+                return localRegistry[key] || null;
             }
 
             var fields = opts.fields || [];
@@ -264,23 +260,19 @@
 
             var div = document.createElement("div");
             div.className = "tabulator-wrapper";
-            div.setAttribute("data-pharma-tabulator-key", key);
-            // Remove any earlier Tabulator copy for this key (Turbo re-visit /
-            // double init) so only ONE grid exists, then hide the source table.
-            var previous = el.parentNode
-                ? el.parentNode.querySelector('.tabulator-wrapper[data-pharma-tabulator-key="' + key + '"]')
-                : null;
-            if (previous && previous.parentNode) {
-                previous.parentNode.removeChild(previous);
-            }
+            div.setAttribute("data-table-key", key);
             el.parentNode.insertBefore(div, el);
-            hideSourceTable(el);
+            el.dataset.tabulatorConverted = 'true';
+            el.style.display = "none";
+            try {
+                el.parentNode.removeChild(el);
+            } catch (e) {}
 
             var table = new Tabulator(div, {
                 layout: "fitColumns",
                 placeholder: opts.placeholder || "No records found",
                 data: rows,
-                pagination: true,
+                pagination: opts.pagination !== false,
                 paginationSize: opts.pageLength || 10,
                 paginationSizeSelector: [5, 10, 25, 50, 100],
                 headerSort: true,
@@ -319,54 +311,25 @@
             }
 
             localRegistry[key] = table;
-            this.fixDropdowns();
             return table;
+        },
+
+        destroy: function (id) {
+            if (registry[id]) {
+                try { registry[id].destroy(); } catch (e) {}
+                delete registry[id];
+            }
+            var target = document.getElementById(id);
+            if (target) {
+                delete target.dataset.tabulatorConverted;
+                var wrapper = target.parentNode && target.parentNode.querySelector('.tabulator-wrapper[data-table-key="' + id + '"]');
+                if (wrapper) wrapper.remove();
+                target.style.display = "";
+            }
         },
 
         get: function (id) {
             return registry[id] || null;
-        },
-
-        /* Binds ONCE per page-load so every `...` action button opens a full,
-           viewport-safe menu even inside Tabulator's clipped/scrollable cells
-           (also see .tabulator overflow rules in resources/css/app.css). */
-        fixDropdowns: function () {
-            if (this._dropdownsBound) return;
-            if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.dropdown) return;
-            this._dropdownsBound = true;
-            var $ = window.jQuery;
-            $(document)
-                .on('shown.bs.dropdown.tabulatorCell', '.tabulator .btn-group, .tabulator [data-toggle="dropdown"]', function () {
-                    var $scope = $(this);
-                    var $menu = $scope.find('.dropdown-menu').first();
-                    if (!$menu.length && $scope.hasClass('dropdown-menu')) $menu = $scope;
-                    if (!$menu.length) return;
-                    var anchor = $menu.data('pharmaAnchor') && document.contains($menu.data('pharmaAnchor'))
-                        ? $menu.data('pharmaAnchor')
-                        : this;
-                    var rect = anchor.getBoundingClientRect();
-                    var menuH = $menu.outerHeight() || 180;
-                    var menuW = $menu.outerWidth() || 192;
-                    var spaceBelow = window.innerHeight - rect.bottom;
-                    var openUp = spaceBelow < menuH + 12 && rect.top > menuH + 12;
-                    var $holder = $scope.closest('.tabulator-tableholder');
-                    if ($holder.length) {
-                        // translateZ(0) on the holder creates a containing block
-                        // that would clip position:fixed; pause it while open.
-                        $holder.css('transform', 'none');
-                    }
-                    $menu.css({
-                        position: 'fixed',
-                        top: (openUp ? rect.top - menuH - 4 : rect.bottom + 4) + 'px',
-                        left: Math.max(8, Math.min(rect.left, window.innerWidth - menuW - 8)) + 'px',
-                        right: 'auto',
-                        zIndex: 1060
-                    });
-                })
-                .on('hidden.bs.dropdown.tabulatorCell', '.tabulator .btn-group, .tabulator [data-toggle="dropdown"]', function () {
-                    $(this).find('.dropdown-menu').first().css({ position: '', top: '', left: '', right: '', zIndex: '' });
-                    $(this).closest('.tabulator').find('.tabulator-tableholder').css('transform', '');
-                });
         },
 
         reload: function (id) {
@@ -379,13 +342,6 @@
                 if (Object.prototype.hasOwnProperty.call(registry, key)) {
                     try { registry[key].setData(); } catch (e) {}
                 }
-            }
-        },
-
-        destroy: function (id) {
-            if (registry[id]) {
-                try { registry[id].destroy(); } catch (e) {}
-                delete registry[id];
             }
         },
 

@@ -87,9 +87,26 @@
             transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, color .35s ease;
         }
         .login-body {
+            display: block;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: auto;
             background-color: #f8fafc;
             background-image: linear-gradient(rgba(15, 23, 42, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, .035) 1px, transparent 1px);
             background-size: 80px 80px;
+        }
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-wrapper > .container {
+            width: 100%;
+            max-width: 830px;
         }
         .login-actions {
             position: fixed;
@@ -237,6 +254,27 @@
             width: 100%;
         }
         @media (max-width: 767px) {
+            .login-wrapper {
+                width: 100%;
+                min-height: 100vh;
+                min-height: 100dvh;
+            }
+            .login-wrapper > .container {
+                flex: 0 0 100%;
+                max-width: 100%;
+                padding-right: 1rem;
+                padding-left: 1rem;
+            }
+            .login-wrapper .loginbox {
+                width: 100%;
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            .login-wrapper .animate__animated {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+            }
             .login-actions {
                 top: .75rem;
                 right: .75rem;
@@ -283,6 +321,19 @@
             </svg>
         </button>
     </div>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var isDark = root.classList.contains('dark-mode');
+            var toggle = document.getElementById('loginThemeToggle');
+
+            if (toggle) {
+                toggle.classList.toggle('is-dark', isDark);
+                toggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
+                toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+        })();
+    </script>
 
     <!-- Main Wrapper -->
     <div class="main-wrapper login-body">

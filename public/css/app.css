@@ -5215,6 +5215,7 @@
         border-inline-start: var(--border) solid color-mix(in oklab, currentColor 10%, #0000);
       }
     }
+    }
   }
   .me-3 {
     margin-inline-end: calc(var(--spacing) * 3);
@@ -6401,7 +6402,7 @@
       transform: translateX(-100%);
       transition: transform 0.3s ease;
     }
-    .sidebar.opened {
+    .main-wrapper.slide-nav .sidebar {
       transform: translateX(0);
     }
     .page-wrapper {

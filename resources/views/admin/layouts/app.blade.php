@@ -201,6 +201,62 @@
         .turbo-progress-bar {
             display: none !important;
         }
+        .user-menu.nav > li > a.notification-bell-link {
+            position: relative;
+        }
+        .user-menu.nav > li > a.notification-bell-link .notification-count {
+            align-items: center;
+            background-color: #ef4444;
+            border: 2px solid #1c2025;
+            border-radius: 999px;
+            color: #fff;
+            display: inline-flex;
+            font-size: 9px;
+            height: 16px;
+            justify-content: center;
+            line-height: 1;
+            min-height: 16px;
+            min-width: 16px;
+            padding: 0 3px;
+            right: 1px;
+            top: 5px;
+        }
+        @media (max-width: 767.98px) {
+            .header .user-menu > li.noti-dropdown > .dropdown-menu.notifications {
+                box-sizing: border-box;
+                left: auto !important;
+                max-height: calc(100dvh - 80px) !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
+                position: fixed !important;
+                right: 8px !important;
+                top: 64px !important;
+                transform: none !important;
+                width: min(350px, calc(100vw - 32px)) !important;
+            }
+            .header .user-menu > li.noti-dropdown .noti-content {
+                height: auto;
+                max-height: min(290px, calc(100dvh - 180px));
+                overflow-y: auto;
+                width: 100%;
+            }
+            .notifications .notification-empty {
+                color: #64748b;
+                list-style: none;
+                padding: 1rem;
+                text-align: center;
+            }
+            .notification-empty-state-label {
+                color: #64748b;
+                float: right;
+                font-size: 12px;
+            }
+            body.dark-mode .notifications .notification-empty,
+            body.dark-mode .notification-empty-state-label {
+                color: #cbd5e1;
+            }
+        }
 
         .table-responsive {
             max-width: 100%;
@@ -517,41 +573,43 @@
     @endif
 </script>
 <script>
-    function initHeaderDateTime() {
-        const el = document.getElementById('header-current-datetime');
+    function initDashboardDateTime() {
+        const el = document.getElementById('dashboard-current-datetime');
         if (!el) {
             return;
         }
 
-        if (window.pharmacyHeaderDateTimeInterval) {
-            clearInterval(window.pharmacyHeaderDateTimeInterval);
+        if (window.pharmacyDashboardDateTimeInterval) {
+            clearInterval(window.pharmacyDashboardDateTimeInterval);
         }
 
         function updateDateTime() {
             const now = new Date();
-            const options = {
+            const date = now.toLocaleDateString('en-US', {
                 weekday: 'short',
                 year: 'numeric',
                 month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
+                day: 'numeric'
+            });
+            const time = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
                 minute: '2-digit',
-                second: '2-digit'
-            };
-            el.textContent = now.toLocaleString('en-US', options);
+                hour12: true
+            });
+            el.textContent = date + ' - ' + time;
         }
 
         updateDateTime();
-        window.pharmacyHeaderDateTimeInterval = setInterval(updateDateTime, 1000);
+        window.pharmacyDashboardDateTimeInterval = setInterval(updateDateTime, 1000);
     }
 
     /* Run on first load, on Turbo page navigations, and immediately (script sits at end of body). */
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initHeaderDateTime);
+        document.addEventListener('DOMContentLoaded', initDashboardDateTime);
     } else {
-        initHeaderDateTime();
+        initDashboardDateTime();
     }
-    document.addEventListener('turbo:load', initHeaderDateTime);
+    document.addEventListener('turbo:load', initDashboardDateTime);
 
     document.addEventListener('turbo:before-cache', function () {
         document.querySelectorAll('form button[type="submit"], form input[type="submit"]').forEach(function (button) {

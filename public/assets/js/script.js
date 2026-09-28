@@ -271,18 +271,26 @@ $(document).ready(function(){
 	
 	// Mobile menu sidebar overlay
 	
-	$('body').append('<div class="sidebar-overlay"></div>');
 	$(document).on('click', '#mobile_btn', function() {
-		$wrapper.toggleClass('slide-nav');
-		$('.sidebar-overlay').toggleClass('opened');
-		$('html').addClass('menu-opened');
+		var $currentWrapper = $('.main-wrapper');
+		if (!$currentWrapper.length) return false;
+
+		var isOpening = !$currentWrapper.hasClass('slide-nav');
+		var $overlay = $('.sidebar-overlay');
+		if (!$overlay.length) {
+			$overlay = $('<div class="sidebar-overlay"></div>').appendTo('body');
+		}
+
+		$currentWrapper.toggleClass('slide-nav', isOpening);
+		$overlay.toggleClass('opened', isOpening);
+		$('html').toggleClass('menu-opened', isOpening);
 		return false;
 	});
 	
 	// Sidebar overlay
 	
-	$(".sidebar-overlay").on("click", function () {
-		$wrapper.removeClass('slide-nav');
+	$(document).on('click', '.sidebar-overlay', function () {
+		$('.main-wrapper').removeClass('slide-nav');
 		$(".sidebar-overlay").removeClass("opened");
 		$('html').removeClass('menu-opened');
 	});

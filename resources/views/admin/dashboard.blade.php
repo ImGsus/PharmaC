@@ -1109,7 +1109,8 @@
             </div>
             <div class="col-md-4 text-md-right mt-3 mt-md-0">
                 <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-weight-semibold shadow-sm">
-                    <i class="fe fe-calendar opacity-80 mr-1"></i> {{ now()->format('D, M j, Y') }}
+                    <i class="fe fe-calendar opacity-80 mr-1"></i>
+                    <span id="dashboard-current-datetime">{{ now()->format('D, M j, Y - g:i A') }}</span>
                 </div>
             </div>
         </div>

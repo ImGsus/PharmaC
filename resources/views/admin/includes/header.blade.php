@@ -59,28 +59,36 @@
 	
 	<!-- Header Right Menu -->
 	<ul class="nav user-menu">
-		<li class="nav-item d-none d-sm-flex align-items-center me-3">
-			<span class="nav-link p-0 text-muted" id="header-current-datetime">Loading current time...</span>
-		</li>
 		<li class="nav-item dropdown">
 			<a href="#" data-target="#add_sales" title="make a sale" data-toggle="modal" data-turbo="false" class="nav-link">
 				<i class="fas fa-clipboard"></i>
 			</a>
 		</li>
 		<!-- Notifications -->
+		@php
+			$unreadNotifications = auth()->user()->unReadNotifications;
+			$unreadNotificationCount = $unreadNotifications->count();
+		@endphp
 		<li class="nav-item dropdown noti-dropdown">
 			
-			<a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-				<i class="fe fe-bell"></i> <span class="badge badge-pill">{{auth()->user()->unReadNotifications->count()}}</span>
+			<a href="#" class="dropdown-toggle nav-link notification-bell-link" data-toggle="dropdown" aria-label="Notifications{{ $unreadNotificationCount ? ', '.$unreadNotificationCount.' unread' : '' }}">
+				<i class="fe fe-bell" aria-hidden="true"></i>
+				@if($unreadNotificationCount > 0)
+					<span class="badge badge-pill notification-count" aria-hidden="true">{{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}</span>
+				@endif
 			</a>
 			<div class="dropdown-menu notifications">
 				<div class="topnav-dropdown-header">
 					<span class="notification-title">Notifications</span>
-					<a href="{{route('mark-as-read')}}" class="clear-noti">Mark All As Read </a>
+					@if($unreadNotificationCount > 0)
+						<a href="{{route('mark-as-read')}}" class="clear-noti">Mark All As Read</a>
+					@else
+						<span class="notification-empty-state-label">All caught up</span>
+					@endif
 				</div>
 				<div class="noti-content">
 					<ul class="notification-list">
-						@foreach (auth()->user()->unReadNotifications as $notification)
+						@forelse ($unreadNotifications as $notification)
 							<li class="notification-message">
 								<a href="{{route('read')}}">
 									<div class="media">
@@ -112,12 +120,16 @@
 									</div>
 								</a>
 							</li>
-						@endforeach						
+						@empty
+							<li class="notification-empty">No new notifications</li>
+						@endforelse
 					</ul>
 				</div>
-				<div class="topnav-dropdown-footer">
-					<a href="#">View all Notifications</a>
-				</div>
+				@if($unreadNotificationCount > 0)
+					<div class="topnav-dropdown-footer">
+						<a href="#">View all Notifications</a>
+					</div>
+				@endif
 			</div>
 		</li>
 		<!-- /Notifications -->

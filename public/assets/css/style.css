@@ -2452,6 +2452,11 @@ html.menu-opened {
 html.menu-opened body {
 	overflow: hidden;
 }
+@media only screen and (max-width: 991.98px) {
+	html.menu-opened {
+		scrollbar-gutter: stable;
+	}
+}
 
 /* Search */
 
@@ -5540,6 +5545,15 @@ body.dark-mode .verification-badge {
 		text-align: center;
 		top: 0;
 		z-index: 10;
+	}
+	.header .header-left .logo.logo-small {
+		display: none !important;
+	}
+	.header .theme-switch-btn {
+		left: 52px;
+		position: absolute;
+		width: 48px !important;
+		z-index: 11;
 	}
 	#toggle_btn {
 		display: none;
