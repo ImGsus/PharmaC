@@ -57,6 +57,72 @@
             }
         })();
 
+        document.addEventListener('turbo:before-cache', function () {
+            document.querySelectorAll('.dashboard-hero.animate__animated, .dashboard-card.animate__animated, .dashboard-card-animation.animate__animated').forEach(function (element) {
+                element.classList.remove('animate__animated');
+            });
+        });
+
+        document.addEventListener('turbo:render', function () {
+            var sidebar = document.getElementById('sidebar-scroll-container');
+            if (!sidebar) return;
+
+            try {
+                var savedSidebarScroll = parseInt(sessionStorage.getItem('pharmacy-sidebar-scroll'), 10) || 0;
+                if (savedSidebarScroll > 0) sidebar.scrollTop = savedSidebarScroll;
+            } catch (e) {}
+        });
+
+        function syncSidebarActiveNavigation(pathname) {
+            var menu = document.getElementById('sidebar-menu');
+            if (!menu) return;
+
+            var currentPath = (pathname || window.location.pathname).replace(/\/+$/, '') || '/';
+            var selectedLink = null;
+            var selectedPathLength = -1;
+
+            Array.prototype.forEach.call(menu.querySelectorAll('a[href]'), function (link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#') return;
+
+                var target;
+                try {
+                    target = new URL(href, window.location.href);
+                } catch (error) {
+                    return;
+                }
+                if (target.origin !== window.location.origin) return;
+
+                var linkPath = target.pathname.replace(/\/+$/, '') || '/';
+                var matchesPath = currentPath === linkPath || currentPath.indexOf(linkPath + '/') === 0;
+                if (matchesPath && linkPath.length > selectedPathLength) {
+                    selectedLink = link;
+                    selectedPathLength = linkPath.length;
+                }
+            });
+
+            menu.querySelectorAll('li.active').forEach(function (item) {
+                item.classList.remove('active');
+            });
+            menu.querySelectorAll('a.active, a.subdrop, a.sidebar-label-hidden').forEach(function (link) {
+                link.classList.remove('active', 'subdrop', 'sidebar-label-hidden');
+            });
+            if (!selectedLink) return;
+
+            var selectedItem = selectedLink.closest('li');
+            if (selectedItem) selectedItem.classList.add('active');
+
+            var parentSubmenu = selectedLink.closest('#sidebar-menu > ul > li.submenu');
+            if (parentSubmenu && parentSubmenu !== selectedItem) {
+                parentSubmenu.classList.add('active');
+                selectedLink.classList.add('active');
+                var parentLink = parentSubmenu.querySelector(':scope > a');
+                var submenu = parentSubmenu.querySelector(':scope > ul');
+                if (parentLink) parentLink.classList.add('active', 'subdrop');
+                if (submenu) submenu.style.display = 'block';
+            }
+        }
+
         document.addEventListener('turbo:before-render', function (event) {
             window.dashboardChartRequestId = (window.dashboardChartRequestId || 0) + 1;
             $('.modal').modal('hide');
@@ -86,9 +152,15 @@
             var currentBody = document.body;
             var nextBody = event.detail.newBody;
             var isDark = currentBody && currentBody.classList.contains('dark-mode');
+            var currentMainWrapper = currentBody && currentBody.querySelector('.main-wrapper');
+            var nextMainWrapper = nextBody && nextBody.querySelector('.main-wrapper');
 
             nextBody.classList.toggle('dark-mode', isDark);
             nextBody.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            if (currentMainWrapper && nextMainWrapper) {
+                nextMainWrapper.classList.toggle('slide-nav', currentMainWrapper.classList.contains('slide-nav'));
+            }
+            syncSidebarActiveNavigation(window.location.pathname);
         });
 
         function clearNavigationLock() {
@@ -149,6 +221,7 @@
             if (window.pharmacySidebarInit) {
                 window.pharmacySidebarInit();
             }
+            syncSidebarActiveNavigation(window.location.pathname);
             if (window.pharmacySidebarSlimScrollInit) {
                 window.pharmacySidebarSlimScrollInit();
             }
@@ -157,10 +230,8 @@
             try {
                 var savedSidebarScroll = sessionStorage.getItem('pharmacy-sidebar-scroll');
                 if (savedSidebarScroll && parseInt(savedSidebarScroll, 10) > 0) {
-                    var $sidebarEl = document.querySelector('.sidebar-inner.slimscroll');
-                    if ($sidebarEl && window.jQuery) {
-                        jQuery($sidebarEl).slimScroll({ scrollTo: savedSidebarScroll + 'px' });
-                    }
+                    var sidebar = document.getElementById('sidebar-scroll-container');
+                    if (sidebar) sidebar.scrollTop = parseInt(savedSidebarScroll, 10);
                 }
             } catch (e) {}
 
@@ -347,12 +418,20 @@
     @stack('page-css')
     <style>
         /* Keep every dark-mode text field on the same readable surface. */
+        html.dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+        html.dark-mode select,
+        html.dark-mode textarea,
+        html.dark-mode .form-control,
+        html.dark-mode .dataTables_filter input,
+        html.dark-mode .tabulator input:not([type="checkbox"]):not([type="radio"]),
+        html.dark-mode .select2-container--default .select2-selection--single,
+        html.dark-mode .select2-container--default .select2-selection--multiple,
         body.dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
         body.dark-mode select,
         body.dark-mode textarea,
         body.dark-mode .form-control,
         body.dark-mode .dataTables_filter input,
-        body.dark-mode .tabulator input,
+        body.dark-mode .tabulator input:not([type="checkbox"]):not([type="radio"]),
         body.dark-mode .select2-container--default .select2-selection--single,
         body.dark-mode .select2-container--default .select2-selection--multiple {
             background-color: #111827 !important;
@@ -361,6 +440,11 @@
             box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.55) !important;
         }
 
+        html.dark-mode input::placeholder,
+        html.dark-mode textarea::placeholder,
+        html.dark-mode .form-control::placeholder,
+        html.dark-mode .dataTables_filter input::placeholder,
+        html.dark-mode .tabulator input::placeholder,
         body.dark-mode input::placeholder,
         body.dark-mode textarea::placeholder,
         body.dark-mode .form-control::placeholder,
@@ -370,12 +454,20 @@
             opacity: 1;
         }
 
+        html.dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+        html.dark-mode select:focus,
+        html.dark-mode textarea:focus,
+        html.dark-mode .form-control:focus,
+        html.dark-mode .dataTables_filter input:focus,
+        html.dark-mode .tabulator input:not([type="checkbox"]):not([type="radio"]):focus,
+        html.dark-mode .select2-container--default.select2-container--focus .select2-selection--single,
+        html.dark-mode .select2-container--default.select2-container--focus .select2-selection--multiple,
         body.dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
         body.dark-mode select:focus,
         body.dark-mode textarea:focus,
         body.dark-mode .form-control:focus,
         body.dark-mode .dataTables_filter input:focus,
-        body.dark-mode .tabulator input:focus,
+        body.dark-mode .tabulator input:not([type="checkbox"]):not([type="radio"]):focus,
         body.dark-mode .select2-container--default.select2-container--focus .select2-selection--single,
         body.dark-mode .select2-container--default.select2-container--focus .select2-selection--multiple {
             border-color: #69d9aa !important;
@@ -627,7 +719,7 @@
         });
     });
 
-    $(document).on('submit', 'form', function(e){
+    $(document).off('submit.pharmacySubmitLock', 'form').on('submit.pharmacySubmitLock', 'form', function(e){
         var $form = $(this);
         if ($form.data('submitted')) {
             e.preventDefault();

@@ -2565,7 +2565,7 @@ html.menu-opened body {
     background-color: rgba(61, 185, 133, 0.15);
     color: rgb(61, 185, 133);
 }
-.sidebar-menu li.active a {
+.sidebar-menu li.active > a {
     background-color: rgba(61, 185, 133, 0.2);
     color: rgb(61, 185, 133);
 	font-weight: 500;
@@ -2748,7 +2748,7 @@ body:not(.dark-mode) .sidebar-menu > ul > li > a:hover {
 	background-color: rgba(118, 167, 247, 0.12);
 	color: rgb(76, 144, 255);
 }
-body:not(.dark-mode) .sidebar-menu li.active a,
+body:not(.dark-mode) .sidebar-menu li.active > a,
 body:not(.dark-mode) .sidebar-menu > ul > li.active > a {
 	background-color: rgba(118, 167, 247, 0.18);
 	color: rgb(76, 144, 255);
@@ -2791,7 +2791,7 @@ body:not(.dark-mode) .sidebar-menu > ul > li.active > a:hover {
 	background-color: rgba(118, 167, 247, 0.12);
 	color: rgb(76, 144, 255);
 }
-body:not(.dark-mode) .sidebar-menu li.active a {
+body:not(.dark-mode) .sidebar-menu li.active > a {
 	background-color: rgba(118, 167, 247, 0.18);
 	color: rgb(76, 144, 255);
 }

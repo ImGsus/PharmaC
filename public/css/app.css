@@ -6454,6 +6454,11 @@ div.modal.fade {
   opacity: 0 !important;
   transition: opacity 0.15s linear !important;
 }
+div.modal.show {
+  display: block !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 div.modal.fade.show {
   display: block !important;
   opacity: 1 !important;

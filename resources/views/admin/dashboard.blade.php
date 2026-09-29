@@ -323,6 +323,16 @@
             gap: var(--dashboard-card-gap);
             margin-bottom: 2rem;
         }
+        @media (max-width: 767.98px) {
+            .dashboard-indicators-row > div {
+                display: flex;
+                min-width: 0;
+            }
+            .dashboard-indicators-row > div > .dashboard-card {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+        }
 
             .dashboard-reveal-1 { animation-delay: 0.1s; }
             .dashboard-reveal-2 { animation-delay: 0.2s; }
@@ -1030,67 +1040,67 @@
         }
 
         /* Ensure modal content remains readable in dark mode (keep layout/spacing intact) */
-        body.dark-mode .modal-content,
-        body.dark-mode .modal-footer {
+        body.dark-mode #add_sales .modal-content,
+        body.dark-mode #add_sales .modal-footer {
             background-color: rgb(28, 32, 37) !important;
             color: rgb(231, 233, 236) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
         /* Sell Product modal header styling */
-        body.dark-mode .modal-header {
+        body.dark-mode #add_sales .modal-header {
             background-color: rgb(28, 32, 37) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             color: rgb(231, 233, 236) !important;
         }
 
         /* Product / Quantity field container styling */
-        body.dark-mode .modal .form-group {
+        body.dark-mode #add_sales .form-group {
             margin-bottom: 1rem;
         }
 
-        body.dark-mode .modal .form-control,
-        body.dark-mode .modal .select2-container--default .select2-selection--single,
-        body.dark-mode .modal .select2-container--default .select2-selection--multiple {
+        body.dark-mode #add_sales .form-control,
+        body.dark-mode #add_sales .select2-container--default .select2-selection--single,
+        body.dark-mode #add_sales .select2-container--default .select2-selection--multiple {
             background-color: #f8fafc !important;
             color: #111827 !important;
             border: 1px solid rgba(0, 0, 0, 0.18) !important;
             box-shadow: none !important;
         }
 
-        body.dark-mode .modal .select2-container--default .select2-selection--single .select2-selection__rendered,
-        body.dark-mode .modal .select2-container--default .select2-selection--single .select2-selection__arrow,
-        body.dark-mode .modal .select2-container--default .select2-results__option,
-        body.dark-mode .modal .select2-container--default .select2-results__option--highlighted,
-        body.dark-mode .modal .select2-container--default .select2-results__option--selected,
-        body.dark-mode .modal .modal-title,
-        body.dark-mode .modal label,
-        body.dark-mode .modal .form-label,
-        body.dark-mode .modal .form-control::placeholder {
+        body.dark-mode #add_sales .select2-container--default .select2-selection--single .select2-selection__rendered,
+        body.dark-mode #add_sales .select2-container--default .select2-selection--single .select2-selection__arrow,
+        body.dark-mode #add_sales .select2-container--default .select2-results__option,
+        body.dark-mode #add_sales .select2-container--default .select2-results__option--highlighted,
+        body.dark-mode #add_sales .select2-container--default .select2-results__option--selected,
+        body.dark-mode #add_sales .modal-title,
+        body.dark-mode #add_sales label,
+        body.dark-mode #add_sales .form-label,
+        body.dark-mode #add_sales .form-control::placeholder {
             color: #000000 !important;
         }
 
         /* Indicator: change text color on modal title, labels, and placeholders */
-        body.dark-mode .modal .modal-title,
-        body.dark-mode .modal label,
-        body.dark-mode .modal .form-label {
+        body.dark-mode #add_sales .modal-title,
+        body.dark-mode #add_sales label,
+        body.dark-mode #add_sales .form-label {
             color: rgba(239, 240, 243, 0.95) !important;
         }
 
-        body.dark-mode .modal .form-control::placeholder {
+        body.dark-mode #add_sales .form-control::placeholder {
             color: rgba(3, 3, 3, 0.55) !important;
         }
 
         /* Product quantity box outlines */
-        body.dark-mode .modal .form-control:focus,
-        body.dark-mode .modal .select2-container--default .select2-selection--single:focus,
-        body.dark-mode .modal .select2-container--default .select2-selection--multiple:focus {
+        body.dark-mode #add_sales .form-control:focus,
+        body.dark-mode #add_sales .select2-container--default .select2-selection--single:focus,
+        body.dark-mode #add_sales .select2-container--default .select2-selection--multiple:focus {
             border-color: rgba(5, 5, 5, 0.32) !important;
             box-shadow: 0 0 0 0.15rem rgba(5, 5, 5, 0.08) !important;
         }
 
-        body.dark-mode .modal .btn-light,
-        body.dark-mode .modal .btn {
+        body.dark-mode #add_sales .btn-light,
+        body.dark-mode #add_sales .btn {
             color: #050505 !important;
         }
     </style>

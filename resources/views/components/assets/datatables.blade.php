@@ -62,6 +62,7 @@
     <script>
         $.fn.dataTable.defaults.searchDelay = 350;
         $.fn.dataTable.defaults.autoWidth = false;
+        $.fn.dataTable.defaults.language.search = '<span class="sr-only">Search:</span>_INPUT_';
 
         $(document).on('init.dt', function (event, settings) {
             var table = new $.fn.dataTable.Api(settings);

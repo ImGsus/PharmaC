@@ -109,7 +109,6 @@
         input.setAttribute("aria-label", "Search");
 
         var label = document.createElement("label");
-        label.appendChild(document.createTextNode("Search: "));
         label.appendChild(input);
 
         var filterWrap = document.createElement("div");

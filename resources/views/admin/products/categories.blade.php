@@ -245,7 +245,8 @@
     }
 
     window.pharmacyCategoriesInit = function() {
-		if (!document.getElementById('category-table')) {
+		var categoryTable = document.getElementById('category-table');
+		if (!categoryTable || categoryTable.dataset.pharmacyCategoriesInitialized === 'true') {
 			return;
 		}
 
@@ -267,8 +268,9 @@
 				{ title: 'Actions', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 120, hozAlign: 'center' }
 			]
 		});
+		categoryTable.dataset.pharmacyCategoriesInitialized = 'true';
 
-		$(document).on('click', '#category-table .editbtn', function () {
+		$(document).off('click.pharmacyCategories', '#category-table .editbtn').on('click.pharmacyCategories', '#category-table .editbtn', function () {
 			$('#edit_category').modal('show');
 			var id = $(this).data('id');
 			var name = $(this).data('name');
@@ -302,14 +304,21 @@
 			$('.edit_no_expiry').prop('checked', noExpiry).prop('disabled', selected.data('no-expiry-fixed') === 1 || selected.data('no-expiry-fixed') === '1');
 		});
 
-		$(document).on('click', '#category-table .category-description-btn', function () {
+		$(document).off('click.pharmacyCategories', '#category-table .category-description-btn').on('click.pharmacyCategories', '#category-table .category-description-btn', function () {
 			var description = $(this).data('description') || '';
 			$('#category-description-text').text(description);
 			$('#categoryDescriptionModal').modal('show');
 		});
 	};
 
-	document.addEventListener('turbo:load', window.pharmacyCategoriesInit);
+	if (!window.pharmacyCategoriesTurboLoadHandler) {
+		window.pharmacyCategoriesTurboLoadHandler = function() {
+			if (window.pharmacyCategoriesInit) {
+				window.pharmacyCategoriesInit();
+			}
+		};
+		document.addEventListener('turbo:load', window.pharmacyCategoriesTurboLoadHandler);
+	}
 	window.pharmacyCategoriesInit();
 </script>
 @endpush

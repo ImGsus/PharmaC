@@ -708,10 +708,11 @@
 		}
 /* ---- Product Active / Not Active toggle (inside Action dropdown) ---- */
 		// Clicking the switch inside the dropdown must not close the menu.
-		$(document).on('click', '.product-status-menu-item, .product-active-toggle, .product-active-switch', function (event) {
+		var productStatusMenuSelector = '.product-status-menu-item, .product-active-toggle, .product-active-switch';
+		$(document).off('click', productStatusMenuSelector).on('click.productStatus', productStatusMenuSelector, function (event) {
 			event.stopPropagation();
 		});
-		$(document).on('change', '.product-active-toggle', function () {
+		$(document).off('change', '.product-active-toggle').on('change.productStatus', '.product-active-toggle', function () {
 			var $toggle = $(this);
 			var $switch = $toggle.closest('.product-active-switch');
 			var $cell = $toggle.closest('.product-action-cell');

@@ -38,21 +38,44 @@ class BackupController extends Controller
         foreach (config('backup.backup.destination.disks') as $disk_name) {
             $disk = Storage::disk($disk_name);
             $adapter = $disk->getDriver()->getAdapter();
-            $files = $disk->allFiles();
+            try {
+                $files = $disk->allFiles('backups');
+            } catch (Exception $e) {
+                Log::warning('Unable to list backup files during a filesystem change.', [
+                    'disk' => $disk_name,
+                    'exception' => $e->getMessage(),
+                ]);
+                continue;
+            }
 
             // make an array of backup files, with their filesize and creation date
             foreach ($files as $k => $f) {
                 // only take the zip files into account
-                if (substr($f, -4) == '.zip' && $disk->exists($f)) {
-                    $this->data['backups'][] = [
-                        'file_path'     => $f,
-                        'file_name'     => str_replace('backups/', '', $f),
-                        'file_size'     => $disk->size($f),
-                        'last_modified' => $disk->lastModified($f),
-                        'disk'          => $disk_name,
-                        'download'      => ($adapter instanceof Local) ? true : false,
-                    ];
+                if (substr($f, -4) !== '.zip') {
+                    continue;
                 }
+
+                try {
+                    if (!$disk->exists($f)) continue;
+                    $fileSize = $disk->size($f);
+                    $lastModified = $disk->lastModified($f);
+                } catch (Exception $e) {
+                    Log::notice('Skipping a backup file that changed during listing.', [
+                        'disk' => $disk_name,
+                        'file' => $f,
+                        'exception' => $e->getMessage(),
+                    ]);
+                    continue;
+                }
+
+                $this->data['backups'][] = [
+                    'file_path'     => $f,
+                    'file_name'     => str_replace('backups/', '', $f),
+                    'file_size'     => $fileSize,
+                    'last_modified' => $lastModified,
+                    'disk'          => $disk_name,
+                    'download'      => ($adapter instanceof Local) ? true : false,
+                ];
             }
         }
         return view('admin.backup',$this->data,compact('title'));
@@ -93,7 +116,8 @@ class BackupController extends Controller
         $notification = 'backup created successfully';
         $workDir = storage_path('app/backup-temp/'.uniqid('bundle_', true));
         $backupDir = storage_path('app/backups');
-        $zipPath = $backupDir.'/pharmacy-bundle-'.date('Y-m-d-His').'.zip';
+        $zipPath = $backupDir.'/pharmacy-bundle-'.date('Y-m-d-His').'-'.uniqid().'.zip';
+        $temporaryZipPath = $workDir.'/backup.zip';
         try {
             ini_set('max_execution_time', 600);
 
@@ -115,7 +139,9 @@ class BackupController extends Controller
             ], JSON_PRETTY_PRINT));
 
             $zip = new ZipArchive();
-            abort_unless($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true, 500, 'Unable to create backup ZIP.');
+            if ($zip->open($temporaryZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+                throw new Exception('Unable to create backup ZIP.');
+            }
             $zip->addFile($workDir.'/manifest.json', 'manifest.json');
             $zip->addFile($workDir.'/database.json', 'database.json');
             foreach ([
@@ -129,7 +155,12 @@ class BackupController extends Controller
                     $zip->addFile($file->getPathname(), $prefix.'/'.$relativePath);
                 }
             }
-            $zip->close();
+            if (!$zip->close()) {
+                throw new Exception('Unable to finalize backup ZIP.');
+            }
+            if (!File::move($temporaryZipPath, $zipPath)) {
+                throw new Exception('Unable to publish completed backup ZIP.');
+            }
         } catch (Exception $e) {
             Log::error($e);
             if (File::isDirectory($workDir)) File::deleteDirectory($workDir);

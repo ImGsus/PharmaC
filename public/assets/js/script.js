@@ -252,7 +252,18 @@ $(document).ready(function(){
 		});
 
 		var $activeSubmenu = $('#sidebar-menu ul ul a.active').parents('li.submenu').first();
-		$('#sidebar-menu > ul > li.submenu > a').removeClass('active subdrop');
+		var activeSubmenuList = $activeSubmenu.children('ul:first')[0];
+		$('#sidebar-menu > ul > li.submenu > a').removeClass('active subdrop sidebar-label-hidden');
+		$('#sidebar-menu > ul > li.submenu > ul').each(function() {
+			var $submenu = $(this);
+			if (this === activeSubmenuList) {
+				$submenu.stop(true, true).show();
+			} else if ($submenu.is(':visible')) {
+				$submenu.stop(true, true).slideUp(280);
+			} else {
+				$submenu.stop(true, true).hide();
+			}
+		});
 		var $openSubmenu = $activeSubmenu;
 
 		if ($openSubmenu.length) {

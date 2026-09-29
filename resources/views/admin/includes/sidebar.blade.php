@@ -1,6 +1,6 @@
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-	<div class="sidebar-inner slimscroll">
+	<div class="sidebar-inner slimscroll" id="sidebar-scroll-container" data-turbo-permanent>
 		<div id="sidebar-menu" class="sidebar-menu">
 			
 			<ul>
@@ -8,12 +8,12 @@
 					<span>Main</span>
 				</li>
 				<li class="{{ route_is('dashboard') ? 'active' : '' }}"> 
-					<a href="{{route('dashboard')}}" data-turbo="false" data-sidebar-label="Dashboard"><i class="fe fe-home"></i> <span>Dashboard</span></a>
+					<a href="{{route('dashboard')}}" data-sidebar-label="Dashboard"><i class="fe fe-home"></i> <span>Dashboard</span></a>
 				</li>
 				
 				@can('view-category')
 				<li class="{{ route_is('categories.*') ? 'active' : '' }}"> 
-					<a href="{{route('categories.index')}}" data-turbo="false" data-sidebar-label="Categories"><i class="fe fe-layout"></i> <span>Categories</span></a>
+					<a href="{{route('categories.index')}}" data-sidebar-label="Categories"><i class="fe fe-layout"></i> <span>Categories</span></a>
 				</li>
 				@endcan
 				
