@@ -44,6 +44,62 @@
 	body.dark-mode .category-action-button.show {
 		box-shadow: 0 3px 2px -2px rgba(52, 211, 153, .9), 0 4px 3px -2px rgba(52, 211, 153, .9) !important;
 	}
+	.category-action-modal .modal-dialog {
+		max-width: 420px;
+		width: min(420px, calc(100vw - 32px));
+	}
+	.category-action-modal .modal-body {
+		max-height: min(65vh, 480px);
+		overflow-y: auto;
+		padding: 8px 0;
+	}
+	.category-action-modal .category-action-heading {
+		min-width: 0;
+	}
+	.category-action-modal .category-action-name {
+		color: #64748b;
+		display: block;
+		font-size: 13px;
+		font-weight: 500;
+		margin-top: 4px;
+		overflow-wrap: anywhere;
+	}
+	.category-action-modal .dropdown-item {
+		padding: 10px 20px;
+		white-space: normal;
+	}
+	.category-action-modal .dropdown-item:hover,
+	.category-action-modal .dropdown-item:focus {
+		background-color: #dbeafe !important;
+		color: #1e3a8a !important;
+	}
+	.category-action-modal .dropdown-item.text-danger:hover,
+	.category-action-modal .dropdown-item.text-danger:focus {
+		color: #b91c1c !important;
+	}
+	body.dark-mode .category-action-modal .modal-content {
+		background: #252b33;
+		color: #e2e8f0;
+	}
+	body.dark-mode .category-action-modal .dropdown-item:hover,
+	body.dark-mode .category-action-modal .dropdown-item:focus {
+		background-color: #bbf7d0 !important;
+		color: #14532d !important;
+	}
+	body.dark-mode .category-action-modal .dropdown-item.text-danger:hover,
+	body.dark-mode .category-action-modal .dropdown-item.text-danger:focus {
+		color: #b91c1c !important;
+	}
+	body.dark-mode .category-action-modal .modal-header {
+		border-color: #475569;
+	}
+	body.dark-mode .category-action-modal .close {
+		color: #e2e8f0;
+		text-shadow: none;
+	}
+	body.dark-mode .category-action-modal .category-action-name {
+		color: #a8b3c4;
+	}
 
 
 .category-expiry-switch {
@@ -118,7 +174,26 @@
 	</div>			
 </div>
 
-<!-- Add Modal -->
+	<div class="modal fade category-action-modal" id="category-action-modal" tabindex="-1" role="dialog" aria-labelledby="category-action-modal-title" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<div class="category-action-heading">
+						<h5 class="modal-title" id="category-action-modal-title">Categories Actions</h5>
+						<span class="category-action-name">Name &rarr; <span id="category-action-name"></span></span>
+					</div>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div id="category-action-modal-content"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Modal -->
 <div class="modal fade" id="add_categories" aria-hidden="true" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -270,8 +345,41 @@
 		});
 		categoryTable.dataset.pharmacyCategoriesInitialized = 'true';
 
-		$(document).off('click.pharmacyCategories', '#category-table .editbtn').on('click.pharmacyCategories', '#category-table .editbtn', function () {
-			$('#edit_category').modal('show');
+		function showCategoryModalAfterActions(modal) {
+			var actionModal = $('#category-action-modal');
+			if (actionModal.hasClass('show')) {
+				actionModal.one('hidden.bs.modal', function () {
+					window.setTimeout(function () {
+						$(modal).modal('show');
+					}, 0);
+				}).modal('hide');
+				return;
+			}
+			$(modal).modal('show');
+		}
+
+		$(document).off('click.pharmacyCategories', '#category-table .category-action-button')
+			.on('click.pharmacyCategories', '#category-table .category-action-button', function (event) {
+				event.preventDefault();
+				var menu = this.nextElementSibling;
+				if (!menu || !menu.classList.contains('dropdown-menu')) {
+					return;
+				}
+
+				this.setAttribute('aria-expanded', 'true');
+				$('#category-action-name').text(this.getAttribute('data-category-name') || '');
+				$('#category-action-modal-content').html(menu.innerHTML);
+				$('#category-action-modal').modal('show');
+			});
+
+		$('#category-action-modal').off('hidden.bs.modal.pharmacyCategories').on('hidden.bs.modal.pharmacyCategories', function () {
+			$('#category-table .category-action-button[aria-expanded="true"]').attr('aria-expanded', 'false');
+			$('#category-action-modal-content').empty();
+		});
+
+		$(document).off('click.pharmacyCategories', '#category-table .editbtn, #category-action-modal .editbtn').on('click.pharmacyCategories', '#category-table .editbtn, #category-action-modal .editbtn', function (event) {
+			event.preventDefault();
+			showCategoryModalAfterActions('#edit_category');
 			var id = $(this).data('id');
 			var name = $(this).data('name');
 			var description = $(this).data('description') || '';
@@ -304,11 +412,13 @@
 			$('.edit_no_expiry').prop('checked', noExpiry).prop('disabled', selected.data('no-expiry-fixed') === 1 || selected.data('no-expiry-fixed') === '1');
 		});
 
-		$(document).off('click.pharmacyCategories', '#category-table .category-description-btn').on('click.pharmacyCategories', '#category-table .category-description-btn', function () {
+		$(document).off('click.pharmacyCategories', '#category-table .category-description-btn, #category-action-modal .category-description-btn').on('click.pharmacyCategories', '#category-table .category-description-btn, #category-action-modal .category-description-btn', function (event) {
+			event.preventDefault();
 			var description = $(this).data('description') || '';
 			$('#category-description-text').text(description);
-			$('#categoryDescriptionModal').modal('show');
+			showCategoryModalAfterActions('#categoryDescriptionModal');
 		});
+
 	};
 
 	if (!window.pharmacyCategoriesTurboLoadHandler) {
@@ -343,5 +453,3 @@
 </div>
 
 @endsection
-
-

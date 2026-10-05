@@ -85,6 +85,58 @@ php artisan serve
 http://127.0.0.1:8000
 ```
 
+## Prescription OCR Setup (Windows)
+
+Prescription image analysis uses Tesseract OCR. ImageMagick is also recommended because the application uses it to preprocess and crop prescription images before OCR. Install both tools on the computer running Laravel; installing them on another computer will not make them available to the Laravel server.
+
+### 1. Install and check the OCR tools
+
+Install Tesseract OCR for Windows and ImageMagick. During ImageMagick setup, enable the option to add the application directory to the system PATH. If Tesseract is added to PATH by its installer, that is useful too, but the project can use its explicit executable path below.
+
+Open **Command Prompt** and check the installations:
+
+```cmd
+tesseract --version
+where tesseract
+magick -version
+where magick
+```
+
+Tesseract should report a version and ImageMagick should report its version. If `where tesseract` or `where magick` cannot find the program, reopen Command Prompt after installation or use the executable path in the project configuration where applicable.
+
+### 2. Configure the project
+
+In the project root, create or edit `.env` and set `TESSERACT_PATH` to the location of `tesseract.exe`. This is the common default installation path:
+
+```dotenv
+TESSERACT_PATH="C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+IMAGEMAGICK_PATH=magick
+```
+
+If Tesseract was installed somewhere else, replace the path with the actual location. If `magick -version` does not work in Command Prompt, set `IMAGEMAGICK_PATH` to the full path of `magick.exe` instead, for example:
+
+```dotenv
+IMAGEMAGICK_PATH="C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"
+```
+
+Use the ImageMagick folder name that exists on your computer. Then, in the VS Code terminal opened at the project root, clear Laravel's cached configuration and start (or restart) the server:
+
+```powershell
+php artisan config:clear
+php artisan serve
+```
+
+Keep that terminal running. If Laravel was already running when `.env` was changed, stop it with `Ctrl+C` and run `php artisan serve` again so the server process picks up the new configuration.
+
+### 3. Analyze a prescription image
+
+1. Open `http://127.0.0.1:8000` and sign in with an account that can access Prescription Verification.
+2. Open **Prescriptions**, choose a JPG, JPEG, PNG, or WebP image up to 5 MB, then select **Analyze Image**.
+3. Choose **Built-in OCR** to analyze offline with Tesseract, or select **AI Cloud → Google Gemini** for online image analysis using the `gemini-3.8-flash` model. Create a named Gemini profile once; its key is encrypted in the database and scoped to your signed-in account. Selecting that profile starts analysis, and **Remove** deletes an old profile. The app never sends the saved key back to the browser. Keep `APP_KEY` backed up and stable; if it changes, recreate saved Gemini profiles. Gemini sends the prescription image to Google for processing. Google may use free-tier data to improve its products, so do not send identifiable patient information unless your privacy, consent, and regulatory requirements allow it. Free-tier availability and request limits depend on the Google project and can change; check AI Studio’s Usage and Rate Limit pages.
+4. Review and correct the draft against the original image. Built-in OCR compares alternate image rotations when ImageMagick is available. Full-page and regional scans are merged, word highlights use the selected image orientation, and text that cannot be mapped to a known field is placed in the Rx draft for manual review. Use **Recheck catalog** to search corrected text against active products.
+
+Analysis results are suggestions only. Tesseract or Gemini can misread low-resolution, skewed, handwritten, shadowed, or compressed text. Always confirm patient details, medicine names, strengths, and directions against the original prescription before submitting or approving it. PDF files can be submitted for manual verification, but image analysis currently accepts image files only.
+
 ## Running with ngrok (Mobile/Remote Access)
 
 To access your local pharmacy management system from a mobile device or remote location, follow these steps:

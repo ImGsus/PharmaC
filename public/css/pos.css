@@ -579,29 +579,17 @@
     border-right: 1px solid var(--pos-border);
     padding-right: .5rem;
 }
-.pos-v2-scanner-input {
+.pos-v2-scanner-status {
+    display: flex;
+    align-items: center;
+    min-width: 0;
     border: none;
-    outline: none !important;
-    box-shadow: none !important;
     background: transparent;
     font-size: 1.05rem;
     font-weight: 500;
-    color: var(--pos-text);
-    letter-spacing: .5px;
-    flex: 1;
-}
-.pos-v2-scanner-input::placeholder {
     color: var(--pos-muted);
-    font-weight: 400;
     letter-spacing: 0;
-}
-.pos-v2-scanner-input:focus {
-    background: transparent;
-}
-.pos-v2-scanner-btn {
-    font-weight: 600;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    flex: 1;
 }
 
 /* ---------- Categories modal list ---------- */
@@ -730,7 +718,6 @@ body.dark-mode .pos-page-v2 .pos-v2-pager {
 }
 
 body.dark-mode .pos-page-v2 .form-control,
-body.dark-mode .pos-page-v2 .pos-v2-scanner-input,
 body.dark-mode .pos-page-v2 .pos-v2-currency-select,
 body.dark-mode .pos-page-v2 .pos-v2-datetime,
 body.dark-mode .pos-page-v2 .pos-v2-discount-unit {
@@ -739,9 +726,12 @@ body.dark-mode .pos-page-v2 .pos-v2-discount-unit {
     border-color: rgba(255, 255, 255, .16) !important;
 }
 
-body.dark-mode .pos-page-v2 .form-control::placeholder,
-body.dark-mode .pos-page-v2 .pos-v2-scanner-input::placeholder {
+body.dark-mode .pos-page-v2 .form-control::placeholder {
     color: rgb(140, 145, 150) !important;
+}
+
+body.dark-mode .pos-page-v2 .pos-v2-scanner-status {
+    color: rgb(160, 166, 174);
 }
 
 body.dark-mode .pos-page-v2 .pos-v2-items-table,

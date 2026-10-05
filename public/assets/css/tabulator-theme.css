@@ -70,11 +70,37 @@ body.dark-mode {
 }
 
 .tabulator {
+    display: flex;
+    flex-direction: column;
     background-color: var(--ph-tab-bg);
     border: 1px solid var(--ph-tab-border);
     border-radius: var(--ph-tab-radius);
     box-shadow: var(--ph-tab-shadow);
     color: var(--ph-row-text);
+}
+
+.tabulator {
+    overflow: visible !important;
+}
+
+.pharma-table-toolbar[data-table-key] {
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+    background-color: var(--ph-tab-bg);
+}
+
+.tabulator .tabulator-footer {
+    position: sticky;
+    top: 104px;
+    z-index: 30;
+}
+
+.tabulator .tabulator-header {
+    position: sticky;
+    top: 144px;
+    z-index: 20;
+    box-shadow: 0 2px 0 var(--ph-header-bg);
 }
 
 .tabulator .tabulator-header {
@@ -131,6 +157,7 @@ body.dark-mode {
 }
 
 .tabulator .tabulator-footer {
+    order: -1;
     background-color: var(--ph-footer-bg);
     border-top: 1px solid var(--ph-footer-border);
     color: var(--ph-footer-text);

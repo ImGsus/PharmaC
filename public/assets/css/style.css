@@ -125,6 +125,44 @@ body.dark-mode .modal label {
 	color: rgb(231, 233, 236);
 }
 
+#user-camera-cancel,
+#user-create-camera-cancel,
+#profile-camera-cancel {
+	background-color: #f1f5f9 !important;
+	border-color: #cbd5e1 !important;
+	color: #1f2937 !important;
+}
+
+#user-camera-cancel:hover,
+#user-camera-cancel:focus,
+#user-create-camera-cancel:hover,
+#user-create-camera-cancel:focus,
+#profile-camera-cancel:hover,
+#profile-camera-cancel:focus {
+	background-color: #2563eb !important;
+	border-color: #2563eb !important;
+	color: #ffffff !important;
+}
+
+body.dark-mode #user-camera-cancel,
+body.dark-mode #user-create-camera-cancel,
+body.dark-mode #profile-camera-cancel {
+	background-color: #e2e8f0 !important;
+	border-color: #cbd5e1 !important;
+	color: #1f2937 !important;
+}
+
+body.dark-mode #user-camera-cancel:hover,
+body.dark-mode #user-camera-cancel:focus,
+body.dark-mode #user-create-camera-cancel:hover,
+body.dark-mode #user-create-camera-cancel:focus,
+body.dark-mode #profile-camera-cancel:hover,
+body.dark-mode #profile-camera-cancel:focus {
+	background-color: #69d9aa !important;
+	border-color: #69d9aa !important;
+	color: #10231d !important;
+}
+
 body.dark-mode .profile-header,
 body.dark-mode .profile-menu {
 	background-color: rgb(28, 32, 37);
@@ -2286,6 +2324,9 @@ body.dark-mode .sidebar-toggle-icon span {
 .user-menu.nav > li > a:hover,
 .user-menu.nav > li > a:focus {
 	background-color: rgba(0, 0, 0, 0.2);
+}
+.user-menu.nav > li > a.inventory-check-trigger:focus:not(:focus-visible):not(:hover) {
+	background-color: transparent;
 }
 .user-menu.nav > li > a:hover i,
 .user-menu.nav > li > a:focus i {
@@ -5888,6 +5929,10 @@ body.dark-mode .header .user-menu.nav > li > a:focus,
 body.dark-mode .header .user-menu.nav > li > a:active {
 	background-color: rgb(34, 40, 47) !important;
 	color: #f8fafc !important;
+}
+
+body.dark-mode .header .user-menu.nav > li > a.inventory-check-trigger:focus:not(:focus-visible):not(:hover) {
+	background-color: transparent !important;
 }
 
 body.dark-mode .header .user-menu.nav > li > a:hover i,

@@ -62,6 +62,8 @@ class ProductController extends Controller
                     $purchase = $row->purchase;
                     $isActive = (bool) $row->is_active;
                     $stateClass = $isActive ? 'is-active' : 'is-inactive';
+                    $actionName = htmlspecialchars((string) optional($purchase)->product, ENT_QUOTES, 'UTF-8');
+                    $actionStatus = $isActive ? 'Active' : 'Not Active';
                     $statusMenuItem = '';
                     if (auth()->user() && auth()->user()->hasPermissionTo('edit-product')) {
                         $statusMenuItem = '<label class="dropdown-item product-status-menu-item" title="Toggle product availability">'
@@ -71,7 +73,7 @@ class ProductController extends Controller
                             . 'aria-label="Toggle product availability" '
                             . ($isActive ? 'checked' : '').'>'
                             . '</span>'
-                            . '<span class="product-status-menu-text">'.($isActive ? 'Active' : 'Not Active').'</span>'
+                            . '<span class="product-status-menu-text '.($isActive ? 'is-active' : 'is-inactive').'">'.($isActive ? 'Active' : 'Not Active').'</span>'
                             . '</label>'
                             . '<div class="dropdown-divider"></div>';
                     }
@@ -95,7 +97,7 @@ class ProductController extends Controller
                         $detailbtn
                     );
                     $detailbtn = str_replace(' title="View product details">...</button>', '><i class="fas fa-info-circle mr-2"></i>View Details</button>', $detailbtn);
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';
                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-product')) {
                         $editbtn = '';
@@ -108,7 +110,7 @@ class ProductController extends Controller
                         $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                     }
 
-                    return '<div class="btn-group product-action-cell '.$stateClass.'" data-active="'.($isActive ? '1' : '0').'"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-status-action-button '.$stateClass.'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                    return '<div class="btn-group product-action-cell '.$stateClass.'" data-active="'.($isActive ? '1' : '0').'"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-status-action-button product-row-action-button '.$stateClass.'" data-action-name="'.$actionName.'" data-action-status="'.$actionStatus.'" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['product','status','action'])
                 ->make(true);
@@ -242,6 +244,12 @@ class ProductController extends Controller
             'description'=>$request->description,
         ]);
         $notification = notify('product has been updated');
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Product has been updated.',
+            ]);
+        }
         return redirect()->route('products.index')->with($notification);
     }
 
@@ -308,6 +316,11 @@ class ProductController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $purchase = $row->purchase;
+                    $actionName = htmlspecialchars((string) optional($purchase)->product, ENT_QUOTES, 'UTF-8');
+                    $actionExpiry = optional($purchase)->expiry_date
+                        ? date_format(date_create($purchase->expiry_date), 'd M, Y')
+                        : 'No expiry';
+                    $actionExpiry = htmlspecialchars($actionExpiry, ENT_QUOTES, 'UTF-8');
                     $detailbtn = '<button type="button" class="dropdown-item expired-detail-btn" '
                         . 'data-details="'.htmlspecialchars(json_encode([
                             'product'          => optional($purchase)->product,
@@ -323,7 +336,7 @@ class ProductController extends Controller
                             'quantity_per_box' => optional($purchase)->quantity_per_box,
                         ]), ENT_QUOTES, 'UTF-8').'">'
                         . '<i class="fas fa-info-circle mr-2"></i>View Details</button>';
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';
                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-product')) {
                         $editbtn = '';
@@ -335,7 +348,7 @@ class ProductController extends Controller
                     if ($editbtn || $deletebtn) {
                         $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-row-action-button" data-action-name="'.$actionName.'" data-action-expiry="'.$actionExpiry.'" aria-haspopup="true" aria-expanded="false" aria-label="Expired product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['product','action'])
                 ->make(true);
@@ -382,6 +395,8 @@ class ProductController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $purchase = $row->purchase;
+                    $actionName = htmlspecialchars((string) optional($purchase)->product, ENT_QUOTES, 'UTF-8');
+                    $actionCategory = htmlspecialchars((string) optional(optional($purchase)->category)->name, ENT_QUOTES, 'UTF-8');
                     $detailbtn = '<button type="button" class="dropdown-item outstock-detail-btn" '
                         . 'data-details="'.htmlspecialchars(json_encode([
                             'product'          => optional($purchase)->product,
@@ -397,7 +412,7 @@ class ProductController extends Controller
                             'quantity_per_box' => optional($purchase)->quantity_per_box,
                         ]), ENT_QUOTES, 'UTF-8').'">'
                         . '<i class="fas fa-info-circle mr-2"></i>View Details</button>';
-                    $editbtn = '<a href="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';
                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-product')) {
                         $editbtn = '';
@@ -409,7 +424,7 @@ class ProductController extends Controller
                     if ($editbtn || $deletebtn) {
                         $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-row-action-button" data-action-name="'.$actionName.'" data-action-category="'.$actionCategory.'" aria-haspopup="true" aria-expanded="false" aria-label="Out-of-stock product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['product','action'])
                 ->make(true);

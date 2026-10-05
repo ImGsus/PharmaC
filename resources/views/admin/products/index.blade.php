@@ -4,6 +4,128 @@
 
 @push('page-css')
 <style>
+	.product-row-action-modal .modal-dialog {
+		max-width: 420px;
+		width: min(420px, calc(100vw - 32px));
+	}
+	.product-row-action-modal .modal-body {
+		max-height: min(65vh, 480px);
+		overflow-y: auto;
+		padding: 8px 0;
+	}
+	.product-row-action-modal .row-action-heading {
+		min-width: 0;
+	}
+	.product-row-action-modal .row-action-meta {
+		color: #64748b;
+		display: block;
+		font-size: 13px;
+		font-weight: 500;
+		margin-top: 4px;
+		overflow-wrap: anywhere;
+	}
+	.product-row-action-modal .row-action-expiry {
+		color: #dc2626;
+		display: block;
+		font-size: 13px;
+		font-weight: 600;
+		margin-top: 4px;
+	}
+	#product-edit-modal .modal-dialog {
+		max-width: 760px;
+		width: min(760px, calc(100vw - 32px));
+	}
+	#product-edit-modal .modal-body {
+		max-height: min(75vh, 680px);
+		overflow-y: auto;
+	}
+	#product-edit-modal .custom-card {
+		max-width: none;
+		margin: 0;
+		padding: 0;
+		box-shadow: none;
+	}
+	#product-edit-modal .custom-description {
+		min-height: 140px;
+	}
+	#product-edit-modal .custom-submit {
+		height: auto;
+	}
+	body.dark-mode #product-edit-modal .modal-content {
+		background: #252b33;
+		color: #e2e8f0;
+	}
+	.product-row-action-modal .dropdown-item {
+		padding: 10px 20px;
+		white-space: normal;
+	}
+	.product-row-action-modal .dropdown-item:hover,
+	.product-row-action-modal .dropdown-item:focus {
+		background-color: #dbeafe !important;
+		color: #1e3a8a !important;
+	}
+	.product-row-action-modal .dropdown-item.text-danger:hover,
+	.product-row-action-modal .dropdown-item.text-danger:focus {
+		color: #b91c1c !important;
+	}
+	.product-row-action-modal .product-status-menu-item:hover,
+	.product-row-action-modal .product-status-menu-item:focus {
+		background-color: #86efac !important;
+	}
+	.product-row-action-modal .product-status-menu-text {
+		margin-left: 6px;
+	}
+	.product-row-action-modal .product-status-menu-text.is-active,
+	.product-row-action-modal .product-status-menu-item:hover .product-status-menu-text.is-active,
+	.product-row-action-modal .product-status-menu-item:focus .product-status-menu-text.is-active {
+		color: #15803d !important;
+	}
+	.product-row-action-modal .product-status-menu-text.is-inactive,
+	.product-row-action-modal .product-status-menu-item:hover .product-status-menu-text.is-inactive,
+	.product-row-action-modal .product-status-menu-item:focus .product-status-menu-text.is-inactive {
+		color: #dc2626 !important;
+	}
+	body.dark-mode .product-row-action-modal .modal-content {
+		background: #252b33;
+		color: #e2e8f0;
+	}
+	body.dark-mode .product-row-action-modal .dropdown-item:hover,
+	body.dark-mode .product-row-action-modal .dropdown-item:focus {
+		background-color: #bbf7d0 !important;
+		color: #14532d !important;
+	}
+	body.dark-mode .product-row-action-modal .dropdown-item.text-danger:hover,
+	body.dark-mode .product-row-action-modal .dropdown-item.text-danger:focus {
+		color: #b91c1c !important;
+	}
+	body.dark-mode .product-row-action-modal .product-status-menu-item:hover,
+	body.dark-mode .product-row-action-modal .product-status-menu-item:focus {
+		background-color: #86efac !important;
+	}
+	body.dark-mode .product-row-action-modal .product-status-menu-text.is-active,
+	body.dark-mode .product-row-action-modal .product-status-menu-item:hover .product-status-menu-text.is-active,
+	body.dark-mode .product-row-action-modal .product-status-menu-item:focus .product-status-menu-text.is-active {
+		color: #166534 !important;
+	}
+	body.dark-mode .product-row-action-modal .product-status-menu-text.is-inactive,
+	body.dark-mode .product-row-action-modal .product-status-menu-item:hover .product-status-menu-text.is-inactive,
+	body.dark-mode .product-row-action-modal .product-status-menu-item:focus .product-status-menu-text.is-inactive {
+		color: #b91c1c !important;
+	}
+	body.dark-mode .product-row-action-modal .modal-header {
+		border-color: #475569;
+	}
+	body.dark-mode .product-row-action-modal .close {
+		color: #e2e8f0;
+		text-shadow: none;
+	}
+	body.dark-mode .product-row-action-modal .row-action-meta {
+		color: #a8b3c4;
+	}
+	body.dark-mode .product-row-action-modal .row-action-expiry {
+		color: #f87171;
+	}
+
 	#productDetailsModal .modal-dialog {
 		max-width: 760px;
 	}
@@ -572,11 +694,90 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal fade product-row-action-modal" id="product-row-action-modal" tabindex="-1" role="dialog" aria-labelledby="product-row-action-modal-title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="row-action-heading">
+					<h5 class="modal-title" id="product-row-action-modal-title">Products Actions</h5>
+					<span class="row-action-meta">Name &rarr; <span id="product-row-action-name"></span> &rarr; <span id="product-row-action-status"></span></span>
+				</div>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body"><div id="product-row-action-content"></div></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="product-edit-modal" tabindex="-1" role="dialog" aria-labelledby="product-edit-modal-title" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="product-edit-modal-title">Edit Product</h5>
+				<button type="button" class="close" data-edit-modal-close aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body" id="product-edit-modal-content"></div>
+		</div>
+	</div>
+</div>
 @endsection
 
 @push('page-js')
 <script>
     $(document).ready(function() {
+		$(document)
+			.off('.productRowActions')
+			.off('.productEdit')
+			.off('.outstockProductEdit')
+			.off('.expiredProductEdit')
+			.off('.productStatus');
+
+		var activeProductActionButton = null;
+		var returnToProductActionsAfterEdit = false;
+
+		function runAfterProductActionsReady(callback) {
+			var actionModal = $('#product-row-action-modal');
+			var modalInstance = actionModal.data('bs.modal');
+			if (modalInstance && modalInstance._isTransitioning) {
+				actionModal.one('shown.bs.modal.productActionReady', callback);
+				return;
+			}
+			callback();
+		}
+
+		function switchFromProductActions(targetModal, eventNamespace) {
+			runAfterProductActionsReady(function () {
+				var actionModal = $('#product-row-action-modal');
+				actionModal.one('hidden.bs.modal.' + eventNamespace, function () {
+					window.setTimeout(function () {
+						targetModal.modal('show');
+					}, 50);
+				}).modal('hide');
+			});
+		}
+
+		$(document).off('click.productRowActions', '#product-table .product-row-action-button')
+			.on('click.productRowActions', '#product-table .product-row-action-button', function (event) {
+				event.preventDefault();
+				event.stopPropagation();
+				var menu = this.nextElementSibling;
+				if (!menu || !menu.classList.contains('dropdown-menu')) return;
+
+				activeProductActionButton = this;
+				this.setAttribute('aria-expanded', 'true');
+				$('#product-row-action-name').text(this.getAttribute('data-action-name') || '');
+				$('#product-row-action-status').text(this.getAttribute('data-action-status') || '');
+				$('#product-row-action-content').html(menu.innerHTML);
+				$('#product-row-action-modal').modal('show');
+			});
+		$('#product-row-action-modal').off('hidden.bs.modal.productRowActions').on('hidden.bs.modal.productRowActions', function () {
+			if (returnToProductActionsAfterEdit) return;
+			if (activeProductActionButton) activeProductActionButton.setAttribute('aria-expanded', 'false');
+			activeProductActionButton = null;
+			$('#product-row-action-content').empty();
+		});
+
         if (window.PharmaTabulator) {
             window.PharmaTabulator.server({
                 el: 'product-table',
@@ -591,7 +792,10 @@
             });
         }
 
-		$(document).on('click', '.product-detail-btn', function () {
+		$(document).off('click.productRowActions', '#product-table .product-detail-btn, #product-row-action-content .product-detail-btn')
+			.on('click.productRowActions', '#product-table .product-detail-btn, #product-row-action-content .product-detail-btn', function (event) {
+			event.preventDefault();
+			event.stopPropagation();
 			var details = JSON.parse($(this).attr('data-details') || '{}');
 			var defaultImage = '{{ asset('assets/img/productnoimage.png') }}';
 			$('#productDetailsModal .detail-image').attr('src', details.image || defaultImage);
@@ -609,8 +813,207 @@
 			});
 			var expiryVal = details.expiry || details.expiry_date || '';
 			$('#productDetailsModal .detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
-			$('#productDetailsModal').modal('show');
+			var showDetails = function () { $('#productDetailsModal').modal('show'); };
+			var actionModal = $('#product-row-action-modal');
+			if (actionModal.hasClass('show')) {
+				switchFromProductActions($('#productDetailsModal'), 'productDetails');
+			} else {
+				showDetails();
+			}
 		});
+
+		var productEditModal = $('#product-edit-modal');
+		var productEditContent = $('#product-edit-modal-content');
+		var productEditClosePending = false;
+
+		productEditModal.find('[data-edit-modal-close]').off('click.productEditClose').on('click.productEditClose', function (event) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			var modalInstance = productEditModal.data('bs.modal');
+			if (modalInstance && modalInstance._isTransitioning) {
+				if (productEditModal.hasClass('show') && !productEditClosePending) {
+					productEditClosePending = true;
+					productEditModal.one('shown.bs.modal.productEditClose', function () {
+						productEditClosePending = false;
+						productEditModal.modal('hide');
+					});
+				}
+				return;
+			}
+			productEditModal.modal('hide');
+		});
+
+		function showProductActionsAfterEditClose() {
+			if (!returnToProductActionsAfterEdit) return;
+			returnToProductActionsAfterEdit = false;
+			window.setTimeout(function () {
+				$('#product-row-action-modal').modal('show');
+			}, 50);
+		}
+
+		productEditModal.off('hidden.bs.modal.productEdit').on('hidden.bs.modal.productEdit', function () {
+			productEditClosePending = false;
+			productEditContent.empty();
+			if (returnToProductActionsAfterEdit) {
+				showProductActionsAfterEditClose();
+				return;
+			}
+			if (activeProductActionButton) activeProductActionButton.setAttribute('aria-expanded', 'false');
+			activeProductActionButton = null;
+			$('#product-row-action-content').empty();
+			if (window.PharmaTabulator) window.PharmaTabulator.reload('product-table');
+		});
+
+		function initializeProductEditForm(form) {
+			var $form = $(form);
+			var purchaseMap = JSON.parse($form.attr('data-purchase-map') || '{}');
+			var originalAction = form.action;
+			var baseUrl = form.dataset.baseUrl;
+			var methodInput = form.querySelector('input[name="_method"]');
+			var productSelect = form.querySelector('select[name="product"]');
+			var barcodeInput = form.querySelector('input[name="barcode"]');
+			var priceInput = form.querySelector('input[name="price"]');
+			var descriptionInput = form.querySelector('textarea[name="description"]');
+
+			function setProductDetails(data) {
+				if (!data) {
+					barcodeInput.value = '';
+					priceInput.value = '';
+					descriptionInput.value = '';
+					return;
+				}
+				barcodeInput.value = data.barcode || '';
+				priceInput.value = data.price || '';
+				descriptionInput.value = data.description || '';
+			}
+
+			function updateProductTarget(data) {
+				if (data && data.id && baseUrl) {
+					form.action = baseUrl + '/' + data.id;
+					if (!methodInput) {
+						methodInput = document.createElement('input');
+						methodInput.type = 'hidden';
+						methodInput.name = '_method';
+						form.appendChild(methodInput);
+					}
+					methodInput.value = 'PUT';
+				} else {
+					form.action = originalAction;
+					if (methodInput) {
+						methodInput.remove();
+						methodInput = null;
+					}
+				}
+			}
+
+			if ($.fn.select2) {
+				$(productSelect).select2({
+					dropdownParent: productEditModal,
+					width: '100%'
+				});
+			}
+
+			$(productSelect).off('change.productEdit').on('change.productEdit', function () {
+				var data = purchaseMap[this.value] || null;
+				setProductDetails(data);
+				updateProductTarget(data);
+			});
+
+			$form.off('submit.productEdit').on('submit.productEdit', function (event) {
+				event.preventDefault();
+				$form.find('.edit-form-errors').remove();
+				$form.find('.is-invalid').removeClass('is-invalid');
+
+				$.ajax({
+					url: form.action,
+					type: 'POST',
+					data: new FormData(form),
+					processData: false,
+					contentType: false,
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest',
+						'Accept': 'application/json'
+					},
+					success: function (response) {
+						returnToProductActionsAfterEdit = false;
+						if (window.Snackbar) {
+							Snackbar.show({
+								text: response.message || 'Product has been updated.',
+								pos: 'top-right',
+								actionTextColor: '#fff',
+								backgroundColor: '#8dbf42'
+							});
+						}
+						productEditModal.modal('hide');
+					},
+					error: function (xhr) {
+						var errors = xhr.responseJSON && xhr.responseJSON.errors;
+						if (!errors) {
+							if (window.Snackbar) {
+								Snackbar.show({
+									text: (xhr.responseJSON && xhr.responseJSON.message) || 'Could not update the product.',
+									pos: 'top-right',
+									actionTextColor: '#fff',
+									backgroundColor: '#e7515a'
+								});
+							}
+							return;
+						}
+
+						var messages = [];
+						$.each(errors, function (name, fieldErrors) {
+							var input = form.querySelector('[name="' + name + '"]');
+							if (input) $(input).addClass('is-invalid');
+							$.each(fieldErrors, function (_, message) {
+								messages.push($('<div>').text(message).html());
+							});
+						});
+						$form.prepend('<div class="alert alert-danger edit-form-errors" role="alert">' + messages.join('<br>') + '</div>');
+					}
+				});
+			});
+		}
+
+		$(document).off('click.productEdit', '#product-row-action-content .editbtn')
+			.on('click.productEdit', '#product-row-action-content .editbtn', function (event) {
+				event.preventDefault();
+				var editUrl = this.getAttribute('data-edit-url');
+				$.ajax({
+					url: editUrl,
+					type: 'GET',
+					dataType: 'html',
+					success: function (html) {
+						var editDocument = new DOMParser().parseFromString(html, 'text/html');
+						var form = editDocument.querySelector('#update_service');
+						if (!form) {
+							if (window.Snackbar) {
+								Snackbar.show({
+									text: 'The product edit form could not be loaded.',
+									pos: 'top-right',
+									actionTextColor: '#fff',
+									backgroundColor: '#e7515a'
+								});
+							}
+							return;
+						}
+
+						productEditContent.empty().append(form);
+						initializeProductEditForm(form);
+						returnToProductActionsAfterEdit = true;
+						switchFromProductActions(productEditModal, 'productEdit');
+					},
+					error: function () {
+						if (window.Snackbar) {
+							Snackbar.show({
+								text: 'Could not load the product edit form.',
+								pos: 'top-right',
+								actionTextColor: '#fff',
+								backgroundColor: '#e7515a'
+							});
+						}
+					}
+				});
+			});
 
 		/* ---- Add Product modal (reuses the purchase form, styled like "Add Purchase") ---- */
 		var addProductModal = $('#addProductModal');
@@ -716,6 +1119,9 @@
 			var $toggle = $(this);
 			var $switch = $toggle.closest('.product-active-switch');
 			var $cell = $toggle.closest('.product-action-cell');
+			if (!$cell.length && activeProductActionButton) {
+				$cell = $(activeProductActionButton).closest('.product-action-cell');
+			}
 			var $button = $cell.find('.product-action-button');
 			var $menuText = $toggle.closest('.product-status-menu-item').find('.product-status-menu-text');
 			var isActive = $toggle.prop('checked');
@@ -735,6 +1141,11 @@
 					$cell.attr('data-active', isActive ? '1' : '0');
 					$button.removeClass('is-active is-inactive').addClass(isActive ? 'is-active' : 'is-inactive');
 					$menuText.text(isActive ? 'Active' : 'Not Active');
+					$cell.find('.product-status-menu-text').text(isActive ? 'Active' : 'Not Active');
+					$menuText.removeClass('is-active is-inactive').addClass(isActive ? 'is-active' : 'is-inactive');
+					$cell.find('.product-status-menu-text').removeClass('is-active is-inactive').addClass(isActive ? 'is-active' : 'is-inactive');
+					$button.attr('data-action-status', isActive ? 'Active' : 'Not Active');
+					$('#product-row-action-status').text(isActive ? 'Active' : 'Not Active');
 					if (window.Snackbar) {
 						Snackbar.show({
 							text: response.message,

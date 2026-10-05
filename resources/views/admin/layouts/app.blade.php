@@ -116,10 +116,6 @@
             if (parentSubmenu && parentSubmenu !== selectedItem) {
                 parentSubmenu.classList.add('active');
                 selectedLink.classList.add('active');
-                var parentLink = parentSubmenu.querySelector(':scope > a');
-                var submenu = parentSubmenu.querySelector(':scope > ul');
-                if (parentLink) parentLink.classList.add('active', 'subdrop');
-                if (submenu) submenu.style.display = 'block';
             }
         }
 
@@ -540,9 +536,7 @@
                 @endif
 
                 @yield('content')
-                <!-- add sales modal-->
-                <x-modals.add-sale />
-                 <!-- / add sales modal -->
+                <x-modals.inventory-check />
             </div>
             </div>
         </div>
@@ -562,6 +556,7 @@
 <script src="{{asset('assets/plugins/sweetalert2/sweetalert2.min.js')}}" data-turbo-eval="false"></script>
 <!-- Snackbar Js -->
 <script src="{{asset('assets/plugins/snackbar/snackbar.min.js')}}" data-turbo-eval="false"></script>
+<script src="{{asset('assets/js/onscan.min.js')}}" data-turbo-eval="false"></script>
 <!-- Select2 JS -->
 <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}" data-turbo-eval="false"></script>
 <!-- Custom JS -->

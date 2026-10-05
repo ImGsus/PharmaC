@@ -84,11 +84,19 @@ Route::middleware(['auth', 'audit'])->group(function(){
 
     Route::get('prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
     Route::post('prescriptions', [PrescriptionController::class, 'store'])->name('prescriptions.store');
+    Route::post('prescriptions/analyze', [PrescriptionController::class, 'analyze'])->name('prescriptions.analyze');
+    Route::get('prescriptions/gemini-credentials', [PrescriptionController::class, 'geminiCredentials'])->name('prescriptions.gemini-credentials.index');
+    Route::post('prescriptions/gemini-credentials', [PrescriptionController::class, 'storeGeminiCredential'])->name('prescriptions.gemini-credentials.store');
+    Route::delete('prescriptions/gemini-credentials/{credential}', [PrescriptionController::class, 'deleteGeminiCredential'])->name('prescriptions.gemini-credentials.destroy');
+    Route::post('prescriptions/match-catalog', [PrescriptionController::class, 'matchCatalog'])->name('prescriptions.match-catalog');
     Route::patch('prescriptions/{prescription}/status', [PrescriptionController::class, 'updateStatus'])->name('prescriptions.status');
+    Route::delete('prescriptions/{prescription}', [PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
     Route::get('temperature', [TemperatureController::class, 'index'])->name('temperature.index');
     Route::post('temperature', [TemperatureController::class, 'store'])->name('temperature.store');
     Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
-    Route::get('inventory-check', [InventoryCheckController::class, 'index'])->name('inventory-check.index');
+    Route::get('inventory-check/modal-content', [InventoryCheckController::class, 'modalContent'])
+        ->middleware('can:view-products')
+        ->name('inventory-check.modal-content');
 
     // POS / Cashier (PharMac-styled) — replaces the old Webby barcode scanner
     Route::get('pos/orders',           [PosController::class, 'index'])->name('pos.orders');

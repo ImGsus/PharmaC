@@ -4,6 +4,14 @@
 
 @push('page-css')
 <style>
+	#addSaleModal .modal-dialog { height: calc(100vh - 56px); margin: 28px auto; max-width: 1240px; width: calc(100vw - 2rem); }
+	#addSaleModal .modal-content { height: 100%; }
+	#addSaleModal .modal-body { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 0; }
+	#addSaleModal iframe { border: 0; display: block; height: 100%; width: 100%; }
+	@media (max-width: 767.98px) {
+		#addSaleModal .modal-dialog { height: 100dvh; margin: 0; max-width: none; width: 100%; }
+		#addSaleModal .modal-content { border-radius: 0; height: 100dvh; }
+	}
 	#saleEditModal .modal-dialog { max-width: 560px; }
 	#saleEditModal .modal-content { border: 1px solid #b8c4d2; border-radius: 8px; box-shadow: 0 16px 36px rgba(31, 45, 61, .2); }
 	#saleEditModal .modal-header { padding: 20px 24px; border-bottom: 1px solid #e5eaf1; }
@@ -59,7 +67,7 @@
 </div>
 @can('create-sale')
 <div class="col-sm-5 col">
-	<a href="{{route('pos.orders')}}" class="btn btn-primary float-right mt-2">Add Sale</a>
+	<button type="button" class="btn btn-primary float-right mt-2" data-toggle="modal" data-target="#addSaleModal">Add Sale</button>
 </div>
 @endcan
 @endpush
@@ -98,6 +106,22 @@
 	</div>
 </div>
 
+@can('create-sale')
+<div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="addSaleModalTitle">Add Sale</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body">
+				<iframe id="addSaleFrame" title="Add Sale" data-src="{{ route('pos.orders', ['embed' => 1]) }}"></iframe>
+			</div>
+		</div>
+	</div>
+</div>
+@endcan
+
 <div class="modal fade" id="saleProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="saleProductDetailsModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -129,6 +153,51 @@
 @push('page-js')
 <script>
     $(document).ready(function() {
+		var addSaleFrame = document.getElementById('addSaleFrame');
+		var addSaleModalShown = false;
+		function focusAddSaleScannerFrame() {
+			if (!addSaleFrame || !addSaleModalShown) return;
+			var frameWindow = addSaleFrame.contentWindow;
+			var frameDocument = addSaleFrame.contentDocument;
+			if (!frameDocument || !frameDocument.body || !frameDocument.querySelector('#pos-v2-scan-status')) return;
+			frameDocument.body.setAttribute('tabindex', '-1');
+			frameWindow.focus();
+			frameDocument.body.focus();
+		}
+		$(document).off('.salesAddSale')
+			.on('show.bs.modal.salesAddSale', '#addSaleModal', function () {
+				addSaleModalShown = false;
+				var frameSrc = addSaleFrame && addSaleFrame.getAttribute('src');
+				if (addSaleFrame && (!frameSrc || frameSrc === 'about:blank')) {
+					addSaleFrame.src = addSaleFrame.dataset.src;
+				}
+			})
+			.on('shown.bs.modal.salesAddSale', '#addSaleModal', function () {
+				addSaleModalShown = true;
+				focusAddSaleScannerFrame();
+			})
+			.on('hidden.bs.modal.salesAddSale', '#addSaleModal', function (event) {
+				addSaleModalShown = false;
+				if (addSaleFrame && !event.currentTarget.classList.contains('show')) {
+					addSaleFrame.removeAttribute('src');
+				}
+			});
+		if (addSaleFrame) $(addSaleFrame).off('load.salesAddSale').on('load.salesAddSale', function () {
+				try {
+					var frameWindow = this.contentWindow;
+					var framePath = frameWindow.location.pathname;
+					if (framePath === @json(parse_url(route('pos.orders'), PHP_URL_PATH))) {
+						focusAddSaleScannerFrame();
+					}
+					if (framePath === @json(parse_url(route('sales.index'), PHP_URL_PATH))) {
+						$('#addSaleModal').modal('hide');
+						if (window.PharmaTabulator) window.PharmaTabulator.reload('sales-table');
+					}
+				} catch (error) {
+					// Ignore cross-origin navigations; the POS frame should stay on this app.
+				}
+			});
+
         if (window.PharmaTabulator) {
             window.PharmaTabulator.server({
                 el: 'sales-table',

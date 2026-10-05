@@ -242,9 +242,8 @@ class PosController extends Controller
     /**
      * JSON: look up a product by its barcode (SKU).
      *
-     * Used by the POS barcode-scanner input. A USB HID scanner types the
-     * barcode and presses Enter; the page calls this endpoint, then either
-     * adds the product to the cart (success) or shows a "not found" toast.
+    * Used by the POS onScan handler to resolve a detected scanner code to
+    * its connected product before adding it to the cart.
      */
     public function scan(Request $request)
     {

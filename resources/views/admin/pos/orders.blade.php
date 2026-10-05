@@ -10,6 +10,17 @@
 
 @push('page-css')
     <link rel="stylesheet" href="{{ asset('css/pos.css') }}?v={{ filemtime(public_path('css/pos.css')) }}">
+    @if (request()->boolean('embed'))
+    <style>
+        html, body { min-height: 100%; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; height: 0; width: 0; }
+        .header, .sidebar, .page-header { display: none !important; }
+        .main-wrapper { height: auto; min-height: 0; }
+        .page-wrapper { margin: 0 !important; padding: 0 !important; }
+        .page-wrapper > .content,
+        .content.container-fluid { padding: 8px !important; }
+    </style>
+    @endif
 @endpush
 
 @push('page-header')
@@ -32,24 +43,14 @@
             {{-- =================== LEFT: PRODUCT GRID =================== --}}
             <div class="col-lg-7 pos-v2-left">
 
-                {{-- Barcode scanner — USB scanners type the code + press Enter,
-                     so this input is always auto-focused and re-focuses after
-                     each scan. No need to click it. --}}
+                {{-- Barcode scanners are detected in the background; product search remains manual. --}}
                 <div class="pos-v2-scanner">
                     <div class="pos-v2-scanner-icon">
                         <i class="fas fa-barcode"></i>
                     </div>
-                    <input type="text"
-                           id="pos-v2-barcode"
-                           class="form-control pos-v2-scanner-input"
-                           placeholder="Scan barcode or type SKU / barcode and press Enter"
-                           autocomplete="off"
-                           autocapitalize="off"
-                           spellcheck="false"
-                           inputmode="text">
-                    <button type="button" class="btn btn-primary pos-v2-scanner-btn" id="pos-v2-barcode-go">
-                        <i class="fas fa-search"></i> Add
-                    </button>
+                    <div class="pos-v2-scanner-status" id="pos-v2-scan-status" role="status" aria-live="polite">
+                        Ready to scan a barcode
+                    </div>
                 </div>
 
                 {{-- Top filter bar --}}
@@ -273,20 +274,18 @@
     var cart = []; // { id, name, price, qty }
 
     // ---- Barcode scanner ----
-    // USB barcode scanners act like keyboards: they type the code quickly
-    // and send an Enter key. We listen for Enter on the barcode field,
-    // POST to /pos/orders/scan, then add the result to the cart.
-    var barcodeInput = document.getElementById('pos-v2-barcode');
-    var barcodeGoBtn = document.getElementById('pos-v2-barcode-go');
+    // Detect keyboard-wedge scans globally so no input needs to keep focus.
+    var barcodeStatus = document.getElementById('pos-v2-scan-status');
     var SCAN_URL     = @json(route('pos.orders.scan'));
     var scanBusy     = false;
 
-    function refocusBarcode() {
-        // Re-focus on a short delay so it works even if the cashier
-        // just clicked something else (e.g. a product tile).
-        setTimeout(function () {
-            if (barcodeInput && !scanBusy) barcodeInput.focus();
-        }, 30);
+    function removeScannedTextFromFocusedField(code) {
+        var field = document.activeElement;
+        if (!field || !field.matches('input:not([type="hidden"]), textarea') || typeof field.value !== 'string') return;
+        if (!field.value.endsWith(code)) return;
+
+        field.value = field.value.slice(0, -code.length);
+        field.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function showScanToast(text, isError) {
@@ -303,15 +302,13 @@
         }
     }
 
-    function performScan() {
-        if (!barcodeInput || scanBusy) return;
-        var code = (barcodeInput.value || '').trim();
-        if (!code) {
-            showScanToast('Type or scan a barcode first.', true);
-            return;
-        }
+    function performScan(scannedCode) {
+        var code = String(scannedCode || '').trim();
+        if (!code || scanBusy) return;
+
+        removeScannedTextFromFocusedField(code);
         scanBusy = true;
-        barcodeInput.disabled = true;
+        if (barcodeStatus) barcodeStatus.textContent = 'Checking barcode...';
 
         var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
         var fd   = new FormData();
@@ -333,8 +330,9 @@
         })
         .then(function (resp) {
             if (resp.data && resp.data.ok && resp.data.product) {
-                addToCart(resp.data.product);
-                showScanToast('Added: ' + resp.data.product.name, false);
+                if (addToCart(resp.data.product)) {
+                    showScanToast('Added: ' + resp.data.product.name, false);
+                }
             } else {
                 showScanToast((resp.data && resp.data.message) || ('No product for barcode "' + code + '".'), true);
             }
@@ -344,42 +342,32 @@
         })
         .finally(function () {
             scanBusy = false;
-            if (barcodeInput) {
-                barcodeInput.disabled = false;
-                barcodeInput.value = '';
-                barcodeInput.focus();
-            }
+            if (barcodeStatus) barcodeStatus.textContent = 'Ready to scan a barcode';
         });
     }
 
-    if (barcodeInput) {
-        // Enter = scan
-        barcodeInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.keyCode === 13) {
-                e.preventDefault();
-                performScan();
+    if (window.onScan) {
+        if (window.onScan.isAttachedTo(document)) window.onScan.detachFrom(document);
+        window.onScan.attachTo(document, {
+            avgTimeByChar: 75,
+            ignoreIfFocusOn: 'input, textarea, select',
+            onScan: function (code) {
+                performScan(code);
             }
         });
-        // Auto-focus on page load so the cashier can scan immediately
-        refocusBarcode();
+
+        if (window.posOrdersScanCleanup) {
+            document.removeEventListener('turbo:before-cache', window.posOrdersScanCleanup);
+        }
+        window.posOrdersScanCleanup = function () {
+            if (window.onScan && window.onScan.isAttachedTo(document)) {
+                window.onScan.detachFrom(document);
+            }
+        };
+        document.addEventListener('turbo:before-cache', window.posOrdersScanCleanup, { once: true });
+    } else if (barcodeStatus) {
+        barcodeStatus.textContent = 'Scanner unavailable. Use Search In Products.';
     }
-    if (barcodeGoBtn) {
-        barcodeGoBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            performScan();
-        });
-    }
-    // If the cashier clicks anywhere else, pull focus back to the scanner
-    // shortly after — so the next scan works without needing to click.
-    document.addEventListener('click', function (e) {
-        if (!barcodeInput) return;
-        // Don't steal focus from real form fields (qty inputs, notes, etc.)
-        var t = e.target;
-        if (!t) return;
-        var tag = (t.tagName || '').toLowerCase();
-        if (tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'button' || tag === 'a') return;
-        refocusBarcode();
-    });
 
     var CURRENCY_SYMBOL = @json($currency);
     function currentSymbol() {
@@ -513,15 +501,16 @@
             if (String(cart[i].id) === String(p.id)) {
                 if (cart[i].qty + 1 > p.stock) {
                     if (window.Snackbar) Snackbar.show({ text: 'Stock limit reached for ' + p.name, duration: 3000, pos: 'top-right' });
-                    return;
+                    return false;
                 }
                 cart[i].qty += 1;
                 renderCart();
-                return;
+                return true;
             }
         }
         cart.push({ id: p.id, name: p.name, price: p.price, qty: 1, stock: p.stock, expired: p.expired });
         renderCart();
+        return true;
     }
 
     function renderCart() {

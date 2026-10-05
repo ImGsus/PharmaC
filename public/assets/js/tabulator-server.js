@@ -19,6 +19,7 @@
 
     var registry = {};      // server table instances
     var localRegistry = {}; // local (fromDom) table instances
+    var stickyObservers = {};
 
     function debounce(fn, wait) {
         var timer = null;
@@ -37,6 +38,10 @@
             }
         }
         return parts.join("&");
+    }
+
+    function isMobileTableViewport() {
+        return window.matchMedia && window.matchMedia("(max-width: 767.98px)").matches;
     }
 
     /* Build a Yajra/DataTables style request from Tabulator params */
@@ -73,9 +78,11 @@
     }
 
     function normalizeColumns(opts) {
+        var disableHeaderSort = isMobileTableViewport();
         return (opts.columns || []).map(function (col, i) {
             var c = Object.assign({}, col);
             if (!c.field) c.field = "field_" + (i + 1);
+            if (disableHeaderSort) c.headerSort = false;
             if (!c.formatter) {
                 c.formatter = function (cell) {
                     var text = document.createElement("span");
@@ -140,6 +147,72 @@
             table.setData();
         }, 350);
         input.addEventListener("input", onInput);
+        return toolbar;
+    }
+
+    function clearStickyOffsets(key) {
+        var registration = stickyObservers[key];
+        if (!registration) return;
+        if (registration.observer) registration.observer.disconnect();
+        if (registration.onResize) window.removeEventListener("resize", registration.onResize);
+        if (registration.onScroll) window.removeEventListener("scroll", registration.onScroll);
+        delete stickyObservers[key];
+    }
+
+    function syncStickyOffsets(el, toolbar, key) {
+        if (!el) return;
+        clearStickyOffsets(key);
+
+        var boundary = el.closest(".table-responsive") || el.parentElement || el;
+        var stackStart = toolbar || el;
+        var startOffset = stackStart.getBoundingClientRect().top - boundary.getBoundingClientRect().top;
+
+        var update = function () {
+            var footer = el.querySelector(".tabulator-footer");
+            var header = el.querySelector(".tabulator-header");
+            if (!header) return;
+
+            var toolbarHeight = toolbar && toolbar.isConnected
+                ? toolbar.getBoundingClientRect().height
+                : 0;
+            var footerHeight = footer ? footer.getBoundingClientRect().height : 0;
+            var headerHeight = header.getBoundingClientRect().height;
+            var stackHeight = toolbarHeight + footerHeight + headerHeight;
+            var boundaryRect = boundary.getBoundingClientRect();
+            var normalTop = boundaryRect.top + startOffset;
+            var exitDistance = stackHeight + 72;
+            var boundaryTop = boundaryRect.bottom - stackHeight - exitDistance;
+            var stackTop = Math.min(Math.max(60, normalTop), boundaryTop);
+
+            if (footer) {
+                footer.style.top = (stackTop + toolbarHeight) + "px";
+                header.style.top = (stackTop + toolbarHeight + footerHeight) + "px";
+            } else {
+                header.style.top = (stackTop + toolbarHeight) + "px";
+            }
+
+            if (toolbar) toolbar.style.top = stackTop + "px";
+        };
+
+        update();
+
+        if (typeof window.ResizeObserver === "function") {
+            var observer = new ResizeObserver(update);
+            observer.observe(boundary);
+            observer.observe(el);
+            if (toolbar) observer.observe(toolbar);
+            var footer = el.querySelector(".tabulator-footer");
+            if (footer) observer.observe(footer);
+            var header = el.querySelector(".tabulator-header");
+            if (header) observer.observe(header);
+            var onScroll = update;
+            window.addEventListener("scroll", onScroll, { passive: true });
+            stickyObservers[key] = { observer: observer, onScroll: onScroll };
+        } else {
+            window.addEventListener("resize", update);
+            window.addEventListener("scroll", update, { passive: true });
+            stickyObservers[key] = { onResize: update, onScroll: update };
+        }
     }
 
     window.PharmaTabulator = {
@@ -151,9 +224,11 @@
 
             this.destroy(opts.el);
 
+            var tableKey = typeof opts.el === "string" ? opts.el : (el.id || "server-table");
             var columns = normalizeColumns(opts);
             var state = { search: "" };
             var table;
+            var toolbar = null;
 
             table = new Tabulator(el, {
                 layout: opts.layout || "fitColumns",
@@ -200,8 +275,9 @@
             }
 
             if (opts.search !== false) {
-                buildSearchToolbar(opts, table, state);
+                toolbar = buildSearchToolbar(opts, table, state);
             }
+            syncStickyOffsets(el, toolbar, tableKey);
 
             return table;
         },
@@ -213,6 +289,7 @@
 
             var key = opts.key || (typeof opts.el === "string" ? opts.el : el.id || "local");
             if (localRegistry[key]) {
+                clearStickyOffsets(key);
                 try { localRegistry[key].destroy(); } catch (e) {}
                 delete localRegistry[key];
             }
@@ -227,12 +304,14 @@
             }
 
             var fields = opts.fields || [];
+            var disableHeaderSort = isMobileTableViewport();
             var heads = el.querySelectorAll("thead th");
             var columns = [];
             for (var i = 0; i < heads.length; i++) {
                 columns.push({
                     title: heads[i].textContent.replace(/\s+/g, " ").trim(),
                     field: fields[i] || "c" + i,
+                    headerSort: !disableHeaderSort,
                     formatter: opts.preserveHtml ? "html" : undefined
                 });
             }
@@ -274,15 +353,17 @@
                 pagination: opts.pagination !== false,
                 paginationSize: opts.pageLength || 10,
                 paginationSizeSelector: [5, 10, 25, 50, 100],
-                headerSort: true,
+                headerSort: !disableHeaderSort,
                 selectable: false,
                 columns: columns,
                 maxHeight: opts.maxHeight || false
             });
 
+            var toolbar = null;
             if (opts.export) {
                 var toolbar = document.createElement("div");
                 toolbar.className = "pharma-table-toolbar";
+                toolbar.setAttribute("data-table-key", key);
 
                 var csv = document.createElement("button");
                 csv.type = "button";
@@ -310,10 +391,12 @@
             }
 
             localRegistry[key] = table;
+            syncStickyOffsets(div, toolbar, key);
             return table;
         },
 
         destroy: function (id) {
+            clearStickyOffsets(id);
             if (registry[id]) {
                 try { registry[id].destroy(); } catch (e) {}
                 delete registry[id];
@@ -348,6 +431,7 @@
             var key;
             for (key in registry) {
                 if (Object.prototype.hasOwnProperty.call(registry, key)) {
+                    clearStickyOffsets(key);
                     try { registry[key].destroy(); } catch (e) {}
                 }
             }
@@ -358,6 +442,7 @@
             var key;
             for (key in localRegistry) {
                 if (Object.prototype.hasOwnProperty.call(localRegistry, key)) {
+                    clearStickyOffsets(key);
                     try { localRegistry[key].destroy(); } catch (e) {}
                 }
             }

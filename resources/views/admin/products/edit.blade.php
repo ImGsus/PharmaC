@@ -41,7 +41,7 @@
 			<div class="card custom-card">
 
 			<!-- Edit Product -->
-				<form method="post" enctype="multipart/form-data" id="update_service" action="{{route('products.update',$product)}}" data-base-url="{{ url('products') }}">
+				<form method="post" enctype="multipart/form-data" id="update_service" action="{{route('products.update',$product)}}" data-base-url="{{ url('products') }}" data-purchase-map="{{ json_encode($purchaseMap ?? [], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP) }}">
 					@csrf
                     @method("PUT")
 					<div class="service-fields mb-3">

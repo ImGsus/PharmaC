@@ -12,10 +12,10 @@ class Prescription extends Model
     protected $fillable = [
         'submitted_by', 'verified_by', 'prescription_number', 'patient_name',
         'prescriber_name', 'issued_at', 'document_path', 'status',
-        'verification_notes', 'verified_at',
+        'verification_notes', 'verified_at', 'ocr_details',
     ];
 
-    protected $casts = ['issued_at' => 'date', 'verified_at' => 'datetime'];
+    protected $casts = ['issued_at' => 'date', 'verified_at' => 'datetime', 'ocr_details' => 'array'];
 
     public function submitter() { return $this->belongsTo(User::class, 'submitted_by'); }
     public function verifier() { return $this->belongsTo(User::class, 'verified_by'); }

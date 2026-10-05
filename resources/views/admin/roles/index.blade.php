@@ -18,10 +18,10 @@
 	body.dark-mode #roleCreateModal .form-control:focus { border-color: #69d9aa; box-shadow: 0 0 0 2px rgba(105, 217, 170, .18); }
 	#roleCreateModal .modal-footer .btn-light { color: #344054; background: #f8fafc; border-color: #cbd5e1; }
 	#roleCreateModal .modal-footer .btn-light:hover,
-	#roleCreateModal .modal-footer .btn-light:focus { color: #10231d; background: #69d9aa; border-color: #69d9aa; }
+	#roleCreateModal .modal-footer .btn-light:focus { color: #fff; background: #2563eb; border-color: #2563eb; }
 	body.dark-mode #roleCreateModal .modal-footer .btn-light { color: #10231d; background: #f8fafc; border-color: #cbd5e1; }
 	body.dark-mode #roleCreateModal .modal-footer .btn-light:hover,
-	body.dark-mode #roleCreateModal .modal-footer .btn-light:focus { color: #10231d; background: #69d9aa; border-color: #69d9aa; }
+	body.dark-mode #roleCreateModal .modal-footer .btn-light:focus { color: #10231d !important; background: #69d9aa !important; border-color: #69d9aa !important; }
 </style>
 @endpush
 

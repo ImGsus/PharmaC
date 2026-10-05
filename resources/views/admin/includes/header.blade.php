@@ -59,11 +59,13 @@
 	
 	<!-- Header Right Menu -->
 	<ul class="nav user-menu">
-		<li class="nav-item dropdown">
-			<a href="#" data-target="#add_sales" title="make a sale" data-toggle="modal" data-turbo="false" class="nav-link">
-				<i class="fas fa-clipboard"></i>
+		@can('view-products')
+		<li class="nav-item">
+			<a href="#" data-target="#inventory-check-modal" title="Inventory Check" aria-label="Open Inventory Check" data-toggle="modal" data-turbo="false" class="nav-link inventory-check-trigger">
+				<i class="fas fa-clipboard-check" aria-hidden="true"></i>
 			</a>
 		</li>
+		@endcan
 		<!-- Notifications -->
 		@php
 			$unreadNotifications = auth()->user()->unReadNotifications;

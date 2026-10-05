@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class InventoryCheckController extends Controller
 {
-    public function index(Request $request)
+    public function modalContent(Request $request)
     {
         $search = trim((string) $request->input('q', ''));
         $stock = Purchase::with(['purchaseProduct', 'supplier'])
@@ -24,8 +24,7 @@ class InventoryCheckController extends Controller
             })
             ->orderBy('product')->paginate(25)->withQueryString();
 
-        return view('admin.inventory-check.index', [
-            'title' => 'mobile inventory check',
+        return view('admin.inventory-check.content', [
             'stock' => $stock,
             'search' => $search,
         ]);

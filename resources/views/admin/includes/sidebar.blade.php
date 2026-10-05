@@ -22,8 +22,6 @@
 					<a href="#" data-sidebar-label="Products"><i class="fe fe-document"></i> <span> Products</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
 						<li><a class="{{ route_is(('products.*')) ? 'active' : '' }}" href="{{route('products.index')}}">Products</a></li>
-						<li><a class="{{ route_is('inventory-check.*') ? 'active' : '' }}" href="{{route('inventory-check.index')}}">Inventory Check</a></li>
-		
 						@can('view-outstock-products')<li><a class="{{ route_is('outstock') ? 'active' : '' }}" href="{{route('outstock')}}">Out-Stock</a></li>@endcan
 						@can('view-expired-products')<li><a class="{{ route_is('expired') ? 'active' : '' }}" href="{{route('expired')}}">Expired</a></li>@endcan
 					</ul>
@@ -39,7 +37,6 @@
 				<li class="submenu">
 					<a href="#" data-sidebar-label="Sale"><i class="fe fe-activity"></i> <span> Sale</span> <span class="menu-arrow"></span></a>
 					<ul style="display: none;">
-					<li><a class="{{ route_is('pos.orders') ? 'active' : '' }}" href="{{route('pos.orders')}}">Add Sale</a></li>
 					<li><a class="{{ route_is('sales.*') ? 'active' : '' }}" href="{{route('sales.index')}}">Sales</a></li>
 					<li><a class="{{ route_is('prescriptions.*') ? 'active' : '' }}" href="{{route('prescriptions.index')}}">Prescriptions</a></li>
 				</ul>

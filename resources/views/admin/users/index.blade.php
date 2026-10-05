@@ -491,7 +491,7 @@ window.pharmacyUsersInit = function() {
 				return;
 			}
 			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-				createCameraMessage.textContent = 'Camera capture is not supported by this browser.';
+				window.openUserPhotoPickerFallback(createCameraInput);
 				return;
 			}
 			createCameraModal.classList.add('is-open');

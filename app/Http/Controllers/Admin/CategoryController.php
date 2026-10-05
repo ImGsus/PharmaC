@@ -46,7 +46,7 @@ class CategoryController extends Controller
                             $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                         }
 
-                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle category-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Category actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle category-action-button" data-category-name="'.e($row->name).'" aria-haspopup="dialog" aria-expanded="false" aria-label="Category actions for '.e($row->name).'"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                     })
                     ->rawColumns(['action'])
                     ->make(true);
