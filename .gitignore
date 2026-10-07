@@ -19,3 +19,5 @@ public/ngrok.exe
 /.venv
 /ngrok
 *.ps1
+Caddyfile
+Caddyfile.*
