@@ -19,5 +19,6 @@ public/ngrok.exe
 /.venv
 /ngrok
 *.ps1
+Caddyfile
 Caddyfile.local
 Caddyfile.local*
