@@ -26,7 +26,23 @@
         <div class="col-md-4"><label for="report-from">From</label><input id="report-from" type="date" name="from" value="{{ $from }}" class="form-control"></div>
         <div class="col-md-4"><label for="report-to">To</label><input id="report-to" type="date" name="to" value="{{ $to }}" class="form-control"></div>
         <div class="col-md-2"><button class="btn btn-primary btn-block" type="submit"><i class="fe fe-filter mr-1"></i> Run</button></div>
-        <div class="col-md-2"><a class="btn btn-outline-secondary btn-block" href="{{ route('reports.export', ['report' => $report]) . '?' . http_build_query(['from' => $from, 'to' => $to]) }}"><i class="fe fe-download mr-1"></i> CSV</a></div>
+        <div class="col-md-2">
+            <div class="btn-group btn-block" role="group">
+                <a class="btn btn-outline-secondary"
+                   href="{{ route('reports.export', ['report' => $report]) . '?' . http_build_query(['from' => $from, 'to' => $to]) }}"
+                   title="Download as CSV"
+                   style="flex:1;">
+                    <i class="fe fe-download mr-1"></i> CSV
+                </a>
+                <a class="btn btn-outline-danger"
+                   href="{{ route('reports.pdf', ['report' => $report]) . '?' . http_build_query(['from' => $from, 'to' => $to]) }}"
+                   target="_blank"
+                   title="Export as PDF"
+                   style="flex:1;">
+                    <i class="fas fa-file-pdf mr-1"></i> PDF
+                </a>
+            </div>
+        </div>
     </form>
 </div>
 <p class="report-summary">{{ $definition['description'] }} <strong>{{ $rows->count() }}</strong> result(s).</p>

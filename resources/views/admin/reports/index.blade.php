@@ -81,6 +81,9 @@
     .report-modal .report-filter-form button[type="submit"] { background-color: #10b981 !important; border-color: #10b981 !important; color: #fff !important; font-weight: 500; transition: background-color .15s ease, border-color .15s ease; }
     .report-modal .report-filter-form button[type="submit"]:hover { background-color: #059669 !important; border-color: #059669 !important; }
     .report-modal .report-csv-link { font-weight: 500; }
+    .report-modal .report-pdf-link { font-weight: 500; }
+    body.dark-mode .report-modal .report-pdf-link { color: #fca5a5 !important; border-color: #fca5a5 !important; background: transparent !important; }
+    body.dark-mode .report-modal .report-pdf-link:hover { background: #991b1b !important; border-color: #991b1b !important; color: #fff !important; }
     .report-modal .report-summary { color: #64748b; font-size: 0.875rem; margin-bottom: 16px; }
     body.dark-mode .report-modal .report-toolbar { background: #111827; border-color: rgba(255,255,255,.1); }
     body.dark-mode .report-modal .report-toolbar label { color: #cbd5e1; }

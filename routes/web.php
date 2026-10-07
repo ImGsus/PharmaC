@@ -86,6 +86,7 @@ Route::middleware(['auth', 'audit'])->group(function(){
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::get('reports/{report}/pdf', [ReportController::class, 'exportPdf'])->name('reports.pdf');
     Route::get('reports/{report}', [ReportController::class, 'show'])->name('reports.show');
 
     Route::get('prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');

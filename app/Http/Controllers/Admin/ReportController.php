@@ -259,4 +259,32 @@ class ReportController extends Controller
             ]] : [];
         })->values();
     }
+
+    public function exportPdf(Request $request, string $report)
+    {
+        abort_unless(isset(self::REPORTS[$report]), 404);
+        Product::markExpiredProducts();
+        $from = $request->date('from') ?: now()->subDays(30)->startOfDay();
+        $to   = $request->date('to')   ?: now()->endOfDay();
+        $rows = $this->rowsFor($report, $from, $to, $request);
+
+        $logoPath = \QCod\AppSettings\Models\AppSettings::get('logo');
+        $logoUrl  = ($logoPath && file_exists(public_path('storage/' . $logoPath)))
+            ? url('storage/' . $logoPath)
+            : null;
+
+        return view('admin.reports.pdf', [
+            'title'       => self::REPORTS[$report]['title'],
+            'report'      => $report,
+            'definition'  => self::REPORTS[$report],
+            'rows'        => $rows,
+            'from'        => $from->toDateString(),
+            'to'          => $to->toDateString(),
+            'currency'    => settings('app_currency', '$'),
+            'appName'     => settings('app_name', config('app.name', 'PharmaC')),
+            'generatedAt' => now()->format('F d, Y h:i A'),
+            'logoUrl'     => $logoUrl,
+            'orientation' => in_array($report, ['stock-movement', 'sales-dispensing', 'purchase-orders', 'batch-tracking']) ? 'landscape' : 'portrait',
+        ]);
+    }
 }

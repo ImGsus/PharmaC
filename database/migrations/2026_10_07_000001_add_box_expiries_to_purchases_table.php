@@ -30,3 +30,4 @@ class AddBoxExpiriesToPurchasesTable extends Migration
         }
     }
 }
+
