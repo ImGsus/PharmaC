@@ -12,10 +12,14 @@ class Purchase extends Model
 
     protected $fillable = [
         'product','category_id','supplier_id',
-        'cost_price','quantity','expiry_date',
+        'cost_price','quantity','expiry_date','box_expiries',
         'image','item_quantity','packaging_box','quantity_per_box','total_quantity',
         'batch_number','manufacture_date','reorder_level','order_number',
         'expected_delivery_date','received_date','status'
+    ];
+
+    protected $casts = [
+        'box_expiries' => 'array',
     ];
 
     public function supplier(){

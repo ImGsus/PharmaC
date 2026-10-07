@@ -108,6 +108,8 @@
     .prescription-camera-body video,
     .prescription-camera-body img { background: #111827; border-radius: 6px; display: block; max-height: 60vh; object-fit: contain; width: 100%; }
     .prescription-camera-body img { display: none; }
+    #prescription-camera-preview { cursor: pointer; touch-action: manipulation; }
+    #prescription-camera-preview:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
     .prescription-camera-message { color: #64748b; margin: 12px 0 0; }
     #prescription-camera-canvas,
     #prescription-camera-retake,
@@ -165,11 +167,12 @@
                     <input id="prescription-prescriber" type="hidden" name="prescriber_name">
                     <input id="prescription-issued" type="hidden" name="issued_at">
                     <input id="prescription-ocr-details" type="hidden" name="ocr_details">
+                    <input id="prescription-review-confirmed" type="hidden" name="review_confirmed" value="0">
 
                     <div class="form-group mb-2">
                         <label for="prescription-document">Prescription Document</label>
                         <div class="prescription-document-actions">
-                            <input id="prescription-document" type="file" name="document" accept="image/jpeg,image/png,image/webp,application/pdf" class="prescription-document-input">
+                            <input id="prescription-document" type="file" name="document" accept="image/jpeg,image/png,image/webp" class="prescription-document-input">
                             <div class="prescription-image-source dropdown">
                                 <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fas fa-image mr-1" aria-hidden="true"></i> Add Photo
@@ -183,9 +186,9 @@
                             <button type="button" id="prescription-analyze-button" class="btn btn-outline-primary" disabled>
                                 <i class="fas fa-search mr-1" aria-hidden="true"></i> Analyze Image
                             </button>
-                            <button type="submit" class="btn btn-primary">Submit for Verification</button>
+                            <button id="prescription-submit-button" type="submit" class="btn btn-primary" disabled>Submit for Verification</button>
                         </div>
-                        <p class="prescription-review-note">OCR suggestions are drafts only. Confirm all medicine names and instructions against the original before verification.</p>
+                        <p class="prescription-review-note">Choose or take a photo, analyze it, review the extracted details, then select Use reviewed details before submitting.</p>
                     </div>
                 </form>
 
@@ -198,7 +201,7 @@
                         <div class="prescription-camera-body">
                             <video id="prescription-camera-video" autoplay playsinline></video>
                             <canvas id="prescription-camera-canvas"></canvas>
-                            <img id="prescription-camera-preview" alt="Captured prescription preview">
+                            <img id="prescription-camera-preview" alt="Captured prescription preview. Tap to rotate." role="button" tabindex="0" aria-label="Rotate captured prescription photo">
                             <p id="prescription-camera-message" class="prescription-camera-message" role="status" aria-live="polite"></p>
                         </div>
                         <div class="prescription-camera-footer">
@@ -231,6 +234,9 @@
                                     <button type="button" id="prescription-select-gemini" class="btn btn-outline-success btn-block text-left prescription-analysis-choice">
                                         <strong>Google Gemini</strong><small>Use a saved Gemini API key profile.</small>
                                     </button>
+                                    <button type="button" id="prescription-select-groq" class="btn btn-outline-success btn-block text-left prescription-analysis-choice">
+                                        <strong>Groq</strong><small>Use a saved Groq API key profile.</small>
+                                    </button>
                                 </div>
                                 <div id="prescription-gemini-profiles-panel" class="prescription-analysis-panel d-none">
                                     <p class="prescription-analysis-intro">Choose a saved Google Gemini profile to start analyzing.</p>
@@ -259,11 +265,36 @@
                                     </div>
                                     <div id="prescription-gemini-key-feedback" class="alert alert-danger d-none" role="alert"></div>
                                 </div>
+                                <div id="prescription-groq-profiles-panel" class="prescription-analysis-panel d-none">
+                                    <p class="prescription-analysis-intro">Choose a saved Groq profile to analyze this image.</p>
+                                    <div id="prescription-groq-profile-list" class="prescription-credential-list"></div>
+                                    <p id="prescription-groq-profile-empty" class="prescription-credential-empty d-none">No Groq profiles yet. Create one to securely save a key for your account.</p>
+                                    <button type="button" id="prescription-create-groq-profile" class="btn btn-outline-primary">
+                                        <i class="fas fa-plus mr-1" aria-hidden="true"></i> Create API key profile
+                                    </button>
+                                    <div id="prescription-groq-profile-feedback" class="alert alert-danger d-none mt-3" role="alert"></div>
+                                </div>
+                                <div id="prescription-groq-create-panel" class="prescription-analysis-panel d-none">
+                                    <div class="alert alert-warning prescription-key-warning">
+                                        Your key is encrypted before it is saved and is only available to your account. Groq will receive the prescription image when you select this profile to analyze.
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prescription-groq-profile-name">Profile name</label>
+                                        <input type="text" id="prescription-groq-profile-name" class="form-control" maxlength="80" autocomplete="off" placeholder="e.g. My Groq key">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prescription-groq-api-key">Groq API key</label>
+                                        <input type="password" id="prescription-groq-api-key" class="form-control" autocomplete="off" spellcheck="false">
+                                        <small class="form-text text-muted">Use this page over HTTPS. The key is stored encrypted on the app server and is never displayed again.</small>
+                                    </div>
+                                    <div id="prescription-groq-key-feedback" class="alert alert-danger d-none" role="alert"></div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary prescription-analysis-cancel" data-dismiss="modal">Cancel</button>
                                 <button type="button" id="prescription-analysis-back" class="btn btn-outline-secondary prescription-analysis-cancel d-none">Back</button>
                                 <button type="button" id="prescription-save-gemini-profile" class="btn btn-success d-none">Create profile</button>
+                                <button type="button" id="prescription-save-groq-profile" class="btn btn-success d-none">Create profile</button>
                             </div>
                         </div>
                     </div>
@@ -365,6 +396,8 @@
 <script>
 (function () {
     var fileInput = document.getElementById('prescription-document');
+    var submitButton = document.getElementById('prescription-submit-button');
+    var reviewConfirmedInput = document.getElementById('prescription-review-confirmed');
     var analyzeButton = document.getElementById('prescription-analyze-button');
     var feedback = document.getElementById('prescription-analysis-feedback');
     var modalFeedback = document.getElementById('prescription-modal-feedback');
@@ -384,6 +417,9 @@
     var cameraStream = null;
     var cameraRequest = 0;
     var capturedPhoto = null;
+    var originalCapturedPhoto = null;
+    var cameraRotationDegrees = 0;
+    var cameraRotationRequest = 0;
     var analysisReady = false;
     var doctorName = '';
     var licenseNumber = '';
@@ -399,7 +435,6 @@
     var cameraCaptureButton = document.getElementById('prescription-camera-capture');
     var cameraRetakeButton = document.getElementById('prescription-camera-retake');
     var cameraUseButton = document.getElementById('prescription-camera-use');
-    var captureCheckId = 0;
     var analysisModeModal = $('#prescription-analysis-mode-modal');
     var geminiApiKeyInput = document.getElementById('prescription-gemini-api-key');
     var geminiKeyFeedback = document.getElementById('prescription-gemini-key-feedback');
@@ -411,6 +446,13 @@
     var geminiProfileList = document.getElementById('prescription-gemini-profile-list');
     var geminiProfileEmpty = document.getElementById('prescription-gemini-profile-empty');
     var geminiProfileFeedback = document.getElementById('prescription-gemini-profile-feedback');
+    var groqProfileNameInput = document.getElementById('prescription-groq-profile-name');
+    var groqApiKeyInput = document.getElementById('prescription-groq-api-key');
+    var groqKeyFeedback = document.getElementById('prescription-groq-key-feedback');
+    var groqProfileList = document.getElementById('prescription-groq-profile-list');
+    var groqProfileEmpty = document.getElementById('prescription-groq-profile-empty');
+    var groqProfileFeedback = document.getElementById('prescription-groq-profile-feedback');
+    var saveGroqProfileButton = document.getElementById('prescription-save-groq-profile');
     var analysisModeTitle = document.getElementById('prescription-analysis-mode-title');
     var analysisBackButton = document.getElementById('prescription-analysis-back');
     var saveGeminiProfileButton = document.getElementById('prescription-save-gemini-profile');
@@ -418,7 +460,9 @@
         methods: { element: analysisMethodChoices, title: 'Choose analysis method' },
         cloud: { element: aiCloudPanel, title: 'AI Cloud' },
         gemini: { element: geminiProfilesPanel, title: 'Google Gemini' },
-        create: { element: geminiCreatePanel, title: 'Create Gemini profile' }
+        create: { element: geminiCreatePanel, title: 'Create Gemini profile' },
+        groq: { element: document.getElementById('prescription-groq-profiles-panel'), title: 'Groq' },
+        groqCreate: { element: document.getElementById('prescription-groq-create-panel'), title: 'Create Groq profile' }
     };
     var currentAnalysisPanel = 'methods';
 
@@ -435,7 +479,7 @@
     }
 
     function resetCameraView() {
-        captureCheckId++;
+        cameraRotationRequest++;
         if (cameraPreviewUrl) {
             URL.revokeObjectURL(cameraPreviewUrl);
             cameraPreviewUrl = null;
@@ -447,6 +491,8 @@
         cameraUseButton.style.display = 'none';
         cameraUseButton.disabled = false;
         capturedPhoto = null;
+        originalCapturedPhoto = null;
+        cameraRotationDegrees = 0;
     }
 
     function closeCamera() {
@@ -474,7 +520,7 @@
                     return;
                 }
                 context.translate(canvas.width / 2, canvas.height / 2);
-                context.rotate(-degrees * Math.PI / 180);
+                context.rotate(degrees * Math.PI / 180);
                 context.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
                 canvas.toBlob(function (correctedBlob) {
                     if (correctedBlob) {
@@ -490,24 +536,6 @@
             };
             image.src = imageUrl;
         });
-    }
-
-    async function checkCapturedPhotoOrientation(blob) {
-        var payload = new FormData();
-        payload.append('document', new File([blob], 'prescription-camera.jpg', { type: 'image/jpeg' }));
-        payload.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-
-        var response = await fetch(@json(route('prescriptions.analyze')), {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            body: payload
-        });
-        var result = await response.json();
-        if (!response.ok) throw new Error(result.message || 'Could not check this photo.');
-        if (!result.recognized_text || !result.recognized_text.trim()) {
-            throw new Error(result.message || 'No readable text was found in this photo.');
-        }
-        return result;
     }
 
     async function openCamera() {
@@ -561,8 +589,9 @@
                 setCameraMessage('The photo could not be captured. Please try again.');
                 return;
             }
+            originalCapturedPhoto = blob;
             capturedPhoto = blob;
-            var checkId = ++captureCheckId;
+            cameraRotationDegrees = 0;
             cameraPreviewUrl = URL.createObjectURL(blob);
             cameraPreview.src = cameraPreviewUrl;
             cameraVideo.style.display = 'none';
@@ -570,31 +599,36 @@
             cameraCaptureButton.style.display = 'none';
             cameraRetakeButton.style.display = 'inline-block';
             cameraUseButton.style.display = 'inline-block';
-            cameraUseButton.disabled = true;
-            setCameraMessage('Checking photo orientation and readability…');
-
-            checkCapturedPhotoOrientation(blob).then(async function (result) {
-                if (checkId !== captureCheckId) return;
-                var rotation = Number(result.orientation_rotation || 0);
-                if (result.orientation_corrected && [90, 180, 270].includes(rotation)) {
-                    var correctedPhoto = await rotatePhotoBlob(blob, rotation);
-                    if (checkId !== captureCheckId) return;
-                    capturedPhoto = correctedPhoto;
-                    URL.revokeObjectURL(cameraPreviewUrl);
-                    cameraPreviewUrl = URL.createObjectURL(capturedPhoto);
-                    cameraPreview.src = cameraPreviewUrl;
-                    setCameraMessage('Photo corrected to the readable position. Review it, then use the photo.');
-                } else {
-                    setCameraMessage('Photo orientation checked. Review it, then use the photo.');
-                }
-            }).catch(function (error) {
-                if (checkId !== captureCheckId) return;
-                console.warn('Unable to automatically check prescription photo orientation:', error);
-                setCameraMessage('Could not automatically check orientation. You can still use this photo and analyze it afterward.');
-            }).finally(function () {
-                if (checkId === captureCheckId) cameraUseButton.disabled = false;
-            });
+            cameraUseButton.disabled = false;
+            setCameraMessage('Tap the photo to rotate it 90°. Review the position, then use the photo.');
         }, 'image/jpeg', 0.9);
+    }
+
+    async function rotateCapturedPhoto() {
+        if (!originalCapturedPhoto || cameraUseButton.disabled) return;
+
+        var nextRotation = (cameraRotationDegrees + 90) % 360;
+        var request = ++cameraRotationRequest;
+        cameraUseButton.disabled = true;
+        try {
+            var rotatedPhoto = nextRotation === 0
+                ? originalCapturedPhoto
+                : await rotatePhotoBlob(originalCapturedPhoto, nextRotation);
+            if (request !== cameraRotationRequest) return;
+
+            capturedPhoto = rotatedPhoto;
+            cameraRotationDegrees = nextRotation;
+            if (cameraPreviewUrl) URL.revokeObjectURL(cameraPreviewUrl);
+            cameraPreviewUrl = URL.createObjectURL(capturedPhoto);
+            cameraPreview.src = cameraPreviewUrl;
+            setCameraMessage('Photo rotated ' + cameraRotationDegrees + '°. Tap again to rotate, or use the photo.');
+        } catch (error) {
+            if (request !== cameraRotationRequest) return;
+            console.error('Unable to rotate captured prescription photo:', error);
+            setCameraMessage('Could not rotate the photo. Try capturing it again.');
+        } finally {
+            if (request === cameraRotationRequest) cameraUseButton.disabled = false;
+        }
     }
 
     function useCapturedPhoto() {
@@ -609,6 +643,13 @@
 
     cameraButton.addEventListener('click', openCamera);
     cameraCaptureButton.addEventListener('click', capturePhoto);
+    cameraPreview.addEventListener('click', rotateCapturedPhoto);
+    cameraPreview.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            rotateCapturedPhoto();
+        }
+    });
     cameraRetakeButton.addEventListener('click', function () {
         resetCameraView();
         setCameraMessage('');
@@ -642,6 +683,8 @@
         document.getElementById('prescription-patient').value = '';
         document.getElementById('prescription-prescriber').value = '';
         document.getElementById('prescription-issued').value = '';
+        reviewConfirmedInput.value = '0';
+        submitButton.disabled = true;
         analysisReady = false;
         doctorName = '';
         licenseNumber = '';
@@ -865,9 +908,37 @@
             analyzeButton.disabled = false;
         } else {
             modalImage.removeAttribute('src');
-            previewPlaceholder.textContent = 'PDF selected: ' + file.name + '. Submit it for manual verification; OCR analysis currently supports images.';
+            previewPlaceholder.textContent = 'Choose a prescription image to analyze before submitting for verification.';
         }
     });
+
+    document.getElementById('prescription-submit-form').addEventListener('submit', function (event) {
+        if (!fileInput.files || !fileInput.files.length) {
+            event.preventDefault();
+            showFeedback('Choose or take a prescription photo before submitting.', 'warning');
+            return;
+        }
+        if (reviewConfirmedInput.value !== '1') {
+            event.preventDefault();
+            showFeedback('Analyze the photo, review the extracted details, and select Use reviewed details before submitting.', 'warning');
+        }
+    });
+
+    async function requestPrescriptionAnalysis(file, engine, credentialId) {
+        var payload = new FormData();
+        payload.append('document', file);
+        payload.append('engine', engine);
+        payload.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        if (engine === 'gemini' || engine === 'groq') payload.append('credential_id', credentialId);
+
+        var response = await fetch(@json(route('prescriptions.analyze')), {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: payload
+        });
+
+        return { response: response, result: await response.json() };
+    }
 
     async function runPrescriptionAnalysis(engine, credentialId, credentialName) {
         var file = fileInput.files && fileInput.files[0];
@@ -882,22 +953,15 @@
             showFeedback(
                 engine === 'gemini'
                     ? 'Sending image to Google Gemini for analysis…'
-                    : 'Reading image and checking possible catalog matches…',
+                    : (engine === 'groq' ? 'Sending image to Groq for analysis…' : 'Reading image and checking possible catalog matches…'),
                 'info'
             );
-            var payload = new FormData();
-            payload.append('document', file);
-            payload.append('engine', engine);
-            payload.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-            if (engine === 'gemini') payload.append('credential_id', credentialId);
+            var analysis = await requestPrescriptionAnalysis(file, engine, credentialId);
+            result = analysis.result;
+            if (!analysis.response.ok) {
+                throw new Error(result.message || 'Prescription analysis failed.');
+            }
 
-            var response = await fetch(@json(route('prescriptions.analyze')), {
-                method: 'POST',
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                body: payload
-            });
-            result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Prescription analysis failed.');
             if (!result.recognized_text || !result.recognized_text.trim()) {
                 showFeedback(result.message || 'No readable text was found. Try a sharper, brighter photo and make sure the full prescription is in frame.', 'warning');
                 return;
@@ -912,8 +976,10 @@
             var confidence = document.getElementById('prescription-ocr-confidence');
             confidence.textContent = result.analysis_method === 'gemini'
                 ? 'Analyzed with Google Gemini · ' + credentialName
-                : (result.ocr_confidence == null ? '' : 'OCR confidence: ' + result.ocr_confidence + '%');
-            if (result.analysis_method !== 'gemini' && Number(result.ocr_confidence || 0) < 60) {
+                : (result.analysis_method === 'groq'
+                    ? 'Analyzed with Groq · ' + credentialName
+                    : (result.ocr_confidence == null ? '' : 'OCR confidence: ' + result.ocr_confidence + '%'));
+            if (!['gemini', 'groq'].includes(result.analysis_method) && Number(result.ocr_confidence || 0) < 60) {
                 var rxField = document.querySelector('[data-prescription-field="rx"]');
                 if (rxField) rxField.value = result.recognized_text;
             }
@@ -947,6 +1013,7 @@
         analysisModeTitle.textContent = analysisPanels[name].title;
         analysisBackButton.classList.toggle('d-none', name === 'methods');
         saveGeminiProfileButton.classList.toggle('d-none', name !== 'create');
+        saveGroqProfileButton.classList.toggle('d-none', name !== 'groqCreate');
     }
 
     async function loadGeminiCredentials() {
@@ -1022,6 +1089,79 @@
         }
     }
 
+    async function loadGroqCredentials() {
+        groqProfileFeedback.className = 'alert alert-danger d-none mt-3';
+        groqProfileFeedback.textContent = '';
+        groqProfileList.replaceChildren();
+        groqProfileEmpty.classList.add('d-none');
+
+        try {
+            var response = await fetch(@json(route('prescriptions.groq-credentials.index')), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            var result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Could not load saved Groq profiles.');
+
+            if (!result.credentials.length) {
+                groqProfileEmpty.classList.remove('d-none');
+                return;
+            }
+
+            result.credentials.forEach(function (credential) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-outline-success prescription-credential-choice';
+                button.textContent = credential.name;
+                button.addEventListener('click', function () {
+                    analysisModeModal.modal('hide');
+                    runPrescriptionAnalysis('groq', credential.id, credential.name);
+                });
+
+                var row = document.createElement('div');
+                row.className = 'prescription-credential-row';
+                row.appendChild(button);
+
+                var removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'btn btn-outline-danger prescription-credential-delete';
+                removeButton.textContent = 'Remove';
+                removeButton.setAttribute('aria-label', 'Remove Groq profile ' + credential.name);
+                removeButton.addEventListener('click', function () {
+                    deleteGroqCredential(credential);
+                });
+                row.appendChild(removeButton);
+                groqProfileList.appendChild(row);
+            });
+        } catch (error) {
+            groqProfileFeedback.textContent = error.message || 'Could not load saved Groq profiles.';
+            groqProfileFeedback.classList.remove('d-none');
+        }
+    }
+
+    async function deleteGroqCredential(credential) {
+        if (!window.confirm('Remove the saved Groq profile "' + credential.name + '"?')) return;
+
+        try {
+            var response = await fetch(@json(url('prescriptions/groq-credentials')) + '/' + encodeURIComponent(credential.id), {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+            var result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Could not remove this Groq profile.');
+
+            await loadGroqCredentials();
+            groqProfileFeedback.className = 'alert alert-success mt-3';
+            groqProfileFeedback.textContent = 'Groq profile removed.';
+        } catch (error) {
+            groqProfileFeedback.textContent = error.message || 'Could not remove this Groq profile.';
+            groqProfileFeedback.className = 'alert alert-danger mt-3';
+        }
+    }
+
     document.getElementById('prescription-use-ai-cloud').addEventListener('click', function () {
         showAnalysisPanel('cloud');
     });
@@ -1029,6 +1169,11 @@
     document.getElementById('prescription-select-gemini').addEventListener('click', function () {
         showAnalysisPanel('gemini');
         loadGeminiCredentials();
+    });
+
+    document.getElementById('prescription-select-groq').addEventListener('click', function () {
+        showAnalysisPanel('groq');
+        loadGroqCredentials();
     });
 
     document.getElementById('prescription-create-gemini-profile').addEventListener('click', function () {
@@ -1040,10 +1185,23 @@
         geminiProfileNameInput.focus();
     });
 
+    document.getElementById('prescription-create-groq-profile').addEventListener('click', function () {
+        groqProfileNameInput.value = '';
+        groqApiKeyInput.value = '';
+        groqKeyFeedback.className = 'alert alert-danger d-none';
+        groqKeyFeedback.textContent = '';
+        showAnalysisPanel('groqCreate');
+        groqProfileNameInput.focus();
+    });
+
     analysisBackButton.addEventListener('click', function () {
         if (currentAnalysisPanel === 'create') {
             showAnalysisPanel('gemini');
+        } else if (currentAnalysisPanel === 'groqCreate') {
+            showAnalysisPanel('groq');
         } else if (currentAnalysisPanel === 'gemini') {
+            showAnalysisPanel('cloud');
+        } else if (currentAnalysisPanel === 'groq') {
             showAnalysisPanel('cloud');
         } else {
             showAnalysisPanel('methods');
@@ -1100,6 +1258,56 @@
         }
     });
 
+    saveGroqProfileButton.addEventListener('click', async function () {
+        var name = groqProfileNameInput.value.trim();
+        var apiKey = groqApiKeyInput.value.trim();
+        groqKeyFeedback.className = 'alert alert-danger d-none';
+        groqKeyFeedback.textContent = '';
+
+        if (!name || !apiKey) {
+            groqKeyFeedback.textContent = 'Enter a profile name and Groq API key.';
+            groqKeyFeedback.classList.remove('d-none');
+            return;
+        }
+        if (window.location.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+            groqKeyFeedback.textContent = 'Open this page over HTTPS before saving an API key.';
+            groqKeyFeedback.classList.remove('d-none');
+            return;
+        }
+
+        saveGroqProfileButton.disabled = true;
+        try {
+            var response = await fetch(@json(route('prescriptions.groq-credentials.store')), {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ name: name, api_key: apiKey })
+            });
+            var result = await response.json();
+            if (!response.ok) {
+                var validationError = result.errors && Object.values(result.errors)[0] && Object.values(result.errors)[0][0];
+                throw new Error(validationError || result.message || 'Could not save this Groq profile.');
+            }
+
+            groqProfileNameInput.value = '';
+            groqApiKeyInput.value = '';
+            showAnalysisPanel('groq');
+            await loadGroqCredentials();
+            groqProfileFeedback.className = 'alert alert-success mt-3';
+            groqProfileFeedback.textContent = 'Profile created. Select its name to analyze this image.';
+        } catch (error) {
+            groqKeyFeedback.textContent = error.message || 'Could not save this Groq profile.';
+            groqKeyFeedback.classList.remove('d-none');
+        } finally {
+            groqApiKeyInput.value = '';
+            saveGroqProfileButton.disabled = false;
+        }
+    });
+
     analyzeButton.addEventListener('click', function () {
         if (analysisReady) {
             setReviewModalReadOnly(false);
@@ -1116,6 +1324,12 @@
         geminiKeyFeedback.textContent = '';
         geminiProfileFeedback.className = 'alert alert-danger d-none mt-3';
         geminiProfileFeedback.textContent = '';
+        groqApiKeyInput.value = '';
+        groqProfileNameInput.value = '';
+        groqKeyFeedback.className = 'alert alert-danger d-none mt-3';
+        groqKeyFeedback.textContent = '';
+        groqProfileFeedback.className = 'alert alert-danger d-none mt-3';
+        groqProfileFeedback.textContent = '';
         analysisModeModal.modal('show');
     });
 
@@ -1156,6 +1370,8 @@
         document.getElementById('prescription-prescriber').value = details.doctor_name;
         document.getElementById('prescription-issued').value = details.consult_date;
         document.getElementById('prescription-ocr-details').value = JSON.stringify(details);
+        reviewConfirmedInput.value = '1';
+        submitButton.disabled = false;
         modal.modal('hide');
         showFeedback('Reviewed details are ready to submit. Confirm them against the original prescription.', 'success');
     });

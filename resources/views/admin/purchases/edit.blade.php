@@ -75,20 +75,20 @@
 					<div class="row">
 							<div class="col-lg-3">
 								<div class="form-group">
-									<label>Item (1)<span class="text-danger">*</span></label>
-									<input class="form-control" type="number" min="0" name="item_quantity" value="{{$purchase->item_quantity}}">
+									<label>Item (1)</label>
+									<input class="form-control" type="number" min="0" name="item_quantity" value="{{$purchase->item_quantity}}" placeholder="0">
 								</div>
 							</div>
 							<div class="col-lg-3">
 								<div class="form-group">
-									<label>Packaging box (1)<span class="text-danger">*</span></label>
-									<input class="form-control" type="number" min="0" name="packaging_box" value="{{$purchase->packaging_box}}">
+									<label>Packaging box (1)</label>
+									<input class="form-control" type="number" min="0" name="packaging_box" value="{{$purchase->packaging_box}}" placeholder="0">
 								</div>
 							</div>
 							<div class="col-lg-3">
 								<div class="form-group">
-									<label>Total Quantity Per (1 - Box)<span class="text-danger">*</span></label>
-									<input class="form-control" type="number" min="0" name="quantity_per_box" value="{{$purchase->quantity_per_box}}">
+									<label>Total Quantity Per (1 - Box)</label>
+									<input class="form-control" type="number" min="0" name="quantity_per_box" value="{{$purchase->quantity_per_box}}" placeholder="0">
 								</div>
 							</div>
 							<div class="col-lg-3">
@@ -193,6 +193,22 @@
 				img.src = url;
 			});
 		})();
+
+		$(function () {
+			function computeEditTotal() {
+				var item = parseInt($('input[name="item_quantity"]').val() || 0, 10);
+				var boxes = parseInt($('input[name="packaging_box"]').val() || 0, 10);
+				var perBox = parseInt($('input[name="quantity_per_box"]').val() || 0, 10);
+				if (isNaN(item) || item < 0) item = 0;
+				if (isNaN(boxes) || boxes < 0) boxes = 0;
+				if (isNaN(perBox) || perBox < 0) perBox = 0;
+				var total = item + (boxes * perBox);
+				$('input[name="total_quantity"]').val(total);
+			}
+
+			$('input[name="item_quantity"], input[name="packaging_box"], input[name="quantity_per_box"]').on('input change', computeEditTotal);
+			computeEditTotal();
+		});
 	</script>
 @endpush
 

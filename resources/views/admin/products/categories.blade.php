@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 <x-assets.tabulator />
 
@@ -174,13 +174,13 @@
 	</div>			
 </div>
 
-	<div class="modal fade category-action-modal" id="category-action-modal" tabindex="-1" role="dialog" aria-labelledby="category-action-modal-title" aria-hidden="true">
+	<div class="modal fade product-row-action-modal category-action-modal" id="category-action-modal" tabindex="-1" role="dialog" aria-labelledby="category-action-modal-title" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<div class="category-action-heading">
+					<div class="row-action-heading">
 						<h5 class="modal-title" id="category-action-modal-title">Categories Actions</h5>
-						<span class="category-action-name">Name &rarr; <span id="category-action-name"></span></span>
+						<span class="row-action-meta">Name &rarr; <span id="category-action-name"></span></span>
 					</div>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
@@ -345,18 +345,41 @@
 		});
 		categoryTable.dataset.pharmacyCategoriesInitialized = 'true';
 
+		var returnToCategoryActions = false;
+
 		function showCategoryModalAfterActions(modal) {
 			var actionModal = $('#category-action-modal');
+			returnToCategoryActions = true;
 			if (actionModal.hasClass('show')) {
-				actionModal.one('hidden.bs.modal', function () {
+				actionModal.one('hidden.bs.modal.categorySwitch', function () {
 					window.setTimeout(function () {
 						$(modal).modal('show');
-					}, 0);
+					}, 50);
 				}).modal('hide');
 				return;
 			}
 			$(modal).modal('show');
 		}
+
+		$('#categoryDescriptionModal').off('hidden.bs.modal.categoryReturn').on('hidden.bs.modal.categoryReturn', function () {
+			if (!returnToCategoryActions) return;
+			returnToCategoryActions = false;
+			window.setTimeout(function () {
+				$('#category-action-modal').modal('show');
+			}, 50);
+		});
+
+		$('#edit_category').off('hidden.bs.modal.categoryReturn').on('hidden.bs.modal.categoryReturn', function () {
+			if (!returnToCategoryActions) return;
+			returnToCategoryActions = false;
+			window.setTimeout(function () {
+				$('#category-action-modal').modal('show');
+			}, 50);
+		});
+
+		$('#edit_category form').off('submit.categoryReturn').on('submit.categoryReturn', function () {
+			returnToCategoryActions = false;
+		});
 
 		$(document).off('click.pharmacyCategories', '#category-table .category-action-button')
 			.on('click.pharmacyCategories', '#category-table .category-action-button', function (event) {
@@ -373,13 +396,14 @@
 			});
 
 		$('#category-action-modal').off('hidden.bs.modal.pharmacyCategories').on('hidden.bs.modal.pharmacyCategories', function () {
-			$('#category-table .category-action-button[aria-expanded="true"]').attr('aria-expanded', 'false');
-			$('#category-action-modal-content').empty();
+			if (!returnToCategoryActions) {
+				$('#category-table .category-action-button[aria-expanded="true"]').attr('aria-expanded', 'false');
+				$('#category-action-modal-content').empty();
+			}
 		});
 
 		$(document).off('click.pharmacyCategories', '#category-table .editbtn, #category-action-modal .editbtn').on('click.pharmacyCategories', '#category-table .editbtn, #category-action-modal .editbtn', function (event) {
 			event.preventDefault();
-			showCategoryModalAfterActions('#edit_category');
 			var id = $(this).data('id');
 			var name = $(this).data('name');
 			var description = $(this).data('description') || '';
@@ -392,6 +416,8 @@
 			$('#edit_fixed_key').val(fixedKey);
 			$('.edit_no_expiry').prop('checked', noExpiry).prop('disabled', fixedKey === 'medical-devices');
 			$('#recommended_category_edit').val(fixedKey);
+
+			showCategoryModalAfterActions('#edit_category');
 		});
 
 		$('#recommended_category').on('change', function () {

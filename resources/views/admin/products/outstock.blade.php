@@ -284,6 +284,10 @@
 						<div class="product-detail-item"><strong>Quantity per Box</strong><span class="outstock-detail detail-quantity_per_box"></span></div>
 						<div class="product-detail-item"><strong>Expire Date</strong><span class="outstock-detail detail-expiry"></span></div>
 						<div class="product-detail-item"><strong>Date of Purchase</strong><span class="outstock-detail detail-purchased"></span></div>
+						<div class="product-detail-item detail-box-expiries-wrap" style="grid-column: 1 / -1; display: none;">
+							<strong>Packaging Box Expiries</strong>
+							<div class="detail-box-expiries-list d-flex flex-wrap mt-1" style="gap: 6px;"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -330,21 +334,38 @@
 			.off('.expiredProductEdit')
 			.off('.productStatus');
 
-        if (!window.PharmaTabulator) return;
-        window.PharmaTabulator.server({
-            el: 'outstock-product',
-            url: "{{route('outstock')}}",
-            columns: [
-                {title: 'Brand Name', field: 'product', formatter: 'html'},
-                {title: 'Category', field: 'category'},
-                {title: 'Price', field: 'price'},
-                {title: 'Quantity', field: 'quantity'},
-                {title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
-            ]
-        });
+	window.pharmacyOutstockProductsInit = function() {
+		var tableEl = document.getElementById('outstock-product');
+		if (!tableEl) return;
+		if (!window.PharmaTabulator) return;
+
+		window.PharmaTabulator.server({
+			el: 'outstock-product',
+			url: "{{route('outstock')}}",
+			columns: [
+				{title: 'Brand Name', field: 'product', formatter: 'html'},
+				{title: 'Category', field: 'category'},
+				{title: 'Price', field: 'price'},
+				{title: 'Quantity', field: 'quantity'},
+				{title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
+			]
+		});
+	};
+
+	if (!window.pharmacyOutstockProductsTurboHandler) {
+		window.pharmacyOutstockProductsTurboHandler = function() {
+			if (window.pharmacyOutstockProductsInit) {
+				window.pharmacyOutstockProductsInit();
+			}
+		};
+		document.addEventListener('turbo:load', window.pharmacyOutstockProductsTurboHandler);
+	}
+
+	window.pharmacyOutstockProductsInit();
 
 		var activeProductActionButton = null;
 		var returnToProductActionsAfterEdit = false;
+		var returnToProductActionsAfterDetails = false;
 
 		function runAfterProductActionsReady(callback) {
 			var actionModal = $('#product-row-action-modal');
@@ -382,7 +403,7 @@
 				$('#product-row-action-modal').modal('show');
 			});
 		$('#product-row-action-modal').off('hidden.bs.modal.productRowActions').on('hidden.bs.modal.productRowActions', function () {
-			if (returnToProductActionsAfterEdit) return;
+			if (returnToProductActionsAfterEdit || returnToProductActionsAfterDetails) return;
 			if (activeProductActionButton) activeProductActionButton.setAttribute('aria-expanded', 'false');
 			activeProductActionButton = null;
 			$('#product-row-action-content').empty();
@@ -409,17 +430,53 @@
 			});
 			var expiryVal = details.expiry || details.expiry_date || '';
 			$('#outstockDetailsModal .detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
+
+			var boxExpiries = details.box_expiries || [];
+			var $boxExpWrap = $('#outstockDetailsModal .detail-box-expiries-wrap');
+			var $boxExpList = $('#outstockDetailsModal .detail-box-expiries-list');
+			$boxExpList.empty();
+
+			if (Array.isArray(boxExpiries) && boxExpiries.length > 0) {
+				boxExpiries.forEach(function (b) {
+					var boxLabel = b.box ? (typeof b.box === 'number' ? 'Box #' + b.box : b.box) : 'Box';
+					var dateStr = b.expiry_date || 'No expiry';
+					var badgeClass = 'badge badge-light border text-dark';
+					if (b.expiry_date) {
+						var expD = new Date(b.expiry_date + 'T00:00:00');
+						var today = new Date();
+						today.setHours(0,0,0,0);
+						if (expD < today) {
+							badgeClass = 'badge badge-danger text-white';
+						}
+					}
+					$boxExpList.append('<span class="' + badgeClass + ' px-2 py-1"><i class="fas fa-box mr-1"></i> ' + boxLabel + ': <strong>' + dateStr + '</strong></span>');
+				});
+				$boxExpWrap.show();
+			} else {
+				$boxExpWrap.hide();
+			}
+
 			var actionModal = $('#product-row-action-modal');
 			if (actionModal.hasClass('show')) {
-				actionModal.one('hidden.bs.modal.outstockDetails', function () {
-					window.setTimeout(function () {
-						$('#outstockDetailsModal').modal('show');
-					}, 350);
+				returnToProductActionsAfterDetails = true;
+				runAfterProductActionsReady(function () {
+					actionModal.one('hidden.bs.modal.outstockDetails', function () {
+						window.setTimeout(function () {
+							$('#outstockDetailsModal').modal('show');
+						}, 50);
+					}).modal('hide');
 				});
-				actionModal.modal('hide');
 				return;
 			}
 			$('#outstockDetailsModal').modal('show');
+		});
+
+		$('#outstockDetailsModal').off('hidden.bs.modal.outstockDetailsReturn').on('hidden.bs.modal.outstockDetailsReturn', function () {
+			if (!returnToProductActionsAfterDetails) return;
+			returnToProductActionsAfterDetails = false;
+			window.setTimeout(function () {
+				$('#product-row-action-modal').modal('show');
+			}, 50);
 		});
 
 		var productEditModal = $('#outstock-product-edit-modal');

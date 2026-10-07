@@ -29,7 +29,8 @@ class MarkExpiredProducts extends Command
     public function handle()
     {
         $count = Product::markExpiredProducts();
-        $this->info("Expired products updated: {$count}");
+        $notified = \App\Services\ExpiryNotificationService::scanAndNotifyAll();
+        $this->info("Expired products updated: {$count}, Notifications dispatched: {$notified}");
         return 0;
     }
 }

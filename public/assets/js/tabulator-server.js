@@ -163,6 +163,15 @@
         if (!el) return;
         clearStickyOffsets(key);
 
+        if (el.closest('.modal')) {
+            var mFooter = el.querySelector(".tabulator-footer");
+            var mHeader = el.querySelector(".tabulator-header");
+            if (mFooter) mFooter.style.top = "";
+            if (mHeader) mHeader.style.top = "";
+            if (toolbar) toolbar.style.top = "";
+            return;
+        }
+
         var boundary = el.closest(".table-responsive") || el.parentElement || el;
         var stackStart = toolbar || el;
         var startOffset = stackStart.getBoundingClientRect().top - boundary.getBoundingClientRect().top;
@@ -246,6 +255,12 @@
                 maxHeight: opts.maxHeight || false,
                 columns: columns,
                 ajaxURLGenerator: function (url, config, params) {
+                    try {
+                        var parsed = new URL(url, window.location.href);
+                        if (parsed.origin !== window.location.origin) {
+                            url = parsed.pathname + parsed.search;
+                        }
+                    } catch (e) {}
                     var qs = makeDataTablesRequest(params, columns, state.search);
                     return url + (url.indexOf("?") === -1 ? "?" : "&") + serializeParams(qs);
                 },
@@ -294,6 +309,11 @@
                 delete localRegistry[key];
             }
 
+            var oldToolbar = el.parentNode && el.parentNode.querySelector('.pharma-table-toolbar[data-table-key="' + key + '"]');
+            if (oldToolbar) {
+                oldToolbar.remove();
+            }
+
             var existingWrapper = el.parentNode && el.parentNode.querySelector('.tabulator-wrapper[data-table-key="' + key + '"]');
             if (existingWrapper) {
                 existingWrapper.remove();
@@ -312,7 +332,8 @@
                     title: heads[i].textContent.replace(/\s+/g, " ").trim(),
                     field: fields[i] || "c" + i,
                     headerSort: !disableHeaderSort,
-                    formatter: opts.preserveHtml ? "html" : undefined
+                    formatter: opts.preserveHtml ? "html" : undefined,
+                    minWidth: opts.minWidth || 95
                 });
             }
 
@@ -347,7 +368,7 @@
             } catch (e) {}
 
             var table = new Tabulator(div, {
-                layout: "fitColumns",
+                layout: opts.layout || "fitColumns",
                 placeholder: opts.placeholder || "No records found",
                 data: rows,
                 pagination: opts.pagination !== false,
@@ -359,15 +380,79 @@
                 maxHeight: opts.maxHeight || false
             });
 
-            var toolbar = null;
-            if (opts.export) {
-                var toolbar = document.createElement("div");
+            var existingToolbar = div.parentNode && div.parentNode.querySelector('.pharma-table-toolbar[data-table-key="' + key + '"]');
+            var toolbar = existingToolbar || null;
+
+            if (!existingToolbar && opts.search !== false) {
+                toolbar = document.createElement("div");
+                toolbar.className = "pharma-table-toolbar";
+                toolbar.setAttribute("data-table-key", key);
+
+                var input = document.createElement("input");
+                input.type = "search";
+                input.className = "form-control form-control-sm";
+                input.placeholder = opts.searchPlaceholder || "Search...";
+                input.setAttribute("aria-label", "Search");
+
+                var label = document.createElement("label");
+                label.appendChild(input);
+
+                var filterWrap = document.createElement("div");
+                filterWrap.className = "dataTables_filter";
+                filterWrap.appendChild(label);
+                toolbar.appendChild(filterWrap);
+
+                var onInput = debounce(function () {
+                    var query = (input.value || "").trim().toLowerCase();
+                    if (!query) {
+                        table.clearFilter();
+                    } else {
+                        table.setFilter(function (rowData) {
+                            for (var colKey in rowData) {
+                                if (rowData[colKey] !== null && rowData[colKey] !== undefined) {
+                                    var text = String(rowData[colKey]).toLowerCase();
+                                    if (text.indexOf(query) !== -1) return true;
+                                }
+                            }
+                            return false;
+                        });
+                    }
+                }, 300);
+                input.addEventListener("input", onInput);
+
+                if (opts.export) {
+                    var csv = document.createElement("button");
+                    csv.type = "button";
+                    csv.className = "btn btn-sm btn-outline-secondary pharma-export-csv ml-2";
+                    csv.textContent = "Export Data";
+                    csv.addEventListener("click", function () {
+                        if (table && typeof table.download === "function") {
+                            table.download("csv", (opts.filename || "report") + ".csv", { delimiter: ",", bom: true });
+                        }
+                    });
+                    toolbar.appendChild(csv);
+
+                    var print = document.createElement("button");
+                    print.type = "button";
+                    print.className = "btn btn-sm btn-outline-secondary ml-2";
+                    print.textContent = "Print";
+                    print.addEventListener("click", function () {
+                        if (table && typeof table.print === "function") {
+                            table.print(false, true);
+                        }
+                    });
+                    toolbar.appendChild(print);
+                }
+
+                div.parentNode.insertBefore(toolbar, div);
+            } else if (!existingToolbar && opts.export) {
+                toolbar = document.createElement("div");
                 toolbar.className = "pharma-table-toolbar";
                 toolbar.setAttribute("data-table-key", key);
 
                 var csv = document.createElement("button");
                 csv.type = "button";
-                csv.className = "btn btn-sm btn-outline-secondary";
+                csv.className = "btn btn-sm btn-outline-secondary pharma-export-csv";
                 csv.textContent = "Export Data";
                 csv.addEventListener("click", function () {
                     if (table && typeof table.download === "function") {
@@ -411,7 +496,7 @@
         },
 
         get: function (id) {
-            return registry[id] || null;
+            return registry[id] || localRegistry[id] || null;
         },
 
         reload: function (id) {
@@ -447,6 +532,11 @@
                 }
             }
             localRegistry = {};
+            try {
+                document.querySelectorAll('.pharma-table-toolbar[data-table-key^="embedded-report-"]').forEach(function (tb) {
+                    tb.remove();
+                });
+            } catch (e) {}
         }
     };
 })(window, document);

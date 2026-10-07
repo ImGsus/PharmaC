@@ -77,7 +77,9 @@ class UserController extends Controller
                     if (!auth()->user()->hasPermissionTo('destroy-user')) {
                         $deletebtn = '';
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle user-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="User actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$viewbtn.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
+                    $userName = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
+                    $menuItems = $viewbtn ? ($viewbtn . '<div class="dropdown-divider"></div>' . $editbtn . $deletebtn) : ($editbtn . $deletebtn);
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle user-action-button row-action-modal-trigger" data-action-title="User Actions" data-context-label="Name" data-context-value="'.$userName.'" aria-haspopup="true" aria-expanded="false" aria-label="User actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['avatar','role','action'])
                 ->make(true);

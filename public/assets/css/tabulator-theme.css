@@ -103,6 +103,13 @@ body.dark-mode {
     box-shadow: 0 2px 0 var(--ph-header-bg);
 }
 
+.modal .pharma-table-toolbar,
+.modal .tabulator .tabulator-footer,
+.modal .tabulator .tabulator-header {
+    position: static !important;
+    top: auto !important;
+}
+
 .tabulator .tabulator-header {
     background-color: var(--ph-header-bg);
     border-bottom: 1px solid var(--ph-header-border);

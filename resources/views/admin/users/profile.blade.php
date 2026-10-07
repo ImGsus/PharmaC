@@ -173,7 +173,7 @@
 										</td>
 										<td class="text-right">
 											<div class="btn-group">
-												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle row-action-modal-trigger" data-action-title="Profile Actions" data-context-label="User Role" data-context-value="Password" aria-haspopup="true" aria-expanded="false" aria-label="Password actions">
 													<i class="fa fa-ellipsis-v"></i>
 												</button>
 												<div class="dropdown-menu dropdown-menu-right">
@@ -193,7 +193,7 @@
 										</td>
 										<td class="text-right">
 											<div class="btn-group">
-												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle security-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle security-action-button row-action-modal-trigger" data-action-title="Profile Actions" data-context-label="Security Option" data-context-value="Account Verification" aria-haspopup="true" aria-expanded="false">
 													<i class="fa fa-ellipsis-v"></i>
 												</button>
 												<div class="dropdown-menu dropdown-menu-right">
@@ -212,7 +212,7 @@
 										<td><strong>Step Two Verification</strong></td>
 										<td class="text-right">
 											<div class="btn-group">
-												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle security-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Two-step verification actions"><i class="fa fa-ellipsis-v"></i></button>
+												<button type="button" class="btn btn-sm btn-secondary dropdown-toggle security-action-button row-action-modal-trigger" data-action-title="Profile Actions" data-context-label="Security Option" data-context-value="Step Two Verification" aria-haspopup="true" aria-expanded="false" aria-label="Two-step verification actions"><i class="fa fa-ellipsis-v"></i></button>
 												<div class="dropdown-menu dropdown-menu-right">
 													<p class="dropdown-item-text px-3 py-2">Use a code sent to your verified email when logging in.</p>
 													<div class="dropdown-divider"></div>

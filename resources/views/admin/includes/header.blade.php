@@ -70,6 +70,8 @@
 		@php
 			$unreadNotifications = auth()->user()->unReadNotifications;
 			$unreadNotificationCount = $unreadNotifications->count();
+			// Show recent 8 notifications (read + unread) in the dropdown
+			$recentNotifications = auth()->user()->notifications()->latest()->limit(8)->get();
 		@endphp
 		<li class="nav-item dropdown noti-dropdown">
 			
@@ -90,48 +92,108 @@
 				</div>
 				<div class="noti-content">
 					<ul class="notification-list">
-						@forelse ($unreadNotifications as $notification)
-							<li class="notification-message">
-								<a href="{{route('read')}}">
-									<div class="media">
-										<span class="avatar avatar-sm">
-											@php
-												$notificationImage = $notification->data['image'] ?? null;
-													$imagePath = $notificationImage ? storage_path('app/system/purchases/'.$notificationImage) : null;
-													if ($notificationImage && !file_exists($imagePath)) $imagePath = storage_path('app/purchases/'.$notificationImage);
-											@endphp
-											@if(!empty($notificationImage) && file_exists($imagePath))
+						@forelse ($recentNotifications as $notification)
+							@php $isUnreadItem = is_null($notification->read_at); @endphp
+							@php
+								$notiData = $notification->data ?? [];
+								$notiType = $notiData['type'] ?? '';
+								$isExpiringSoonNoti = $notiType === 'expiring_soon';
+								$isExpiredNoti = ($notiType === 'expired') || (!$isExpiringSoonNoti && $notification->type === 'App\Notifications\ProductExpiryNotification');
+								$notificationImage = $notiData['image'] ?? null;
+								$imagePath = $notificationImage ? storage_path('app/system/purchases/'.$notificationImage) : null;
+								if ($notificationImage && !file_exists($imagePath)) $imagePath = storage_path('app/purchases/'.$notificationImage);
+								$hasValidImage = !empty($notificationImage) && file_exists($imagePath);
+								$readOneUrl = '/notification/read/' . $notification->id; // relative path — works on any host/IP
+							@endphp
+							<li class="notification-message noti-item-row {{ $isUnreadItem ? 'noti-item-unread' : '' }}" data-id="{{ $notification->id }}">
+								<div class="d-flex align-items-start p-2 position-relative noti-card-wrapper {{ $isExpiredNoti ? 'noti-expired-card' : ($isExpiringSoonNoti ? 'noti-soon-card' : '') }}">
+									@if($isUnreadItem)<span class="noti-unread-dot"></span>@endif
+									<a href="{{ $readOneUrl }}" class="d-flex flex-grow-1 text-reset text-decoration-none mr-2" data-turbo="false">
+										<div class="media align-items-center w-100">
+											<span class="avatar avatar-sm mr-2 flex-shrink-0">
+												@if($hasValidImage)
 													<img class="avatar-img rounded-circle" alt="Product image" src="{{ url('storage/system/purchases/'.$notificationImage) }}">
-											@else
-												<span class="avatar-title rounded-circle bg-light text-muted">
-													<i class="fe fe-box"></i>
-												</span>
-											@endif
-										</span>
-										<div class="media-body">
-											<h6 class="text-danger">Stock Alert</h6>
-											<p class="noti-details">
-										@if(isset($notification->data['status']) && $notification->data['status'] === 'out_of_stock')
-											<span class="noti-title">{{$notification->data['product_name']}} is out of stock.</span>
-										@else
-											<span class="noti-title">{{$notification->data['product_name']}} is low on stock ({{$notification->data['quantity']}} left).</span>
-										@endif
-										<span>Please update the purchase quantity.</span>
-											<p class="noti-time"><span class="notification-time">{{$notification->created_at->diffForHumans()}}</span></p>
+												@elseif($isExpiredNoti)
+													<span class="avatar-title rounded-circle" style="background-color: rgba(239,68,68,0.15) !important; color: #ef4444 !important;">
+														<i class="fas fa-exclamation-triangle"></i>
+													</span>
+												@elseif($isExpiringSoonNoti)
+													<span class="avatar-title rounded-circle" style="background-color: rgba(245,158,11,0.18) !important; color: #d97706 !important;">
+														<i class="fas fa-hourglass-half"></i>
+													</span>
+												@else
+													<span class="avatar-title rounded-circle" style="background-color: rgba(59,130,246,0.15) !important; color: #3b82f6 !important;">
+														<i class="fe fe-box"></i>
+													</span>
+												@endif
+											</span>
+											<div class="media-body">
+												@if($isExpiredNoti)
+													<div class="d-flex align-items-center justify-content-between">
+														<h6 class="text-danger font-weight-bold mb-0" style="font-size: 0.82rem;">
+															<i class="fas fa-exclamation-triangle mr-1"></i> Expired Alert
+														</h6>
+														@if(!empty($notiData['is_active']))
+															<span class="badge badge-danger font-weight-bold" style="font-size: 10px; padding: 2px 5px;">ACTIVE</span>
+														@endif
+													</div>
+													<p class="noti-details mb-0 mt-1" style="font-size: 0.8rem; line-height: 1.3;">
+														<span class="noti-title font-weight-bold text-dark">{{ $notiData['product_name'] ?? 'Product' }}</span>
+														@if(!empty($notiData['package_label']))
+															<span class="text-danger font-weight-bold">{{ $notiData['package_label'] }}</span>
+														@endif
+														is expired ({{ $notiData['quantity'] ?? 0 }} units) and currently Active.
+													</p>
+													<span class="text-muted d-block mt-1" style="font-size: 0.74rem;">Needs action: Review or Deactivate &rarr;</span>
+												@elseif($isExpiringSoonNoti)
+													<div class="d-flex align-items-center justify-content-between">
+														<h6 class="font-weight-bold mb-0" style="font-size: 0.82rem; color: #d97706;">
+															<i class="fas fa-clock mr-1"></i> Expiring Soon
+														</h6>
+														<span class="badge font-weight-bold" style="font-size: 10px; padding: 2px 5px; background: #fef3c7; color: #92400e;">
+															{{ $notiData['days_left'] ?? 30 }}d left
+														</span>
+													</div>
+													<p class="noti-details mb-0 mt-1" style="font-size: 0.8rem; line-height: 1.3;">
+														<span class="noti-title font-weight-bold text-dark">{{ $notiData['product_name'] ?? 'Product' }}</span>
+														@if(!empty($notiData['package_label']))
+															<span class="font-weight-bold" style="color: #d97706;">{{ $notiData['package_label'] }}</span>
+														@endif
+														will expire in {{ $notiData['days_left'] ?? 30 }} days ({{ $notiData['quantity'] ?? 0 }} units).
+													</p>
+													<span class="text-muted d-block mt-1" style="font-size: 0.74rem;">FEFO: Prioritize dispensing &rarr;</span>
+												@else
+													<h6 class="text-warning font-weight-bold mb-0" style="font-size: 0.82rem;">
+														<i class="fe fe-box mr-1"></i> Stock Alert
+													</h6>
+													<p class="noti-details mb-0 mt-1" style="font-size: 0.8rem; line-height: 1.3;">
+														@if(isset($notiData['status']) && $notiData['status'] === 'out_of_stock')
+															<span class="noti-title font-weight-bold text-dark">{{ $notiData['product_name'] ?? 'Product' }}</span> is out of stock.
+														@else
+															<span class="noti-title font-weight-bold text-dark">{{ $notiData['product_name'] ?? 'Product' }}</span> is low on stock ({{ $notiData['quantity'] ?? 0 }} left).
+														@endif
+													</p>
+													<span class="text-muted d-block mt-1" style="font-size: 0.74rem;">Please update purchase quantity &rarr;</span>
+												@endif
+												<p class="noti-time mb-0 mt-1"><span class="notification-time text-muted" style="font-size: 0.72rem;">{{ $notification->created_at->diffForHumans() }}</span></p>
+											</div>
 										</div>
-									</div>
-								</a>
+									</a>
+									@if($isUnreadItem)
+									<button type="button" class="btn btn-link btn-sm text-muted p-0 noti-single-dismiss" data-id="{{ $notification->id }}" title="Mark as read" style="font-size: 13px; opacity: 0.7;">
+										<i class="fas fa-check"></i>
+									</button>
+								@endif
+								</div>
 							</li>
 						@empty
-							<li class="notification-empty">No new notifications</li>
+							<li class="notification-empty">No recent notifications</li>
 						@endforelse
 					</ul>
 				</div>
-				@if($unreadNotificationCount > 0)
-					<div class="topnav-dropdown-footer">
-						<a href="#">View all Notifications</a>
-					</div>
-				@endif
+				<div class="topnav-dropdown-footer">
+					<a href="javascript:void(0);" data-toggle="modal" data-target="#notification-center-modal" class="view-all-notifications-btn">View all Notifications</a>
+				</div>
 			</div>
 		</li>
 		<!-- /Notifications -->
@@ -190,5 +252,14 @@
 			toggle.setAttribute('aria-checked', isDark ? 'true' : 'false');
 			toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
 		}
+
+		document.addEventListener('click', function(e) {
+			if (e.target.closest('.noti-dropdown a')) {
+				var dropdown = document.querySelector('.noti-dropdown');
+				var menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
+				if (dropdown) dropdown.classList.remove('show');
+				if (menu) menu.classList.remove('show');
+			}
+		});
 	})();
 </script>

@@ -21,10 +21,33 @@ class Product extends Model
 
     public static function markExpiredProducts()
     {
-        return static::where('expired', false)
-            ->whereHas('purchase', function ($query) {
-                $query->whereDate('expiry_date', '<=', Carbon::today());
+        $today = Carbon::today()->format('Y-m-d');
+        $count = static::where('expired', false)
+            ->whereHas('purchase', function ($query) use ($today) {
+                $query->whereDate('expiry_date', '<=', $today);
             })
             ->update(['expired' => true]);
+
+        $unmarked = static::where('expired', false)
+            ->whereHas('purchase', function ($query) {
+                $query->whereNotNull('box_expiries');
+            })
+            ->with('purchase')
+            ->get();
+
+        foreach ($unmarked as $prod) {
+            $boxes = $prod->purchase->box_expiries;
+            if (is_array($boxes)) {
+                foreach ($boxes as $b) {
+                    if (!empty($b['expiry_date']) && $b['expiry_date'] <= $today) {
+                        $prod->update(['expired' => true]);
+                        $count++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $count;
     }
 }

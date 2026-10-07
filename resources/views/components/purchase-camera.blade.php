@@ -144,6 +144,32 @@
 			flex-wrap: wrap;
 		}
 	}
+	body.dark-mode .purchase-camera-dialog {
+		background: #1c2025;
+		color: #e2e8f0;
+		border: 1px solid #334155;
+	}
+	body.dark-mode .purchase-camera-header,
+	body.dark-mode .purchase-camera-footer {
+		border-color: #334155;
+	}
+	body.dark-mode .purchase-camera-close {
+		color: #94a3b8;
+	}
+	body.dark-mode .purchase-camera-close:hover {
+		color: #ffffff;
+	}
+	body.dark-mode #purchase-camera-cancel {
+		background-color: #242c38 !important;
+		border-color: #475569 !important;
+		color: #e2e8f0 !important;
+	}
+	body.dark-mode #purchase-camera-cancel:hover,
+	body.dark-mode #purchase-camera-cancel:focus {
+		background-color: #334155 !important;
+		border-color: #64748b !important;
+		color: #ffffff !important;
+	}
 </style>
 @endpush
 

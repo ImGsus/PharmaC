@@ -19,3 +19,43 @@
         </div>
     </div>
 </div>
+
+@once
+@push('page-css')
+<style>
+body.dark-mode #sessionChoiceModal .modal-content {
+    background-color: #1c2025;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+}
+body.dark-mode #sessionChoiceModal .modal-header {
+    border-bottom-color: #334155;
+    background-color: #1c2025;
+}
+body.dark-mode #sessionChoiceModal .modal-footer {
+    border-top-color: #334155;
+    background-color: #1c2025;
+}
+body.dark-mode #sessionChoiceModal .close {
+    color: #94a3b8 !important;
+    text-shadow: none !important;
+    opacity: 0.8 !important;
+}
+body.dark-mode #sessionChoiceModal .close:hover {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+body.dark-mode #pos-session-view-history {
+    background-color: #242c38 !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode #pos-session-view-history:hover,
+body.dark-mode #pos-session-view-history:focus {
+    background-color: #334155 !important;
+    border-color: #64748b !important;
+    color: #ffffff !important;
+}
+</style>
+@endpush
+@endonce

@@ -96,11 +96,12 @@ class PurchaseController extends Controller
                                 'packaging_box' => $purchase->packaging_box,
                                 'quantity_per_box' => $purchase->quantity_per_box,
                                 'expiry' => $purchase->expiry_date ? date_format(date_create($purchase->expiry_date), 'd M, Y') : 'No expiry',
+                                'box_expiries' => $purchase->box_expiries,
                                 'purchased' => optional($purchase->created_at)->format('d M, Y'),
                                 'image' => $purchase->image_url,
                             ];
                         });
-                    $editbtn = '<a href="'.route("purchases.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<a href="'.route("purchases.edit", $row->id).'" data-row-action-name="Purchase" data-row-action-table="purchase-table" data-row-action-list-path="'.route('purchases.index').'" class="dropdown-item editbtn row-action-iframe-edit"><i class="fas fa-edit mr-2"></i>Edit</a>';
                     $deletebtn = '<a data-id="'.$row->supplier_id.'" data-route="'.route('purchases.supplier-destroy', $row->supplier_id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-purchase')) {
                         $editbtn = '';
@@ -111,7 +112,8 @@ class PurchaseController extends Controller
                     $detailbtn = '<button type="button" class="dropdown-item purchase-detail-btn" '
                         . 'data-supplier="'.htmlspecialchars(optional($row->supplier)->name, ENT_QUOTES, 'UTF-8').'" '
                         . 'data-products="'.htmlspecialchars($supplierProducts->toJson(), ENT_QUOTES, 'UTF-8').'" ><i class="fas fa-info-circle mr-2"></i>View Details</button>';
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle purchase-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Purchase actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$detailbtn.'<div class="dropdown-divider"></div>'.$editbtn.$deletebtn.'</div></div>';
+                    $supplierName = htmlspecialchars(optional($row->supplier)->name ?? '', ENT_QUOTES, 'UTF-8');
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle purchase-action-button row-action-modal-trigger" data-action-title="Purchase Actions" data-context-label="Supplier" data-context-value="'.$supplierName.'" aria-haspopup="true" aria-expanded="false" aria-label="Purchase actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$detailbtn.'<div class="dropdown-divider"></div>'.$editbtn.$deletebtn.'</div></div>';
                 })
                 ->rawColumns(['product','action'])
                 ->make(true);
@@ -297,15 +299,54 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $category = Category::find($request->category);
+        $isNoExpiry = ($category && $category->no_expiry) || $request->boolean('no_expiry');
+
+        $boxExpiriesList = [];
+        $dates = [];
+
+        if (!$isNoExpiry) {
+            $rawBoxExpiries = $request->input('box_expiries', []);
+            if (is_array($rawBoxExpiries)) {
+                foreach ($rawBoxExpiries as $idx => $date) {
+                    $trimmed = trim((string)$date);
+                    if (!empty($trimmed)) {
+                        $boxExpiriesList[] = [
+                            'box' => $idx + 1,
+                            'expiry_date' => $trimmed,
+                        ];
+                        $dates[] = $trimmed;
+                    }
+                }
+            }
+            if ($request->filled('loose_expiry')) {
+                $looseDate = trim((string)$request->loose_expiry);
+                if (!empty($looseDate)) {
+                    $boxExpiriesList[] = [
+                        'box' => 'Loose Items',
+                        'expiry_date' => $looseDate,
+                    ];
+                    $dates[] = $looseDate;
+                }
+            }
+        }
+
+        $effectiveExpiryDate = null;
+        if (!$isNoExpiry) {
+            if (!empty($dates)) {
+                $effectiveExpiryDate = min($dates);
+            } elseif ($request->filled('expiry_date')) {
+                $effectiveExpiryDate = $request->expiry_date;
+            }
+        }
+
         $this->validate($request,[
             'product'=>'required|max:200',
             'category'=>'required|exists:categories,id',
             'cost_price'=>'required|min:1',
-            'item_quantity'=>'required|integer|min:0',
-            'packaging_box'=>'required|integer|min:0',
-            'quantity_per_box'=>'required|integer|min:0',
-            'total_quantity'=>'required|integer|min:0',
-            'expiry_date'=>$category && ($category->no_expiry || $request->boolean('no_expiry')) ? 'nullable' : 'required',
+            'item_quantity'=>'nullable|integer|min:0',
+            'packaging_box'=>'nullable|integer|min:0',
+            'quantity_per_box'=>'nullable|integer|min:0',
+            'total_quantity'=>'nullable|integer|min:0',
             'supplier'=>'required',
             'batch_number'=>'nullable|string|max:100',
             'manufacture_date'=>'nullable|date',
@@ -315,6 +356,30 @@ class PurchaseController extends Controller
             'image'=>'file|image|mimes:jpg,jpeg,png,gif',
             'barcode'=>['nullable', 'string', 'max:100', Rule::unique('products', 'barcode')],
         ]);
+
+        if (!$isNoExpiry && empty($effectiveExpiryDate)) {
+            return redirect()->back()->withInput()->withErrors([
+                'expiry_date' => 'Please provide at least one expiration date for the items/packaging boxes or product.',
+            ]);
+        }
+
+        $itemQty = (int)$request->input('item_quantity', 0);
+        $boxQty = (int)$request->input('packaging_box', 0);
+        $perBox = (int)$request->input('quantity_per_box', 0);
+
+        if ($boxQty > 0 && $perBox <= 0) {
+            return redirect()->back()->withInput()->withErrors([
+                'quantity_per_box' => 'Please specify the quantity inside per packaging box.',
+            ]);
+        }
+
+        // Compute incoming amounts
+        $incomingTotal = $itemQty + ($boxQty * $perBox);
+        if ($incomingTotal <= 0) {
+            return redirect()->back()->withInput()->withErrors([
+                'total_quantity' => 'Total quantity must be greater than 0. Please enter item quantity or packaging boxes.',
+            ]);
+        }
 
         if ($request->supplier === 'pending') {
             $pendingSupplier = $request->session()->pull('pending_supplier');
@@ -328,24 +393,22 @@ class PurchaseController extends Controller
             $request->merge(['supplier' => $supplier->id]);
         }
 
-        // Compute incoming amounts
-        $incomingTotal = (int)$request->item_quantity + ((int)$request->packaging_box * (int)$request->quantity_per_box);
-
         // If a purchase with same product (case-insensitive) and supplier exists, update its quantities instead of creating a new row
         $existing = Purchase::whereRaw('LOWER(TRIM(product)) = ?', [strtolower(trim($request->product))])
             ->where('supplier_id', $request->supplier)
             ->first();
 
         if ($existing) {
-            $existing->item_quantity = ((int)$existing->item_quantity) + (int)$request->item_quantity;
+            $existing->item_quantity = ((int)$existing->item_quantity) + $itemQty;
             // update packaging/box info to the latest submission (optional)
-            $existing->packaging_box = $request->packaging_box;
-            $existing->quantity_per_box = $request->quantity_per_box;
+            $existing->packaging_box = $boxQty;
+            $existing->quantity_per_box = $perBox;
             $existing->quantity = ((int)$existing->quantity) + $incomingTotal;
             $existing->total_quantity = ((int)$existing->total_quantity) + $incomingTotal;
             // update cost/expiry to latest values (keep image unchanged)
             $existing->cost_price = $request->cost_price;
-            $existing->expiry_date = $request->expiry_date;
+            $existing->expiry_date = $effectiveExpiryDate;
+            $existing->box_expiries = !empty($boxExpiriesList) ? $boxExpiriesList : null;
             $existing->batch_number = $request->batch_number ?: $existing->batch_number;
             $existing->manufacture_date = $request->manufacture_date ?: $existing->manufacture_date;
             $existing->reorder_level = $request->input('reorder_level', $existing->reorder_level ?: 10);
@@ -378,7 +441,19 @@ class PurchaseController extends Controller
                 ]
             );
 
-            $notifications = notify("Purchase updated (quantities increased)");
+            $hasExpired = \App\Services\ExpiryNotificationService::checkAndNotifyPurchase($existing);
+            $msg = $hasExpired > 0
+                ? "Purchase updated. ⚠️ Notice: Product contains expired stock and is currently Active!"
+                : "Purchase updated (quantities increased)";
+            $notifications = notify($msg, $hasExpired > 0 ? 'warning' : 'success');
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $msg]);
+            }
+
+            if ($request->input('redirect_to') === 'products.index' || ($request->headers->get('referer') && str_contains($request->headers->get('referer'), '/products') && !str_contains($request->headers->get('referer'), '/purchases'))) {
+                return redirect()->route('products.index')->with($notifications);
+            }
+
             return redirect()->route('purchases.index')->with($notifications);
         }
 
@@ -396,11 +471,12 @@ class PurchaseController extends Controller
             'supplier_id'=>$request->supplier,
             'cost_price'=>$request->cost_price,
             'quantity'=>$incomingTotal,
-            'item_quantity'=>$request->item_quantity,
-            'packaging_box'=>$request->packaging_box,
-            'quantity_per_box'=>$request->quantity_per_box,
+            'item_quantity'=>$itemQty,
+            'packaging_box'=>$boxQty,
+            'quantity_per_box'=>$perBox,
             'total_quantity'=>$incomingTotal,
-            'expiry_date'=>$request->expiry_date,
+            'expiry_date'=>$effectiveExpiryDate,
+            'box_expiries'=>!empty($boxExpiriesList) ? $boxExpiriesList : null,
             'image'=>$imageName,
             'batch_number'=>$request->batch_number,
             'manufacture_date'=>$request->manufacture_date,
@@ -434,7 +510,17 @@ class PurchaseController extends Controller
             'notes' => 'Purchase received.',
         ]);
 
-        return redirect()->route('purchases.index', ['purchase_created' => 1]);
+        $hasExpired = \App\Services\ExpiryNotificationService::checkAndNotifyPurchase($purchase);
+        $msg = $hasExpired > 0
+            ? "Product purchase added. ⚠️ Notice: Product contains expired stock and is currently Active!"
+            : "Product purchase has been added successfully";
+        $notification = notify($msg, $hasExpired > 0 ? 'warning' : 'success');
+
+        if ($request->input('redirect_to') === 'products.index' || ($request->headers->get('referer') && str_contains($request->headers->get('referer'), '/products') && !str_contains($request->headers->get('referer'), '/purchases'))) {
+            return redirect()->route('products.index')->with($notification);
+        }
+
+        return redirect()->route('purchases.index', ['purchase_created' => 1])->with($notification);
     }
 
     
@@ -469,10 +555,10 @@ class PurchaseController extends Controller
             'product'=>'required|max:200',
             'category'=>'required|exists:categories,id',
             'cost_price'=>'required|min:1',
-            'item_quantity'=>'required|integer|min:0',
-            'packaging_box'=>'required|integer|min:0',
-            'quantity_per_box'=>'required|integer|min:0',
-            'total_quantity'=>'required|integer|min:0',
+            'item_quantity'=>'nullable|integer|min:0',
+            'packaging_box'=>'nullable|integer|min:0',
+            'quantity_per_box'=>'nullable|integer|min:0',
+            'total_quantity'=>'nullable|integer|min:0',
             'expiry_date'=>$category && ($category->no_expiry || $request->boolean('no_expiry')) ? 'nullable' : 'required',
             'supplier'=>'required',
             'batch_number'=>'nullable|string|max:100',
@@ -482,6 +568,23 @@ class PurchaseController extends Controller
             'expected_delivery_date'=>'nullable|date',
             'image'=>'file|image|mimes:jpg,jpeg,png,gif',
         ]);
+
+        $itemQty = (int)$request->input('item_quantity', 0);
+        $boxQty = (int)$request->input('packaging_box', 0);
+        $perBox = (int)$request->input('quantity_per_box', 0);
+
+        if ($boxQty > 0 && $perBox <= 0) {
+            return redirect()->back()->withInput()->withErrors([
+                'quantity_per_box' => 'Please specify the quantity inside per packaging box.',
+            ]);
+        }
+
+        $computedTotal = $itemQty + ($boxQty * $perBox);
+        if ($computedTotal <= 0) {
+            return redirect()->back()->withInput()->withErrors([
+                'total_quantity' => 'Total quantity must be greater than 0. Please enter item quantity or packaging boxes.',
+            ]);
+        }
 
         $duplicate = Purchase::whereRaw('LOWER(product) = ?', [strtolower($request->product)])
             ->where('category_id', $request->category)
@@ -511,16 +614,15 @@ class PurchaseController extends Controller
             $imageName = app(OrganizedFileStorage::class)->store($request->image, 'purchases');
         }
 
-        $computedTotal = $request->item_quantity + ($request->packaging_box * $request->quantity_per_box);
         $purchase->update([
             'product'=>$request->product,
             'category_id'=>$request->category,
             'supplier_id'=>$request->supplier,
             'cost_price'=>$request->cost_price,
             'quantity'=>$computedTotal,
-            'item_quantity'=>$request->item_quantity,
-            'packaging_box'=>$request->packaging_box,
-            'quantity_per_box'=>$request->quantity_per_box,
+            'item_quantity'=>$itemQty,
+            'packaging_box'=>$boxQty,
+            'quantity_per_box'=>$perBox,
             'total_quantity'=>$computedTotal,
             'expiry_date'=>$request->expiry_date,
             'image'=>$imageName,
@@ -532,7 +634,12 @@ class PurchaseController extends Controller
             'received_date'=>$purchase->received_date ?: now()->toDateString(),
             'status'=>$purchase->status ?: 'received',
         ]);
-        $notifications = notify("Purchase has been updated");
+
+        $hasExpired = \App\Services\ExpiryNotificationService::checkAndNotifyPurchase($purchase);
+        $msg = $hasExpired > 0
+            ? "Purchase updated. ⚠️ Notice: Product contains expired stock and is currently Active!"
+            : "Purchase has been updated";
+        $notifications = notify($msg, $hasExpired > 0 ? 'warning' : 'success');
         return redirect()->route('purchases.index')->with($notifications);
     }
 

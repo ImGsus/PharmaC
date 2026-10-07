@@ -34,7 +34,8 @@ class PermissionController extends Controller
                         if(!auth()->user()->hasPermissionTo('destroy-permission')){
                             $deletebtn = '';
                         }
-                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle permission-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Permission actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
+                        $permissionName = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
+                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle permission-action-button row-action-modal-trigger" data-action-title="Permission Actions" data-context-label="Name" data-context-value="'.$permissionName.'" aria-haspopup="true" aria-expanded="false" aria-label="Permission actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
                     })
                     ->rawColumns(['action'])
                     ->make(true);

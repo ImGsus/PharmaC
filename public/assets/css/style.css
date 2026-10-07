@@ -120,9 +120,26 @@ body.dark-mode .modal-footer {
 }
 
 body.dark-mode .modal-title,
-body.dark-mode .modal-header .close,
 body.dark-mode .modal label {
 	color: rgb(231, 233, 236);
+}
+
+body.dark-mode .modal-header .close,
+body.dark-mode .close,
+body.dark-mode button.close {
+	color: #94a3b8 !important;
+	text-shadow: none !important;
+	opacity: 0.8 !important;
+}
+
+body.dark-mode .modal-header .close:hover,
+body.dark-mode .modal-header .close:focus,
+body.dark-mode .close:hover,
+body.dark-mode .close:focus,
+body.dark-mode button.close:hover,
+body.dark-mode button.close:focus {
+	color: #ffffff !important;
+	opacity: 1 !important;
 }
 
 #user-camera-cancel,
@@ -147,9 +164,9 @@ body.dark-mode .modal label {
 body.dark-mode #user-camera-cancel,
 body.dark-mode #user-create-camera-cancel,
 body.dark-mode #profile-camera-cancel {
-	background-color: #e2e8f0 !important;
-	border-color: #cbd5e1 !important;
-	color: #1f2937 !important;
+	background-color: #242c38 !important;
+	border-color: #475569 !important;
+	color: #e2e8f0 !important;
 }
 
 body.dark-mode #user-camera-cancel:hover,
@@ -158,9 +175,9 @@ body.dark-mode #user-create-camera-cancel:hover,
 body.dark-mode #user-create-camera-cancel:focus,
 body.dark-mode #profile-camera-cancel:hover,
 body.dark-mode #profile-camera-cancel:focus {
-	background-color: #69d9aa !important;
-	border-color: #69d9aa !important;
-	color: #10231d !important;
+	background-color: #334155 !important;
+	border-color: #64748b !important;
+	color: #ffffff !important;
 }
 
 body.dark-mode .profile-header,
@@ -296,19 +313,84 @@ body.dark-mode .page-wrapper #sales-table tbody tr th:last-child {
 }
 
 body.dark-mode .btn-outline-secondary,
-body.dark-mode .btn-default {
-	color: #111827;
-	background-color: #f8fafc;
-	border-color: #f8fafc;
+body.dark-mode .btn-secondary,
+body.dark-mode .btn-default,
+body.dark-mode .btn-light {
+	color: #e2e8f0 !important;
+	background-color: #242c38 !important;
+	border-color: #475569 !important;
 }
 
-body.dark-mode .btn-light,
+body.dark-mode .btn-outline-secondary:hover,
+body.dark-mode .btn-outline-secondary:focus,
+body.dark-mode .btn-outline-secondary:active,
+body.dark-mode .btn-secondary:hover,
+body.dark-mode .btn-secondary:focus,
+body.dark-mode .btn-secondary:active,
+body.dark-mode .btn-default:hover,
+body.dark-mode .btn-default:focus,
+body.dark-mode .btn-default:active,
 body.dark-mode .btn-light:hover,
 body.dark-mode .btn-light:focus,
 body.dark-mode .btn-light:active {
-	color: #f8fafc !important;
-	background-color: #111827 !important;
+	color: #ffffff !important;
+	background-color: #334155 !important;
+	border-color: #64748b !important;
+}
+
+/* All Back, Close, Cancel and Secondary Outline Buttons in Dark Mode */
+body.dark-mode .modal-footer .btn-secondary,
+body.dark-mode .modal-footer .btn-outline-secondary,
+body.dark-mode .modal-footer .btn-light,
+body.dark-mode .modal-footer [data-dismiss="modal"],
+body.dark-mode .btn-back,
+body.dark-mode .back-btn,
+body.dark-mode .purchase-step-prev-btn,
+body.dark-mode .pos-session-back-btn,
+body.dark-mode .prescription-analysis-cancel,
+body.dark-mode [data-action="back"] {
+	color: #e2e8f0 !important;
+	background-color: #242c38 !important;
 	border-color: #475569 !important;
+}
+
+body.dark-mode .modal-footer .btn-secondary:hover,
+body.dark-mode .modal-footer .btn-outline-secondary:hover,
+body.dark-mode .modal-footer .btn-light:hover,
+body.dark-mode .modal-footer [data-dismiss="modal"]:hover,
+body.dark-mode .modal-footer .btn-secondary:focus,
+body.dark-mode .modal-footer .btn-outline-secondary:focus,
+body.dark-mode .modal-footer .btn-light:focus,
+body.dark-mode .modal-footer [data-dismiss="modal"]:focus,
+body.dark-mode .btn-back:hover,
+body.dark-mode .btn-back:focus,
+body.dark-mode .back-btn:hover,
+body.dark-mode .back-btn:focus,
+body.dark-mode .purchase-step-prev-btn:hover,
+body.dark-mode .purchase-step-prev-btn:focus,
+body.dark-mode .pos-session-back-btn:hover,
+body.dark-mode .pos-session-back-btn:focus,
+body.dark-mode .prescription-analysis-cancel:hover,
+body.dark-mode .prescription-analysis-cancel:focus,
+body.dark-mode [data-action="back"]:hover,
+body.dark-mode [data-action="back"]:focus {
+	color: #ffffff !important;
+	background-color: #334155 !important;
+	border-color: #64748b !important;
+}
+
+body.dark-mode .pos-session-back-btn i,
+body.dark-mode .btn-back i,
+body.dark-mode .back-btn i,
+body.dark-mode .purchase-step-prev-btn i {
+	color: #cbd5e1 !important;
+}
+
+body.dark-mode .pos-session-back-btn:hover i,
+body.dark-mode .btn-back:hover i,
+body.dark-mode .back-btn:hover i,
+body.dark-mode .purchase-step-prev-btn:hover i {
+	color: #ffffff !important;
 }
 
 body.dark-mode .page-link,
@@ -1365,9 +1447,16 @@ body.dark-mode .btn-light,
 body.dark-mode .btn-light:hover,
 body.dark-mode .btn-light:focus,
 body.dark-mode .btn-light:active {
-	color: #111827 !important;
-	background-color: #f8fafc !important;
-	border-color: #f8fafc !important;
+	color: #ffffff !important;
+	background-color: #242c38 !important;
+	border-color: #475569 !important;
+}
+
+body.dark-mode .btn-light:hover,
+body.dark-mode .btn-light:focus,
+body.dark-mode .btn-light:active {
+	background-color: #334155 !important;
+	border-color: #64748b !important;
 }
 
 body.dark-mode .text-muted,

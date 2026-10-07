@@ -19,9 +19,9 @@
 	#roleCreateModal .modal-footer .btn-light { color: #344054; background: #f8fafc; border-color: #cbd5e1; }
 	#roleCreateModal .modal-footer .btn-light:hover,
 	#roleCreateModal .modal-footer .btn-light:focus { color: #fff; background: #2563eb; border-color: #2563eb; }
-	body.dark-mode #roleCreateModal .modal-footer .btn-light { color: #10231d; background: #f8fafc; border-color: #cbd5e1; }
+	body.dark-mode #roleCreateModal .modal-footer .btn-light { color: #e2e8f0; background: #242c38; border-color: #475569; }
 	body.dark-mode #roleCreateModal .modal-footer .btn-light:hover,
-	body.dark-mode #roleCreateModal .modal-footer .btn-light:focus { color: #10231d !important; background: #69d9aa !important; border-color: #69d9aa !important; }
+	body.dark-mode #roleCreateModal .modal-footer .btn-light:focus { color: #ffffff !important; background: #334155 !important; border-color: #64748b !important; }
 </style>
 @endpush
 

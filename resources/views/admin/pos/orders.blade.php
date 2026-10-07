@@ -460,13 +460,19 @@
 
         Array.prototype.forEach.call(grid.querySelectorAll('.pos-v2-tile[data-id]'), function (tile) {
             tile.addEventListener('click', function () {
-                addToCart({
-                    id:      tile.getAttribute('data-id'),
-                    name:    tile.getAttribute('data-name'),
-                    price:   parseFloat(tile.getAttribute('data-price')) || 0,
-                    stock:   parseInt(tile.getAttribute('data-stock') || '0', 10),
-                    expired: tile.getAttribute('data-expired') === '1',
-                });
+                var pId = tile.getAttribute('data-id');
+                var productObj = products.find(function(item) { return String(item.id) === String(pId); });
+                if (productObj) {
+                    addToCart(productObj);
+                } else {
+                    addToCart({
+                        id:      tile.getAttribute('data-id'),
+                        name:    tile.getAttribute('data-name'),
+                        price:   parseFloat(tile.getAttribute('data-price')) || 0,
+                        stock:   parseInt(tile.getAttribute('data-stock') || '0', 10),
+                        expired: tile.getAttribute('data-expired') === '1',
+                    });
+                }
             });
         });
     }
@@ -495,6 +501,83 @@
         window.history.replaceState({}, '', url.toString());
     }
 
+    function initCartBoxes(p) {
+        var rawBoxes = (p.box_expiries && Array.isArray(p.box_expiries)) ? p.box_expiries : [];
+        var boxCount = parseInt(p.packaging_box, 10) || rawBoxes.length;
+        var qtyPerBox = parseInt(p.quantity_per_box, 10) || 0;
+        var stock = parseInt(p.stock, 10) || 0;
+        var looseQty = parseInt(p.item_quantity, 10) || 0;
+        if (boxCount > 0 && qtyPerBox <= 0) {
+            qtyPerBox = Math.max(1, Math.round((stock - looseQty) / boxCount));
+        }
+
+        if (boxCount <= 0 && rawBoxes.length === 0) {
+            return null;
+        }
+
+        var todayStr = new Date().toISOString().slice(0, 10);
+        var boxes = [];
+        var count = Math.max(boxCount, rawBoxes.length);
+
+        for (var i = 1; i <= count; i++) {
+            var raw = rawBoxes.find(function(b) { return parseInt(b.box, 10) === i; }) || rawBoxes[i - 1] || null;
+            var expDate = raw && raw.expiry_date ? raw.expiry_date : null;
+            var isExpired = false;
+            if (expDate) {
+                isExpired = (expDate <= todayStr);
+            } else if (p.expired) {
+                isExpired = true;
+            }
+
+            boxes.push({
+                box_num: i,
+                label: 'Packaging Box#' + i,
+                expiry_date: expDate,
+                is_expired: isExpired,
+                capacity: qtyPerBox > 0 ? qtyPerBox : 1,
+                qty: 0
+            });
+        }
+        return boxes;
+    }
+
+    function distributeQtyToBoxes(boxes, totalQty) {
+        if (!boxes || boxes.length === 0) return;
+        boxes.forEach(function(b) { b.qty = 0; });
+        var rem = totalQty;
+        // 1. Fill fresh boxes first
+        for (var i = 0; i < boxes.length; i++) {
+            if (!boxes[i].is_expired && rem > 0) {
+                var cap = boxes[i].capacity || 1;
+                var take = Math.min(rem, cap);
+                boxes[i].qty = take;
+                rem -= take;
+            }
+        }
+        // 2. Fill expired boxes
+        for (var j = 0; j < boxes.length; j++) {
+            if (boxes[j].is_expired && rem > 0) {
+                var cap = boxes[j].capacity || 1;
+                var take = Math.min(rem, cap);
+                boxes[j].qty = take;
+                rem -= take;
+            }
+        }
+        // 3. Overflow goes into the last box
+        if (rem > 0 && boxes.length > 0) {
+            boxes[boxes.length - 1].qty += rem;
+        }
+    }
+
+    function isCartItemExpired(c) {
+        if (c.boxes && c.boxes.length > 0) {
+            return c.boxes.some(function(b) {
+                return b.is_expired && (b.qty > 0);
+            });
+        }
+        return Boolean(c.expired);
+    }
+
     function addToCart(p) {
         // If already in cart, increment qty (up to stock)
         for (var i = 0; i < cart.length; i++) {
@@ -504,11 +587,33 @@
                     return false;
                 }
                 cart[i].qty += 1;
+                if (cart[i].boxes && cart[i].boxes.length > 0) {
+                    distributeQtyToBoxes(cart[i].boxes, cart[i].qty);
+                }
                 renderCart();
                 return true;
             }
         }
-        cart.push({ id: p.id, name: p.name, price: p.price, qty: 1, stock: p.stock, expired: p.expired });
+
+        var boxes = initCartBoxes(p);
+        if (boxes && boxes.length > 0) {
+            distributeQtyToBoxes(boxes, 1);
+        }
+
+        cart.push({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            qty: 1,
+            stock: p.stock,
+            expired: p.expired,
+            packaging_box: p.packaging_box || 0,
+            quantity_per_box: p.quantity_per_box || 0,
+            item_quantity: p.item_quantity || 0,
+            box_expiries: p.box_expiries || [],
+            boxes: boxes,
+            expanded: false
+        });
         renderCart();
         return true;
     }
@@ -518,19 +623,163 @@
             itemsTbody.innerHTML = '';
             itemsTbody.appendChild(emptyRow);
         } else {
-            itemsTbody.innerHTML = cart.map(function (c, idx) {
-                return '<tr class="pos-v2-item-row' + (c.expired ? ' row-expired' : '') + '" data-idx="' + idx + '">'
-                    + '<td>'
-                    +   '<input type="hidden" name="items[' + idx + '][product]" value="' + escapeHtml(c.id) + '">'
-                    +   escapeHtml(c.name) + (c.expired ? ' <small class="text-danger">⚠</small>' : '')
-                    + '</td>'
-                    + '<td class="text-center">'
-                    +   '<input type="number" class="form-control form-control-sm text-center pos-v2-qty" name="items[' + idx + '][quantity]" min="1" max="' + escapeHtml(c.stock) + '" value="' + escapeHtml(c.qty) + '">'
-                    + '</td>'
-                    + '<td class="text-right">' + money(c.price * c.qty) + '</td>'
-                    + '<td class="text-right"><button type="button" class="btn btn-link text-danger pos-v2-row-remove" data-idx="' + idx + '"><i class="fas fa-times"></i></button></td>'
-                    + '</tr>';
-            }).join('');
+            var rowsHtml = '';
+            cart.forEach(function (c, idx) {
+                var itemExpired = isCartItemExpired(c);
+                var hasBoxes = c.boxes && c.boxes.length > 0;
+
+                if (c.expanded && hasBoxes) {
+                    // Expanded temporary breakdown view
+                    c.boxes.forEach(function (b, bIdx) {
+                        var boxExpired = Boolean(b.is_expired);
+                        var expIcon = boxExpired ? ' <span class="text-danger font-weight-bold ml-1" title="Expired">⚠</span>' : '';
+                        var boxBadge = ' <span class="badge ' + (boxExpired ? 'badge-danger' : 'badge-light border') + ' ml-1" style="font-size:0.75rem; padding: 2px 6px;">' + escapeHtml(b.label) + '</span>';
+                        var boxBtn = ' <button type="button" class="btn pos-v2-box-btn ml-1" data-action="toggle-boxes" data-idx="' + idx + '" title="Collapse Breakdown">...</button>';
+
+                        rowsHtml += '<tr class="pos-v2-item-box-row' + (boxExpired ? ' is-expired-box' : '') + '" data-item-idx="' + idx + '" data-box-idx="' + bIdx + '">'
+                            + '<td>'
+                            +   (bIdx === 0
+                                    ? '<input type="hidden" name="items[' + idx + '][product]" value="' + escapeHtml(c.id) + '">'
+                                      + '<input type="hidden" class="pos-v2-parent-qty" name="items[' + idx + '][quantity]" value="' + escapeHtml(c.qty) + '">'
+                                    : '')
+                            +   '<div class="d-inline-flex align-items-center flex-wrap" style="gap: 4px;">'
+                            +       '<span class="pos-v2-item-name font-weight-600">' + escapeHtml(c.name) + '</span>'
+                            +       expIcon
+                            +       boxBadge
+                            +       boxBtn
+                            +   '</div>'
+                            + '</td>'
+                            + '<td class="text-center">'
+                            +   '<input type="number" class="form-control form-control-sm text-center pos-v2-box-qty" data-item-idx="' + idx + '" data-box-idx="' + bIdx + '" min="0" max="' + escapeHtml(b.capacity) + '" value="' + escapeHtml(b.qty) + '">'
+                            + '</td>'
+                            + '<td class="text-right pos-v2-box-line-total">' + money(c.price * b.qty) + '</td>'
+                            + '<td class="text-right">'
+                            +   (bIdx === 0 ? '<button type="button" class="btn btn-link text-danger pos-v2-row-remove" data-idx="' + idx + '" title="Remove product"><i class="fas fa-times"></i></button>' : '')
+                            + '</td>'
+                            + '</tr>';
+                    });
+
+                    // Footer row with expired notice(s) and Done button
+                    var expiredNoticesHtml = '';
+                    var expiredBoxes = c.boxes.filter(function (b) { return b.is_expired; });
+                    if (expiredBoxes.length > 0) {
+                        expiredNoticesHtml = expiredBoxes.map(function (b) {
+                            return '<div class="text-danger font-weight-bold" style="font-size: 0.82rem; line-height: 1.4;">'
+                                 +   '&rarr; ' + escapeHtml(b.label.replace('Packaging Box#', 'Packaging Box #')) + ' Is already EXPIRED'
+                                 + '</div>';
+                        }).join('');
+                    }
+
+                    rowsHtml += '<tr class="pos-v2-box-footer-row" data-idx="' + idx + '">'
+                        + '<td colspan="4" class="py-2 px-3">'
+                        +   '<div class="d-flex align-items-center justify-content-between flex-wrap" style="gap: 8px;">'
+                        +     '<div class="pos-v2-box-expired-notices">' + (expiredNoticesHtml || '<span class="text-muted small">No expired boxes in this package.</span>') + '</div>'
+                        +     '<div><button type="button" class="btn btn-sm pos-v2-box-done-btn" data-idx="' + idx + '">Done</button></div>'
+                        +   '</div>'
+                        + '</td>'
+                        + '</tr>';
+                } else {
+                    // Normal collapsed row
+                    var expIcon = itemExpired ? ' <span class="text-danger font-weight-bold ml-1" title="Contains expired stock">⚠</span>' : '';
+                    var boxBtn = hasBoxes ? ' <button type="button" class="btn pos-v2-box-btn ml-1" data-action="toggle-boxes" data-idx="' + idx + '" title="View Packaging Boxes Breakdown">...</button>' : '';
+
+                    rowsHtml += '<tr class="pos-v2-item-row' + (itemExpired ? ' row-expired' : '') + '" data-idx="' + idx + '">'
+                        + '<td>'
+                        +   '<input type="hidden" name="items[' + idx + '][product]" value="' + escapeHtml(c.id) + '">'
+                        +   '<div class="d-inline-flex align-items-center">'
+                        +       '<span class="pos-v2-item-name font-weight-600">' + escapeHtml(c.name) + '</span>'
+                        +       expIcon
+                        +       boxBtn
+                        +   '</div>'
+                        + '</td>'
+                        + '<td class="text-center">'
+                        +   '<input type="number" class="form-control form-control-sm text-center pos-v2-qty" name="items[' + idx + '][quantity]" min="1" max="' + escapeHtml(c.stock) + '" value="' + escapeHtml(c.qty) + '">'
+                        + '</td>'
+                        + '<td class="text-right">' + money(c.price * c.qty) + '</td>'
+                        + '<td class="text-right"><button type="button" class="btn btn-link text-danger pos-v2-row-remove" data-idx="' + idx + '"><i class="fas fa-times"></i></button></td>'
+                        + '</tr>';
+                }
+            });
+
+            itemsTbody.innerHTML = rowsHtml;
+
+            // Box toggle buttons
+            Array.prototype.forEach.call(itemsTbody.querySelectorAll('.pos-v2-box-btn[data-action="toggle-boxes"]'), function (btn) {
+                btn.addEventListener('click', function () {
+                    var idx = parseInt(btn.getAttribute('data-idx'), 10);
+                    if (cart[idx]) {
+                        cart[idx].expanded = !cart[idx].expanded;
+                        renderCart();
+                    }
+                });
+            });
+
+            // Box Done buttons
+            Array.prototype.forEach.call(itemsTbody.querySelectorAll('.pos-v2-box-done-btn'), function (btn) {
+                btn.addEventListener('click', function () {
+                    var idx = parseInt(btn.getAttribute('data-idx'), 10);
+                    if (cart[idx]) {
+                        cart[idx].expanded = false;
+                        if (cart[idx].qty <= 0) {
+                            cart.splice(idx, 1);
+                        }
+                        renderCart();
+                    }
+                });
+            });
+
+            // Box quantity inputs
+            Array.prototype.forEach.call(itemsTbody.querySelectorAll('.pos-v2-box-qty'), function (inp) {
+                inp.addEventListener('focus', function () {
+                    inp.select();
+                });
+                inp.addEventListener('input', function () {
+                    var itemIdx = parseInt(inp.getAttribute('data-item-idx'), 10);
+                    var boxIdx  = parseInt(inp.getAttribute('data-box-idx'), 10);
+                    var valStr  = (inp.value || '').trim();
+                    if (valStr === '') return;
+                    var q = parseInt(valStr, 10);
+                    if (isNaN(q) || q < 0) q = 0;
+                    var box = cart[itemIdx] && cart[itemIdx].boxes && cart[itemIdx].boxes[boxIdx];
+                    if (!box) return;
+                    if (q > box.capacity) {
+                        q = box.capacity;
+                        inp.value = q;
+                    }
+                    box.qty = q;
+                    var row = inp.closest('tr');
+                    if (row) {
+                        var priceCell = row.querySelector('.pos-v2-box-line-total');
+                        if (priceCell) priceCell.textContent = money(cart[itemIdx].price * q);
+                    }
+                    var total = cart[itemIdx].boxes.reduce(function (sum, b) { return sum + (b.qty || 0); }, 0);
+                    cart[itemIdx].qty = total;
+                    var hiddenInput = itemsTbody.querySelector('input.pos-v2-parent-qty[name="items[' + itemIdx + '][quantity]"]');
+                    if (hiddenInput) hiddenInput.value = total;
+                    recalcTotals();
+                });
+                inp.addEventListener('blur', function () {
+                    var itemIdx = parseInt(inp.getAttribute('data-item-idx'), 10);
+                    var boxIdx  = parseInt(inp.getAttribute('data-box-idx'), 10);
+                    var valStr  = (inp.value || '').trim();
+                    var q = parseInt(valStr, 10);
+                    if (isNaN(q) || q < 0) q = 0;
+                    var box = cart[itemIdx] && cart[itemIdx].boxes && cart[itemIdx].boxes[boxIdx];
+                    if (!box) return;
+                    if (q > box.capacity) {
+                        q = box.capacity;
+                    }
+                    box.qty = q;
+                    inp.value = q;
+                    var total = cart[itemIdx].boxes.reduce(function (sum, b) { return sum + (b.qty || 0); }, 0);
+                    cart[itemIdx].qty = total;
+                    var hiddenInput = itemsTbody.querySelector('input.pos-v2-parent-qty[name="items[' + itemIdx + '][quantity]"]');
+                    if (hiddenInput) hiddenInput.value = total;
+                    recalcTotals();
+                });
+            });
+
+            // Standard cart quantity inputs
             Array.prototype.forEach.call(itemsTbody.querySelectorAll('.pos-v2-qty'), function (inp) {
                 inp.addEventListener('focus', function () {
                     inp.select();
@@ -538,22 +787,19 @@
                 inp.addEventListener('input', function () {
                     var idx = parseInt(inp.closest('tr').getAttribute('data-idx'), 10);
                     var value = (inp.value || '').trim();
-                    if (value === '') {
-                        return;
-                    }
+                    if (value === '') return;
                     var q = parseInt(value, 10);
-                    if (Number.isNaN(q)) {
-                        return;
-                    }
+                    if (isNaN(q)) return;
                     if (q < 1) q = 1;
                     if (q <= cart[idx].stock) {
                         cart[idx].qty = q;
+                        if (cart[idx].boxes && cart[idx].boxes.length > 0) {
+                            distributeQtyToBoxes(cart[idx].boxes, q);
+                        }
                         var row = inp.closest('tr');
                         if (row) {
                             var priceCell = row.querySelector('td.text-right');
-                            if (priceCell) {
-                                priceCell.textContent = money(cart[idx].price * q);
-                            }
+                            if (priceCell) priceCell.textContent = money(cart[idx].price * q);
                         }
                         recalcTotals();
                     }
@@ -562,9 +808,7 @@
                     var idx = parseInt(inp.closest('tr').getAttribute('data-idx'), 10);
                     var value = (inp.value || '').trim();
                     var q = parseInt(value, 10);
-                    if (Number.isNaN(q) || q < 1) {
-                        q = 1;
-                    }
+                    if (isNaN(q) || q < 1) q = 1;
                     if (q > cart[idx].stock) {
                         q = cart[idx].stock;
                         if (window.Snackbar) {
@@ -580,10 +824,15 @@
                         }
                     }
                     cart[idx].qty = q;
+                    if (cart[idx].boxes && cart[idx].boxes.length > 0) {
+                        distributeQtyToBoxes(cart[idx].boxes, q);
+                    }
                     inp.value = q;
                     renderCart();
                 });
             });
+
+            // Row remove buttons
             Array.prototype.forEach.call(itemsTbody.querySelectorAll('.pos-v2-row-remove'), function (btn) {
                 btn.addEventListener('click', function () {
                     var idx = parseInt(btn.getAttribute('data-idx'), 10);

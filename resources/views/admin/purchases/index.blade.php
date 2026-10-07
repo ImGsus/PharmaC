@@ -6,40 +6,165 @@
 <style>
 	.purchase-products-list .purchase-product-option {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
+		gap: 9px;
 		min-width: 0;
-		position: relative;
-		padding-right: 10px;
+		width: 100%;
+		min-height: 40px;
+		margin: 0;
+		padding: 7px 9px;
+		border: 1px solid #e2e8f0;
+		border-radius: 6px;
+		box-sizing: border-box;
+		cursor: default;
+		font-weight: 400;
+		line-height: 1.35;
 	}
 
 	.purchase-products-list {
 		display: grid;
-		grid-template-columns: repeat(5, minmax(0, 1fr));
-		gap: 6px 8px;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 8px;
 		width: 100%;
 		max-width: 100%;
 	}
 
-	.purchase-products-list .purchase-product-option:not(:last-child)::after {
-		content: ',';
-		position: absolute;
-		right: 1px;
-		top: 2px;
+	.purchase-detail-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		margin: 0 0 12px;
+	}
+
+	.purchase-detail-search {
+		flex: 1 1 220px;
+		max-width: 280px;
+	}
+
+	.purchase-detail-pagination {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 6px;
+		margin-top: 12px;
+	}
+
+	.purchase-detail-page-size {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-right: auto;
+		white-space: nowrap;
+	}
+
+	.purchase-detail-page-size select {
+		width: 64px;
+		padding: 3px 6px;
+	}
+
+	.purchase-detail-pagination .btn {
+		flex: 0 0 auto;
+		min-width: 34px;
+		padding: 4px 8px;
+		border: 1px solid #cbd5e1 !important;
+		border-radius: 6px;
+		background-color: #f8fafc !important;
+		color: #334155 !important;
+		font-weight: 500;
+		line-height: 1.35;
+		opacity: 1;
+	}
+
+	.purchase-detail-pagination .btn:disabled {
+		background-color: #f1f5f9 !important;
+		color: #64748b !important;
+		cursor: not-allowed;
+		opacity: 1;
+	}
+
+	body.dark-mode .purchase-detail-pagination .btn {
+		border-color: #475569 !important;
+		background-color: #111827 !important;
+		color: #e2e8f0 !important;
+	}
+
+	body.dark-mode .purchase-detail-pagination .btn:disabled {
+		background-color: #1f2937 !important;
+		color: #94a3b8 !important;
+	}
+
+	.purchase-detail-pagination .purchase-detail-page-status {
+		min-width: 34px;
+		text-align: center;
+	}
+
+	.purchase-select-all-option {
+		display: flex;
+		align-items: center;
+		gap: 9px;
+		margin: 0 0 12px;
+		line-height: 1.35;
+		cursor: pointer;
 	}
 
 	.purchase-products-list .purchase-product-link {
+		display: block;
+		flex: 1 1 auto;
 		min-width: 0;
 		max-width: 100%;
+		margin: 0;
 		padding: 0;
+		line-height: 1.35;
 		text-align: left;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		color: #2563eb !important;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	.purchase-products-list .purchase-product-link:hover {
+		color: #1d4ed8 !important;
+		text-decoration: underline;
+	}
+
+	body.dark-mode .purchase-products-list .purchase-product-link {
+		color: #60a5fa !important;
+	}
+
+	body.dark-mode .purchase-products-list .purchase-product-link:hover {
+		color: #93c5fd !important;
+		text-decoration: underline;
 	}
 
 	.purchase-products-list .purchase-product-checkbox {
 		flex: 0 0 auto;
-		margin-top: 4px;
+		width: 16px;
+		height: 16px;
+		margin: 0 !important;
+	}
+
+	body.dark-mode #purchaseDetailsModal .purchase-product-option { border-color: #374151; }
+
+	#rowActionPopup .row-action-popup-menu > .purchase-detail-btn,
+	#rowActionPopup .row-action-popup-menu > .purchase-detail-btn:hover,
+	#rowActionPopup .row-action-popup-menu > .purchase-detail-btn:focus {
+		color: #334155 !important;
+	}
+
+	body.dark-mode #rowActionPopup .row-action-popup-menu > .purchase-detail-btn,
+	body.dark-mode #rowActionPopup .row-action-popup-menu > .purchase-detail-btn:hover,
+	body.dark-mode #rowActionPopup .row-action-popup-menu > .purchase-detail-btn:focus {
+		color: #e2e8f0 !important;
+	}
+
+	@media (max-width: 575.98px) {
+		.purchase-products-list { grid-template-columns: 1fr; }
+		.purchase-detail-toolbar { align-items: stretch; flex-direction: column; }
+		.purchase-detail-search { flex: 0 0 auto; max-width: none; }
+		.purchase-detail-pagination { flex-wrap: wrap; }
 	}
 
 	#purchaseDetailsModal .modal-content,
@@ -431,7 +556,7 @@
 	</div>
 </div>
 
-<div class="modal" id="purchaseDetailsModal" tabindex="-1" role="dialog" aria-labelledby="purchaseDetailsModalLabel" aria-hidden="true">
+<div class="modal fade" id="purchaseDetailsModal" tabindex="-1" role="dialog" aria-labelledby="purchaseDetailsModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -443,8 +568,23 @@
 			<div class="modal-body">
 				<div class="mb-3"><strong>Supplier:</strong> <span class="purchase-detail detail-supplier"></span></div>
 				<div class="mb-3"><strong>Products:</strong></div>
-				<label class="d-block mb-2"><input type="checkbox" class="purchase-select-all mr-2">Select all</label>
+				<label class="purchase-select-all-option"><input type="checkbox" class="purchase-select-all">Select all</label>
+				<div class="purchase-detail-toolbar">
+					<input type="search" class="form-control form-control-sm purchase-detail-search" placeholder="Search products..." aria-label="Search products">
+					<div class="purchase-detail-count text-muted small" aria-live="polite"></div>
+				</div>
 				<div class="purchase-products-list"></div>
+				<nav class="purchase-detail-pagination" aria-label="Purchase product pages">
+					<div class="purchase-detail-page-size">
+						<span>Page Size</span>
+						<select class="form-control form-control-sm" aria-label="Products per page" disabled><option>12</option></select>
+					</div>
+					<button type="button" class="btn btn-sm btn-outline-secondary purchase-detail-first">First</button>
+					<button type="button" class="btn btn-sm btn-outline-secondary purchase-detail-prev">Prev</button>
+					<span class="purchase-detail-page-status" aria-live="polite" aria-label="Page 1">1</span>
+					<button type="button" class="btn btn-sm btn-outline-secondary purchase-detail-next">Next</button>
+					<button type="button" class="btn btn-sm btn-outline-secondary purchase-detail-last">Last</button>
+				</nav>
 			</div>
 			<div class="modal-footer">
 				@if(auth()->user()->hasPermissionTo('destroy-purchase'))
@@ -456,12 +596,12 @@
 	</div>
 </div>
 
-<div class="modal" id="purchaseProductDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="purchaseProductDetailsModal" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Product Details</h5>
-				<button type="button" class="close product-details-close" aria-label="Close">
+				<button type="button" class="close product-details-close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -489,6 +629,10 @@
 						<div><strong>Quantity per Box</strong><span class="detail-quantity_per_box"></span></div>
 						<div><strong>Expire Date</strong><span class="detail-expiry"></span></div>
 						<div><strong>Date of Purchase</strong><span class="detail-purchased"></span></div>
+						<div class="detail-box-expiries-wrap" style="grid-column: 1 / -1; display: none;">
+							<strong>Packaging Box Expiries</strong>
+							<div class="detail-box-expiries-list d-flex flex-wrap mt-1" style="gap: 6px;"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -502,6 +646,7 @@
 @endsection	
 
 @push('page-js')
+<script src="{{asset('assets/js/purchase-multi-step.js')}}"></script>
 <script>
     $(document).ready(function() {
         if (!window.PharmaTabulator) return;
@@ -517,24 +662,6 @@
 
 		var addPurchaseModal = $('#addPurchaseModal');
 		var purchaseForm = addPurchaseModal.find('form');
-		var categorySelect = purchaseForm.find('select[name="category"]');
-		var supplierSelect = purchaseForm.find('select[name="supplier"]');
-		var expiryInput = purchaseForm.find('input[name="expiry_date"]');
-		var noExpiryInput = purchaseForm.find('input[name="no_expiry"]');
-
-		function computePurchaseTotal() {
-			var item = parseInt(purchaseForm.find('input[name="item_quantity"]').val() || 0, 10);
-			var boxes = parseInt(purchaseForm.find('input[name="packaging_box"]').val() || 0, 10);
-			var perBox = parseInt(purchaseForm.find('input[name="quantity_per_box"]').val() || 0, 10);
-			purchaseForm.find('input[name="total_quantity"]').val(item + (boxes * perBox));
-		}
-
-		function syncPurchaseExpiry() {
-			var categoryNoExpiry = categorySelect.find('option:selected').data('no-expiry') === 1 || categorySelect.find('option:selected').data('no-expiry') === '1';
-			var noExpiry = categoryNoExpiry || noExpiryInput.is(':checked');
-			noExpiryInput.prop('disabled', categoryNoExpiry);
-			expiryInput.prop('disabled', noExpiry).prop('required', !noExpiry);
-		}
 
 		function initAddPurchaseSelect2() {
 			if (!$.fn.select2) return;
@@ -552,142 +679,130 @@
 			});
 		}
 
-		addPurchaseModal.on('shown.bs.modal', function () {
-			initAddPurchaseSelect2();
-			computePurchaseTotal();
-			syncPurchaseExpiry();
-		});
+		if (addPurchaseModal.length) {
+			addPurchaseModal.on('shown.bs.modal', function () {
+				initAddPurchaseSelect2();
+			});
 
-		purchaseForm.find('input[name="item_quantity"], input[name="packaging_box"], input[name="quantity_per_box"]').on('input', computePurchaseTotal);
+			if (window.initPurchaseMultiStep) {
+				window.initPurchaseMultiStep(purchaseForm, addPurchaseModal);
+			}
 
-		categorySelect.on('change', function () {
-			var categoryNoExpiry = categorySelect.find('option:selected').data('no-expiry') === 1 || categorySelect.find('option:selected').data('no-expiry') === '1';
-			noExpiryInput.prop('checked', categoryNoExpiry).prop('disabled', categoryNoExpiry);
-			syncPurchaseExpiry();
-		});
-
-		noExpiryInput.on('change', syncPurchaseExpiry);
-
-		supplierSelect.on('change', function () {
-			var option = $(this).find('option:selected');
-			var product = option.data('product') || '';
-			var category = option.data('category') || '';
-			var cost = option.data('cost') || '';
-			var expiry = option.data('expiry') || '';
-			if (product) purchaseForm.find('input[name="product"]').val(product);
-			if (category) categorySelect.val(category).trigger('change.select2').trigger('change');
-			if (cost) purchaseForm.find('input[name="cost_price"]').val(cost);
-			if (expiry) expiryInput.val(expiry);
-			computePurchaseTotal();
-		});
-
-		var validationNoticeShown = false;
-		if (purchaseForm.length) {
-			purchaseForm[0].addEventListener('invalid', function (event) {
-				event.preventDefault();
-				var firstInvalid = purchaseForm[0].querySelector(':invalid');
-				if (firstInvalid) firstInvalid.focus();
-				if (!validationNoticeShown && window.Snackbar) {
-					validationNoticeShown = true;
-					Snackbar.show({
-						text: 'Please complete all required fields before submitting.',
-						pos: 'top-right',
-						actionTextColor: '#fff',
-						backgroundColor: '#e7515a'
-					});
-					setTimeout(function () {
-						validationNoticeShown = false;
-					}, 500);
-				}
-			}, true);
-		}
-
-		var pendingModal = null;
-
-		function animateModal(modalSelector, animationClass) {
-			var content = $(modalSelector + ' .modal-content');
-			content.removeClass('animate__animated animate__fadeIn animate__fadeOut');
-			if (animationClass) {
-				content.addClass('animate__animated ' + animationClass);
+			if (purchaseForm.find('.purchase-validation-alert').length || purchaseForm.find('.alert-danger').length) {
+				addPurchaseModal.modal('show');
 			}
 		}
 
-		function hideModalAfterFade(modalSelector) {
-			var modal = $(modalSelector);
-			var content = modal.find('.modal-content');
-			var finished = false;
-			var finish = function () {
-				if (finished) return;
-				finished = true;
-				content.off('animationend.purchaseFade');
-				modal.modal('hide');
-			};
+		var purchaseDetailProducts = [];
+		var purchaseDetailSelectedIds = {};
+		var purchaseDetailPage = 1;
+		var purchaseDetailPageSize = 12;
 
-			content.one('animationend.purchaseFade', finish);
-			setTimeout(finish, 400);
-		}
+		function renderPurchaseDetailProducts() {
+			var modal = $('#purchaseDetailsModal');
+			var query = (modal.find('.purchase-detail-search').val() || '').trim().toLowerCase();
+			var filteredProducts = purchaseDetailProducts.filter(function (product) {
+				return (product.product || '').toLowerCase().indexOf(query) !== -1;
+			});
+			var totalPages = Math.max(1, Math.ceil(filteredProducts.length / purchaseDetailPageSize));
+			purchaseDetailPage = Math.min(Math.max(purchaseDetailPage, 1), totalPages);
+			var start = (purchaseDetailPage - 1) * purchaseDetailPageSize;
+			var pageProducts = filteredProducts.slice(start, start + purchaseDetailPageSize);
+			var list = modal.find('.purchase-products-list').empty();
 
-		$('#purchaseDetailsModal').on('shown.bs.modal', function () {
-			animateModal('#purchaseDetailsModal', 'animate__fadeIn');
-		}).on('hidden.bs.modal', function () {
-			animateModal('#purchaseDetailsModal', null);
-			if (pendingModal === 'product') {
-				pendingModal = null;
-				$('#purchaseProductDetailsModal').modal('show');
-			}
-		});
-
-		$('#purchaseProductDetailsModal').on('shown.bs.modal', function () {
-			animateModal('#purchaseProductDetailsModal', 'animate__fadeIn');
-		}).on('hidden.bs.modal', function () {
-			animateModal('#purchaseProductDetailsModal', null);
-			if (pendingModal === 'purchase') {
-				pendingModal = null;
-				$('#purchaseDetailsModal').modal('show');
-			}
-		});
-
-		$(document).on('click', '.purchase-detail-btn', function () {
-            var button = $(this);
-			var products = JSON.parse(button.attr('data-products') || '[]');
-            $('#purchaseDetailsModal .detail-supplier').text(button.data('supplier'));
-			var list = $('#purchaseDetailsModal .purchase-products-list').empty();
-			products.forEach(function (product, index) {
+			pageProducts.forEach(function (product) {
 				var rawName = (product.product || '').trim();
-				var limit = 8;
-				var displayName = rawName.length > limit ? rawName.slice(0, limit).trimEnd() + '..' : rawName;
-				var item = $('<label class="purchase-product-option"></label>');
-				var checkbox = $('<input type="checkbox" class="purchase-product-checkbox mr-2">')
+				var item = $('<div class="purchase-product-option"></div>');
+				var checkbox = $('<input type="checkbox" class="purchase-product-checkbox">')
 					.val(product.id)
+					.prop('checked', Boolean(purchaseDetailSelectedIds[String(product.id)]))
 					.attr('data-product-details', JSON.stringify(product));
-				var link = $('<button type="button" class="btn btn-link purchase-product-link p-0"></button>')
-					.text(displayName)
+				var link = $('<button type="button" class="btn btn-link purchase-product-link"></button>')
+					.text(rawName)
 					.attr('title', rawName)
 					.attr('data-product-details', JSON.stringify(product));
 				item.append(checkbox).append(link);
 				list.append(item);
 			});
-			$('#purchaseDetailsModal .purchase-select-all').prop('checked', false);
-			$('#purchaseDetailsModal .purchase-bulk-delete').prop('disabled', true);
+
+			var selectedCount = Object.keys(purchaseDetailSelectedIds).length;
+			modal.find('.purchase-detail-count').text(filteredProducts.length
+				? 'Showing ' + (start + 1) + '-' + Math.min(start + purchaseDetailPageSize, filteredProducts.length) + ' of ' + filteredProducts.length
+				: 'No products found');
+			modal.find('.purchase-detail-page-status').text(purchaseDetailPage).attr('aria-label', 'Page ' + purchaseDetailPage + ' of ' + totalPages);
+			modal.find('.purchase-detail-first, .purchase-detail-prev').prop('disabled', purchaseDetailPage <= 1);
+			modal.find('.purchase-detail-next, .purchase-detail-last').prop('disabled', purchaseDetailPage >= totalPages);
+			modal.find('.purchase-select-all').prop('checked', filteredProducts.length > 0 && filteredProducts.every(function (product) {
+				return Boolean(purchaseDetailSelectedIds[String(product.id)]);
+			}));
+			modal.find('.purchase-bulk-delete').prop('disabled', selectedCount === 0);
+		}
+
+		$(document).on('click', '.purchase-detail-btn', function () {
+            var button = $(this);
+			purchaseDetailProducts = JSON.parse(button.attr('data-products') || '[]');
+			purchaseDetailSelectedIds = {};
+			purchaseDetailPage = 1;
+            $('#purchaseDetailsModal .detail-supplier').text(button.data('supplier'));
+			$('#purchaseDetailsModal .purchase-detail-search').val('');
+			renderPurchaseDetailProducts();
 			$('#purchaseDetailsModal').modal('show');
         });
 
 		$('#purchaseDetailsModal').on('change', '.purchase-product-checkbox', function () {
-			var selected = $('#purchaseDetailsModal .purchase-product-checkbox:checked').length;
-			var total = $('#purchaseDetailsModal .purchase-product-checkbox').length;
-			$('#purchaseDetailsModal .purchase-select-all').prop('checked', total > 0 && selected === total);
-			$('#purchaseDetailsModal .purchase-bulk-delete').prop('disabled', selected === 0);
+			var id = String($(this).val());
+			if ($(this).prop('checked')) {
+				purchaseDetailSelectedIds[id] = true;
+			} else {
+				delete purchaseDetailSelectedIds[id];
+			}
+			renderPurchaseDetailProducts();
 		});
 
 		$('#purchaseDetailsModal').on('change', '.purchase-select-all', function () {
 			var checked = $(this).prop('checked');
-			$('#purchaseDetailsModal .purchase-product-checkbox').prop('checked', checked).trigger('change');
+			var query = ($('#purchaseDetailsModal .purchase-detail-search').val() || '').trim().toLowerCase();
+			purchaseDetailProducts.forEach(function (product) {
+				if ((product.product || '').toLowerCase().indexOf(query) !== -1) {
+					var id = String(product.id);
+					if (checked) {
+						purchaseDetailSelectedIds[id] = true;
+					} else {
+						delete purchaseDetailSelectedIds[id];
+					}
+				}
+			});
+			renderPurchaseDetailProducts();
 		});
 
+		$('#purchaseDetailsModal')
+			.on('input', '.purchase-detail-search', function () {
+				purchaseDetailPage = 1;
+				renderPurchaseDetailProducts();
+			})
+			.on('click', '.purchase-detail-first', function () {
+				purchaseDetailPage = 1;
+				renderPurchaseDetailProducts();
+			})
+			.on('click', '.purchase-detail-prev', function () {
+				purchaseDetailPage--;
+				renderPurchaseDetailProducts();
+			})
+			.on('click', '.purchase-detail-next', function () {
+				purchaseDetailPage++;
+				renderPurchaseDetailProducts();
+			})
+			.on('click', '.purchase-detail-last', function () {
+				var query = ($('#purchaseDetailsModal .purchase-detail-search').val() || '').trim().toLowerCase();
+				var count = purchaseDetailProducts.filter(function (product) {
+					return (product.product || '').toLowerCase().indexOf(query) !== -1;
+				}).length;
+				purchaseDetailPage = Math.max(1, Math.ceil(count / purchaseDetailPageSize));
+				renderPurchaseDetailProducts();
+			});
+
 		$('#purchaseDetailsModal').on('click', '.purchase-bulk-delete', function () {
-			var ids = $('#purchaseDetailsModal .purchase-product-checkbox:checked').map(function () {
-				return $(this).val();
-			}).get();
+			var ids = Object.keys(purchaseDetailSelectedIds);
 
 			if (!ids.length || !window.confirm('Delete the selected purchase(s)?')) return;
 
@@ -712,39 +827,88 @@
 			});
 		});
 
-		$('#purchaseDetailsModal').on('click', '.purchase-product-link', function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			var details = JSON.parse($(this).attr('data-product-details') || '{}');
-			var defaultImage = "{{ asset('assets/img/productnoimage.png') }}";
-			$('#purchaseProductDetailsModal .purchase-product-detail-image').attr('src', details.image || defaultImage);
-			if (!details.price && details.cost) {
-				details.price = details.cost;
-			}
-			var productName = details.product || '';
-			var productTooltip = productName ? 'Product:\n' + productName : 'No product name';
-			$('#purchaseProductDetailsModal .product-info-btn')
-				.attr('data-tooltip', productTooltip)
-				.attr('aria-label', productTooltip);
-			$('#purchaseProductDetailsModal .detail-product').attr('title', productName);
+		var returnToPurchaseDetails = false;
 
-			Object.keys(details).forEach(function (key) {
-				var value = details[key];
-				if (key === 'image') return;
-				$('#purchaseProductDetailsModal .detail-' + key).text(value || '');
+		$(document)
+			.off('click.purchaseProductLink', '#purchaseDetailsModal .purchase-product-link')
+			.on('click.purchaseProductLink', '#purchaseDetailsModal .purchase-product-link', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				var details = JSON.parse($(this).attr('data-product-details') || '{}');
+				var defaultImage = "{{ asset('assets/img/productnoimage.png') }}";
+				var $productModal = $('#purchaseProductDetailsModal');
+				var $detailsModal = $('#purchaseDetailsModal');
+
+				$productModal.find('.purchase-product-detail-image').attr('src', details.image || defaultImage);
+				if (!details.price && details.cost) {
+					details.price = details.cost;
+				}
+				var productName = details.product || '';
+				var productTooltip = productName ? 'Product:\n' + productName : 'No product name';
+				$productModal.find('.product-info-btn')
+					.attr('data-tooltip', productTooltip)
+					.attr('aria-label', productTooltip);
+				$productModal.find('.detail-product').attr('title', productName);
+
+				Object.keys(details).forEach(function (key) {
+					var value = details[key];
+					if (key === 'image') return;
+					$productModal.find('.detail-' + key).text(value || '');
+				});
+				var expiryVal = details.expiry || details.expiry_date || '';
+				$productModal.find('.detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
+
+				var boxExpiries = details.box_expiries || [];
+				var $boxExpWrap = $productModal.find('.detail-box-expiries-wrap');
+				var $boxExpList = $productModal.find('.detail-box-expiries-list');
+				$boxExpList.empty();
+
+				if (Array.isArray(boxExpiries) && boxExpiries.length > 0) {
+					boxExpiries.forEach(function (b) {
+						var boxLabel = b.box ? (typeof b.box === 'number' ? 'Box #' + b.box : b.box) : 'Box';
+						var dateStr = b.expiry_date || 'No expiry';
+						var badgeClass = 'badge badge-light border text-dark';
+						if (b.expiry_date) {
+							var expD = new Date(b.expiry_date + 'T00:00:00');
+							var today = new Date();
+							today.setHours(0,0,0,0);
+							if (expD < today) {
+								badgeClass = 'badge badge-danger text-white';
+							}
+						}
+						$boxExpList.append('<span class="' + badgeClass + ' px-2 py-1"><i class="fas fa-box mr-1"></i> ' + boxLabel + ': <strong>' + dateStr + '</strong></span>');
+					});
+					$boxExpWrap.show();
+				} else {
+					$boxExpWrap.hide();
+				}
+
+				returnToPurchaseDetails = true;
+				$detailsModal.data('row-action-switching', true);
+				$detailsModal.one('hidden.bs.modal.switchProduct', function () {
+					window.setTimeout(function () {
+						$productModal.modal('show');
+					}, 50);
+				});
+				$detailsModal.modal('hide');
 			});
-			var expiryVal = details.expiry || details.expiry_date || '';
-			$('#purchaseProductDetailsModal .detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
-			pendingModal = 'product';
-			animateModal('#purchaseDetailsModal', 'animate__fadeOut');
-			hideModalAfterFade('#purchaseDetailsModal');
-		});
 
-		$('#purchaseProductDetailsModal').on('click', '.product-details-close', function () {
-			pendingModal = 'purchase';
-			animateModal('#purchaseProductDetailsModal', 'animate__fadeOut');
-			hideModalAfterFade('#purchaseProductDetailsModal');
-		});
+		$('#purchaseProductDetailsModal')
+			.off('hide.bs.modal.returnPurchase')
+			.on('hide.bs.modal.returnPurchase', function () {
+				if (returnToPurchaseDetails) {
+					$(this).data('row-action-switching', true);
+				}
+			})
+			.off('hidden.bs.modal.returnPurchase')
+			.on('hidden.bs.modal.returnPurchase', function () {
+				if (returnToPurchaseDetails) {
+					returnToPurchaseDetails = false;
+					window.setTimeout(function () {
+						$('#purchaseDetailsModal').modal('show');
+					}, 50);
+				}
+			});
         
     });
 </script> 

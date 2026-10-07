@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeminiApiCredential;
+use App\Models\GroqApiCredential;
 use App\Models\Prescription;
 use App\Models\Product;
 use App\Services\OrganizedFileStorage;
@@ -106,9 +107,9 @@ class PrescriptionController extends Controller
     {
         $rules = [
             'document' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'engine' => 'nullable|in:tesseract,gemini',
+            'engine' => 'nullable|in:tesseract,gemini,groq',
         ];
-        if ($request->input('engine') === 'gemini') {
+        if (in_array($request->input('engine'), ['gemini', 'groq'], true)) {
             $rules['credential_id'] = 'required|integer';
         }
         $request->validate($rules);
@@ -126,6 +127,19 @@ class PrescriptionController extends Controller
             }
 
             return $this->analyzePrescriptionWithGemini($file, $apiKey);
+        }
+        if ($request->input('engine') === 'groq') {
+            $credential = GroqApiCredential::where('user_id', $request->user()->id)
+                ->findOrFail($request->input('credential_id'));
+            try {
+                $apiKey = Crypt::decryptString($credential->encrypted_api_key);
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $exception) {
+                return response()->json([
+                    'message' => 'This saved Groq key could not be decrypted. Remove it and create a new key profile.',
+                ], 500);
+            }
+
+            return $this->analyzePrescriptionWithGroq($file, $apiKey);
         }
 
         $tesseract = env('TESSERACT_PATH');
@@ -328,6 +342,56 @@ class PrescriptionController extends Controller
         return response()->json(['message' => 'Gemini key profile deleted.']);
     }
 
+    public function groqCredentials(Request $request)
+    {
+        $credentials = GroqApiCredential::where('user_id', $request->user()->id)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(static function ($credential) {
+                return ['id' => $credential->id, 'name' => $credential->name];
+            });
+
+        return response()->json(['credentials' => $credentials]);
+    }
+
+    public function storeGroqCredential(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $data = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:80',
+                \Illuminate\Validation\Rule::unique('groq_api_credentials', 'name')
+                    ->where('user_id', $request->user()->id),
+            ],
+            'api_key' => 'required|string|min:20|max:512',
+        ]);
+
+        $credential = GroqApiCredential::create([
+            'user_id' => $request->user()->id,
+            'name' => $data['name'],
+            'encrypted_api_key' => Crypt::encryptString(trim($data['api_key'])),
+        ]);
+
+        return response()->json([
+            'credential' => ['id' => $credential->id, 'name' => $credential->name],
+            'message' => 'Groq key profile created.',
+        ], 201);
+    }
+
+    public function deleteGroqCredential(Request $request, int $credential)
+    {
+        $deleted = GroqApiCredential::where('user_id', $request->user()->id)
+            ->whereKey($credential)
+            ->delete();
+        if (!$deleted) {
+            abort(404);
+        }
+
+        return response()->json(['message' => 'Groq key profile deleted.']);
+    }
+
     private function analyzePrescriptionWithGemini($file, string $apiKey)
     {
         $mimeType = $file->getMimeType();
@@ -339,29 +403,76 @@ class PrescriptionController extends Controller
             return response()->json(['message' => 'The uploaded image could not be read. Please choose it again and retry.'], 500);
         }
 
-        try {
-            $response = Http::withHeaders(['x-goog-api-key' => $apiKey])
-                ->timeout(60)
-                ->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', [
-                    'contents' => [[
-                        'parts' => [
-                            [
-                                'text' => 'Transcribe all legible text from this prescription image faithfully. Preserve the original wording, spelling, numbers, and line breaks. Do not guess unreadable text, infer missing details, interpret the prescription, or add advice. Return only the transcription.',
-                            ],
-                            [
-                                'inline_data' => [
-                                    'mime_type' => $mimeType,
-                                    'data' => base64_encode($imageContents),
-                                ],
-                            ],
+        $models = array_values(array_unique(array_filter([
+            config('services.gemini.prescription_model', 'gemini-2.5-flash'),
+            config('services.gemini.prescription_fallback_model', 'gemini-3.7-flash'),
+        ], static function ($model) {
+            return is_string($model) && trim($model) !== '';
+        })));
+        $requestBody = [
+            'contents' => [[
+                'parts' => [
+                    [
+                        'text' => 'Transcribe all legible text from this prescription image faithfully. Preserve the original wording, spelling, numbers, and line breaks. Do not guess unreadable text, infer missing details, interpret the prescription, or add advice. Return only the transcription.',
+                    ],
+                    [
+                        'inline_data' => [
+                            'mime_type' => $mimeType,
+                            'data' => base64_encode($imageContents),
                         ],
-                    ]],
-                    'generationConfig' => ['temperature' => 0.1],
+                    ],
+                ],
+            ]],
+            'generationConfig' => ['temperature' => 0.1],
+        ];
+        $response = null;
+        $modelUsed = null;
+        $fallbackAttempted = false;
+
+        foreach ($models as $modelIndex => $model) {
+            $fallbackAttempted = $modelIndex > 0;
+            $modelUsed = $model;
+            $attempts = $modelIndex === 0 ? 2 : 1;
+
+            for ($attempt = 0; $attempt < $attempts; $attempt++) {
+                try {
+                    $response = Http::withHeaders(['x-goog-api-key' => $apiKey])
+                        ->timeout(60)
+                        ->post('https://generativelanguage.googleapis.com/v1beta/models/'.$model.':generateContent', $requestBody);
+                } catch (ConnectionException $exception) {
+                    return response()->json([
+                        'message' => 'Could not connect to Google Gemini. Check the internet connection and try again.',
+                    ], 503);
+                }
+
+                if ($response->successful()) {
+                    break 2;
+                }
+
+                if ($response->status() === 503) {
+                    if ($attempt + 1 < $attempts) {
+                        usleep(500000 + random_int(0, 500000));
+                        continue;
+                    }
+                    if ($modelIndex + 1 < count($models)) {
+                        break;
+                    }
+                }
+
+                if ($response->status() === 404 && $modelIndex + 1 < count($models)) {
+                    break;
+                }
+
+                break 2;
+            }
+
+            if ($modelIndex + 1 < count($models)) {
+                Log::notice('Google Gemini prescription analysis is switching to a backup model.', [
+                    'failed_model' => $model,
+                    'fallback_model' => $models[$modelIndex + 1],
+                    'http_status' => $response->status(),
                 ]);
-        } catch (ConnectionException $exception) {
-            return response()->json([
-                'message' => 'Could not connect to Google Gemini. Check the internet connection and try again.',
-            ], 503);
+            }
         }
 
         if (!$response->successful()) {
@@ -372,6 +483,7 @@ class PrescriptionController extends Controller
                 $providerMessage = mb_substr($providerMessage, 0, 500);
             }
             Log::warning('Google Gemini prescription analysis failed.', [
+                'model' => $modelUsed,
                 'http_status' => $response->status(),
                 'provider_status' => $response->json('error.status'),
                 'provider_message' => $providerMessage,
@@ -384,10 +496,27 @@ class PrescriptionController extends Controller
                 ], 429);
             }
             if (in_array($response->status(), [400, 401, 403, 404], true)) {
+                if ($fallbackAttempted && $response->status() === 404) {
+                    return response()->json([
+                        'message' => 'The configured Gemini backup model is not available for this API key. Update PRESCRIPTION_GEMINI_FALLBACK_MODEL to a model enabled for this Google project.'
+                            .($providerMessage !== '' ? ' Google: '.$providerMessage : ''),
+                    ], 422);
+                }
                 return response()->json([
                     'message' => 'Google Gemini rejected the request (HTTP '.$response->status().'). Check the API key, key restrictions, Gemini API access, and selected model.'
                         .($providerMessage !== '' ? ' Google: '.$providerMessage : ''),
                 ], 422);
+            }
+
+            if ($response->status() === 503) {
+                $message = 'Google Gemini is temporarily unavailable after retrying the request';
+                if ($fallbackAttempted) {
+                    $message .= ' and trying the backup model';
+                }
+                return response()->json([
+                    'message' => $message.'. Please try again later or use Built-in OCR.'
+                        .($providerMessage !== '' ? ' Google: '.$providerMessage : ''),
+                ], 503);
             }
 
             return response()->json([
@@ -414,6 +543,104 @@ class PrescriptionController extends Controller
             'analysis_method' => 'gemini',
             'matches' => array_slice($matches, 0, 8),
             'message' => 'Google Gemini transcription is ready. Verify every extracted detail against the original prescription.',
+        ]);
+    }
+
+    private function analyzePrescriptionWithGroq($file, string $apiKey)
+    {
+        $mimeType = $file->getMimeType();
+        if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return response()->json(['message' => 'Groq analysis supports JPEG, PNG, and WebP images only.'], 422);
+        }
+
+        $imageContents = @file_get_contents($file->getRealPath());
+        if ($imageContents === false) {
+            return response()->json(['message' => 'The uploaded image could not be read. Please choose it again and retry.'], 500);
+        }
+
+        $model = config('services.groq.prescription_model', 'qwen/qwen3.8-27b');
+        try {
+            $response = Http::withToken($apiKey)
+                ->timeout(60)
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => $model,
+                    'messages' => [[
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => 'Transcribe all legible text from this prescription image faithfully. Preserve the original wording, spelling, numbers, and line breaks. Do not guess unreadable text, infer missing details, interpret the prescription, or add advice. Return only the transcription.',
+                            ],
+                            [
+                                'type' => 'image_url',
+                                'image_url' => [
+                                    'url' => 'data:'.$mimeType.';base64,'.base64_encode($imageContents),
+                                ],
+                            ],
+                        ],
+                    ]],
+                    'temperature' => 0.1,
+                    'max_completion_tokens' => 2048,
+                ]);
+        } catch (ConnectionException $exception) {
+            return response()->json([
+                'message' => 'Could not connect to Groq. Check the internet connection and try again.',
+            ], 503);
+        }
+
+        if (!$response->successful()) {
+            $providerMessage = $response->json('error.message');
+            $providerMessage = is_string($providerMessage) ? trim($providerMessage) : '';
+            if ($providerMessage !== '') {
+                $providerMessage = str_replace($apiKey, '[redacted]', $providerMessage);
+                $providerMessage = mb_substr($providerMessage, 0, 500);
+            }
+            Log::warning('Groq prescription analysis failed.', [
+                'model' => $model,
+                'http_status' => $response->status(),
+                'provider_message' => $providerMessage,
+            ]);
+
+            if ($response->status() === 429) {
+                return response()->json([
+                    'message' => 'Groq rate limit or quota reached. Check your Groq account limits and try again.'
+                        .($providerMessage !== '' ? ' Groq: '.$providerMessage : ''),
+                ], 429);
+            }
+            if (in_array($response->status(), [400, 401, 403, 404], true)) {
+                return response()->json([
+                    'message' => 'Groq rejected the request (HTTP '.$response->status().'). Check the API key, account access, and configured vision model.'
+                        .($providerMessage !== '' ? ' Groq: '.$providerMessage : ''),
+                ], 422);
+            }
+
+            return response()->json([
+                'message' => 'Groq returned HTTP '.$response->status().'. Try again later.'
+                    .($providerMessage !== '' ? ' Groq: '.$providerMessage : ''),
+            ], 502);
+        }
+
+        $recognizedText = $response->json('choices.0.message.content');
+        if (is_array($recognizedText)) {
+            $recognizedText = implode("\n", array_filter(array_map(static function ($part) {
+                return is_array($part) && is_string($part['text'] ?? null) ? $part['text'] : '';
+            }, $recognizedText)));
+        }
+        $recognizedText = is_string($recognizedText) ? trim($recognizedText) : '';
+        if ($recognizedText === '') {
+            return response()->json([
+                'message' => 'Groq did not return readable text. Try a clearer image or another vision-capable Groq model.',
+            ], 422);
+        }
+
+        $draft = $this->formatPrescriptionDraft($recognizedText);
+        $matches = $this->findCatalogCandidates($recognizedText);
+
+        return response()->json([
+            'recognized_text' => $draft,
+            'analysis_method' => 'groq',
+            'matches' => array_slice($matches, 0, 8),
+            'message' => 'Groq transcription is ready. Verify every extracted detail against the original prescription.',
         ]);
     }
 
@@ -896,14 +1123,16 @@ class PrescriptionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'review_confirmed' => 'required|accepted',
             'prescription_number' => 'nullable|string|max:100',
             'patient_name' => 'nullable|string|max:150',
             'prescriber_name' => 'nullable|string|max:150',
             'issued_at' => 'nullable|string|max:40',
             'ocr_details' => 'nullable|json|max:20000',
-            'document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'document' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
+        unset($data['review_confirmed']);
         $submittedOcrDetails = json_decode($data['ocr_details'] ?? '[]', true);
         unset($data['ocr_details']);
         $data['ocr_details'] = [];

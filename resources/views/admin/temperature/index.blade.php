@@ -12,6 +12,29 @@
 			<div id="temperature-table" class="tabulator-table-wrap"></div>
 		</div></div>
 </div>
+
+<div class="modal fade" id="temperatureEditModal" tabindex="-1" role="dialog" aria-labelledby="temperatureEditTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header"><h5 class="modal-title" id="temperatureEditTitle">Edit Temperature Reading</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button></div>
+			<form method="POST" id="temperatureEditForm">
+				@csrf
+				@method('PUT')
+				<div class="modal-body">
+					<div class="form-group"><label for="temperatureEditLocation">Location</label><input id="temperatureEditLocation" name="location" required maxlength="150" class="form-control"></div>
+					<div class="form-group"><label for="temperatureEditValue">Temperature</label><input id="temperatureEditValue" name="temperature" required type="number" step="0.01" min="-100" max="200" class="form-control"></div>
+					<div class="form-row">
+						<div class="form-group col"><label for="temperatureEditMinimum">Minimum</label><input id="temperatureEditMinimum" name="minimum_temperature" type="number" step="0.01" min="-100" max="200" class="form-control"></div>
+						<div class="form-group col"><label for="temperatureEditMaximum">Maximum</label><input id="temperatureEditMaximum" name="maximum_temperature" type="number" step="0.01" min="-100" max="200" class="form-control"></div>
+					</div>
+					<div class="form-group"><label for="temperatureEditRecordedAt">Recorded At</label><input id="temperatureEditRecordedAt" name="recorded_at" required type="datetime-local" class="form-control"></div>
+					<div class="form-group mb-0"><label for="temperatureEditNotes">Notes</label><textarea id="temperatureEditNotes" name="notes" maxlength="1000" class="form-control"></textarea></div>
+				</div>
+				<div class="modal-footer"><button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Save Changes</button></div>
+			</form>
+		</div>
+	</div>
+</div>
 @endsection
 
 @push('page-js')
@@ -29,9 +52,22 @@
                     {title: 'Safe Range', field: 'safe_range'},
                     {title: 'Source', field: 'source'},
                     {title: 'Status', field: 'status', formatter: 'html', headerSort: false, searchable: false},
+                    {title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
                 ]
             });
         }
+
+		$(document).off('click.temperatureEdit', '.temperature-edit-btn').on('click.temperatureEdit', '.temperature-edit-btn', function () {
+			var button = $(this);
+			$('#temperatureEditForm').attr('action', button.attr('data-route'));
+			$('#temperatureEditLocation').val(button.attr('data-location'));
+			$('#temperatureEditValue').val(button.attr('data-temperature'));
+			$('#temperatureEditMinimum').val(button.attr('data-minimum'));
+			$('#temperatureEditMaximum').val(button.attr('data-maximum'));
+			$('#temperatureEditRecordedAt').val(button.attr('data-recorded-at'));
+			$('#temperatureEditNotes').val(button.attr('data-notes'));
+			$('#temperatureEditModal').modal('show');
+		});
     });
 </script>
 @endpush

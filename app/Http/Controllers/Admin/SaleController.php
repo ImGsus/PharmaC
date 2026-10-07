@@ -46,6 +46,7 @@ class SaleController extends Controller
                             'packaging_box' => $purchase->packaging_box,
                             'quantity_per_box' => $purchase->quantity_per_box,
                             'expiry' => $purchase->expiry_date ? date_format(date_create($purchase->expiry_date), 'd M, Y') : 'No expiry',
+                            'box_expiries' => $purchase->box_expiries,
                             'purchased' => $purchase->created_at ? date_format($purchase->created_at, 'd M, Y') : '',
                             'image' => $purchase->image_url,
                         ];
@@ -63,6 +64,24 @@ class SaleController extends Controller
                         return date_format(date_create($row->created_at),'d M, Y');
                     })
                     ->addColumn('action', function ($row) {
+                        $purchase = optional($row->product)->purchase;
+                        $productName = htmlspecialchars(optional($purchase)->product ?? '', ENT_QUOTES, 'UTF-8');
+                        $categoryName = htmlspecialchars(optional(optional($purchase)->category)->name ?? '', ENT_QUOTES, 'UTF-8');
+                        $detailsData = [
+                            'product' => optional($purchase)->product,
+                            'image' => optional($purchase)->image ? $purchase->image_url : asset('assets/img/productnoimage.png'),
+                            'category' => optional(optional($purchase)->category)->name,
+                            'supplier' => optional(optional($purchase)->supplier)->name,
+                            'price' => settings('app_currency', '$').' '.optional($row->product)->price,
+                            'quantity' => $row->quantity,
+                            'expiry' => optional($purchase)->expiry_date ? date_format(date_create($purchase->expiry_date), 'd M, Y') : 'No expiry',
+                            'box_expiries' => optional($purchase)->box_expiries,
+                            'purchased' => optional(optional($purchase)->created_at)->format('d M, Y'),
+                            'item_quantity' => optional($purchase)->item_quantity,
+                            'packaging_box' => optional($purchase)->packaging_box,
+                            'quantity_per_box' => optional($purchase)->quantity_per_box,
+                        ];
+                        $detailbtn = '<button type="button" class="dropdown-item sale-product-detail-link" data-details="'.htmlspecialchars(json_encode($detailsData), ENT_QUOTES, 'UTF-8').'"><i class="fas fa-info-circle mr-2"></i>View Details</button>';
                         $editbtn = '<a href="javascript:void(0)" class="dropdown-item sale-edit-btn" data-sale-id="'.$row->id.'" data-product-id="'.$row->product_id.'" data-quantity="'.$row->quantity.'"><i class="fas fa-edit mr-2"></i>Edit</a>';
                         $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('sales.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                         if (!auth()->user()->hasPermissionTo('edit-sale')) {
@@ -71,7 +90,8 @@ class SaleController extends Controller
                         if (!auth()->user()->hasPermissionTo('destroy-sale')) {
                             $deletebtn = '';
                         }
-                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle sale-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Sale actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
+                        $menuItems = $detailbtn.'<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
+                        return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle sale-action-button row-action-modal-trigger" data-action-title="Sales Actions" data-context-label="Name" data-context-value="'.$productName.'" data-context-secondary="'.$categoryName.'" aria-haspopup="true" aria-expanded="false" aria-label="Sale actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                     })
                     ->rawColumns(['product','action'])
                     ->make(true);

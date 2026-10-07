@@ -121,11 +121,15 @@
 
         document.addEventListener('turbo:before-render', function (event) {
             window.dashboardChartRequestId = (window.dashboardChartRequestId || 0) + 1;
+            window.pharmacyInstantModalHide = true;
             $('.modal').modal('hide');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open').css('padding-right', '');
+            window.pharmacyInstantModalHide = false;
             $('html').removeClass('menu-opened');
             $('.sidebar-overlay').removeClass('opened');
+            $('.noti-dropdown').removeClass('show');
+            $('.noti-dropdown .dropdown-menu').removeClass('show');
             if (window.pieChart && typeof window.pieChart.destroy === 'function') {
                 window.pieChart.destroy();
                 window.pieChart = null;
@@ -178,6 +182,12 @@
         document.addEventListener('click', function (event) {
             var link = event.target.closest('a[href]');
             if (!link || link.getAttribute('href') === '#' || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            var rowActionPopup = link.closest('#rowActionPopup');
+            var rowActionGroup = link.closest('.btn-group');
+            if (rowActionPopup || (rowActionGroup && rowActionGroup.querySelector('.row-action-modal-trigger'))) {
                 return;
             }
 
@@ -288,6 +298,28 @@
             right: 1px;
             top: 5px;
         }
+        /* Unread dot indicator for bell dropdown items */
+        .noti-item-unread .noti-card-wrapper {
+            background: rgba(37, 99, 235, 0.04);
+        }
+        .noti-unread-dot {
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            transform: translateY(-50%);
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #2563eb;
+            flex-shrink: 0;
+            pointer-events: none;
+        }
+        .noti-card-wrapper {
+            padding-left: 14px !important;
+        }
+        body.dark-mode .noti-item-unread .noti-card-wrapper {
+            background: rgba(59, 130, 246, 0.08);
+        }
         @media (max-width: 767.98px) {
             .header .user-menu > li.noti-dropdown > .dropdown-menu.notifications {
                 box-sizing: border-box;
@@ -323,6 +355,41 @@
             body.dark-mode .notification-empty-state-label {
                 color: #cbd5e1;
             }
+        }
+
+        .noti-card-wrapper {
+            border-radius: 6px;
+            transition: background-color .15s ease;
+        }
+        .noti-card-wrapper:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+        .noti-expired-card {
+            border-left: 3px solid #ef4444;
+            background-color: rgba(239, 68, 68, 0.04);
+        }
+        .noti-expired-card:hover {
+            background-color: rgba(239, 68, 68, 0.08);
+        }
+        .noti-single-dismiss {
+            color: #94a3b8;
+            transition: all .15s ease;
+        }
+        .noti-single-dismiss:hover {
+            color: #22c55e !important;
+            transform: scale(1.15);
+        }
+        body.dark-mode .noti-card-wrapper:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        body.dark-mode .noti-expired-card {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        body.dark-mode .noti-expired-card:hover {
+            background-color: rgba(239, 68, 68, 0.18);
+        }
+        body.dark-mode .noti-details .noti-title {
+            color: #f1f5f9 !important;
         }
 
         .table-responsive {
@@ -403,6 +470,9 @@
     <link rel="stylesheet" href="{{asset('assets/plugins/snackbar/snackbar.min.css')}}">
     <!-- Select2 Css -->
     <link rel="stylesheet" href="{{asset('assets/plugins/select2/css/select2.min.css')}}">
+    <!-- Tabulator (shared light/dark tables) -->
+    <link rel="stylesheet" href="{{asset('assets/plugins/tabulator/css/tabulator.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/css/tabulator-theme.css')}}">
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
     <!-- Animation CSS -->
@@ -488,6 +558,96 @@
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
             outline: none;
         }
+
+        /* Global dark-mode styling for all Back, Close, Cancel, and Secondary buttons */
+        body.dark-mode .modal-header .close,
+        body.dark-mode .close,
+        body.dark-mode button.close {
+            color: #94a3b8 !important;
+            text-shadow: none !important;
+            opacity: 0.8 !important;
+        }
+
+        body.dark-mode .modal-header .close:hover,
+        body.dark-mode .modal-header .close:focus,
+        body.dark-mode .close:hover,
+        body.dark-mode .close:focus,
+        body.dark-mode button.close:hover,
+        body.dark-mode button.close:focus {
+            color: #ffffff !important;
+            opacity: 1 !important;
+        }
+
+        body.dark-mode .btn-secondary,
+        body.dark-mode .btn-outline-secondary,
+        body.dark-mode .btn-default,
+        body.dark-mode .btn-light,
+        body.dark-mode .modal-footer .btn-secondary,
+        body.dark-mode .modal-footer .btn-outline-secondary,
+        body.dark-mode .modal-footer .btn-light,
+        body.dark-mode .modal-footer [data-dismiss="modal"],
+        body.dark-mode .btn-back,
+        body.dark-mode .back-btn,
+        body.dark-mode .purchase-step-prev-btn,
+        body.dark-mode .pos-session-back-btn,
+        body.dark-mode .prescription-analysis-cancel,
+        body.dark-mode [data-action="back"] {
+            color: #e2e8f0 !important;
+            background-color: #242c38 !important;
+            border-color: #475569 !important;
+            box-shadow: none !important;
+        }
+
+        body.dark-mode .btn-secondary:hover,
+        body.dark-mode .btn-secondary:focus,
+        body.dark-mode .btn-secondary:active,
+        body.dark-mode .btn-outline-secondary:hover,
+        body.dark-mode .btn-outline-secondary:focus,
+        body.dark-mode .btn-outline-secondary:active,
+        body.dark-mode .btn-default:hover,
+        body.dark-mode .btn-default:focus,
+        body.dark-mode .btn-default:active,
+        body.dark-mode .btn-light:hover,
+        body.dark-mode .btn-light:focus,
+        body.dark-mode .btn-light:active,
+        body.dark-mode .modal-footer .btn-secondary:hover,
+        body.dark-mode .modal-footer .btn-secondary:focus,
+        body.dark-mode .modal-footer .btn-outline-secondary:hover,
+        body.dark-mode .modal-footer .btn-outline-secondary:focus,
+        body.dark-mode .modal-footer .btn-light:hover,
+        body.dark-mode .modal-footer .btn-light:focus,
+        body.dark-mode .modal-footer [data-dismiss="modal"]:hover,
+        body.dark-mode .modal-footer [data-dismiss="modal"]:focus,
+        body.dark-mode .btn-back:hover,
+        body.dark-mode .btn-back:focus,
+        body.dark-mode .back-btn:hover,
+        body.dark-mode .back-btn:focus,
+        body.dark-mode .purchase-step-prev-btn:hover,
+        body.dark-mode .purchase-step-prev-btn:focus,
+        body.dark-mode .pos-session-back-btn:hover,
+        body.dark-mode .pos-session-back-btn:focus,
+        body.dark-mode .prescription-analysis-cancel:hover,
+        body.dark-mode .prescription-analysis-cancel:focus,
+        body.dark-mode [data-action="back"]:hover,
+        body.dark-mode [data-action="back"]:focus {
+            color: #ffffff !important;
+            background-color: #334155 !important;
+            border-color: #64748b !important;
+        }
+
+        body.dark-mode .pos-session-back-btn i,
+        body.dark-mode .btn-back i,
+        body.dark-mode .back-btn i,
+        body.dark-mode .purchase-step-prev-btn i {
+            color: #cbd5e1 !important;
+        }
+
+        body.dark-mode .pos-session-back-btn:hover i,
+        body.dark-mode .btn-back:hover i,
+        body.dark-mode .back-btn:hover i,
+        body.dark-mode .purchase-step-prev-btn:hover i {
+            color: #ffffff !important;
+        }
     </style>
     <!--[if lt IE 9]>
         <script src="assets/js/html5shiv.min.js"></script>
@@ -537,6 +697,7 @@
 
                 @yield('content')
                 <x-modals.inventory-check />
+                <x-modals.notification-center />
             </div>
             </div>
         </div>
@@ -559,6 +720,9 @@
 <script src="{{asset('assets/js/onscan.min.js')}}" data-turbo-eval="false"></script>
 <!-- Select2 JS -->
 <script src="{{asset('assets/plugins/select2/js/select2.min.js')}}" data-turbo-eval="false"></script>
+<!-- Tabulator JS -->
+<script src="{{asset('assets/plugins/tabulator/js/tabulator.min.js')}}" data-turbo-eval="false"></script>
+<script src="{{asset('assets/js/tabulator-server.js')}}" data-turbo-eval="false"></script>
 <!-- Custom JS -->
 <script src="{{asset('assets/js/script.js')}}" data-turbo-eval="false"></script>
 <script>
@@ -731,6 +895,295 @@
             }
         });
     });
+</script>
+<div class="modal fade product-row-action-modal" id="rowActionPopup" tabindex="-1" role="dialog" aria-labelledby="rowActionPopupTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row-action-heading">
+                    <h5 class="modal-title" id="rowActionPopupTitle">Actions</h5>
+                    <span class="row-action-meta"><span class="row-action-context-prefix">Name</span> &rarr; <span class="row-action-context-value"></span><span class="row-action-context-secondary"></span></span>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="row-action-popup-menu" id="row-action-popup-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="rowActionEditPopup" tabindex="-1" role="dialog" aria-labelledby="rowActionEditPopupTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rowActionEditPopupTitle">Edit</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body p-0 row-action-edit-body">
+                <iframe class="row-action-edit-frame" title="Edit selected record" src="about:blank" allow="camera"></iframe>
+                <div class="row-action-edit-loading" role="status">
+                    <span class="row-action-edit-spinner" aria-hidden="true"></span>
+                    <span>Loading edit form...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    /* ═══ UNIVERSAL ROW ACTION MODAL STYLES (MATCHES OUTSTOCK ACTIONS) ═══ */
+    .product-row-action-modal .modal-dialog,
+    #rowActionPopup .modal-dialog {
+        max-width: 420px;
+        width: min(420px, calc(100vw - 32px));
+    }
+    .modal.fade {
+        transition: opacity .35s ease !important;
+    }
+    .modal-backdrop.fade {
+        transition: opacity .35s ease !important;
+    }
+    .modal .modal-content,
+    .product-row-action-modal .modal-content,
+    #rowActionPopup .modal-content,
+    #rowActionEditPopup .modal-content {
+        --animate-duration: .35s;
+    }
+    .modal.fade .modal-dialog {
+        transition: none !important;
+        transform: none !important;
+    }
+    .user-create-camera-modal.is-open .user-create-camera-dialog,
+    .profile-camera-modal.is-open .profile-camera-dialog,
+    .purchase-camera-modal.is-open .purchase-camera-dialog {
+        animation: fadeIn .35s ease both;
+    }
+    .product-row-action-modal .modal-content,
+    #rowActionPopup .modal-content {
+        background: #ffffff;
+        color: #1e293b;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, .2);
+    }
+    .product-row-action-modal .modal-header,
+    #rowActionPopup .modal-header {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px 20px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    .product-row-action-modal .modal-title,
+    #rowActionPopup .modal-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #1e293b;
+        line-height: 1.25;
+        margin: 0;
+    }
+    .product-row-action-modal .row-action-heading,
+    #rowActionPopup .row-action-heading {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    .product-row-action-modal .row-action-meta,
+    #rowActionPopup .row-action-meta {
+        color: #64748b;
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 4px;
+        overflow-wrap: anywhere;
+    }
+    .product-row-action-modal .modal-body,
+    #rowActionPopup .modal-body {
+        max-height: min(65vh, 480px);
+        overflow-y: auto;
+        padding: 8px 0;
+    }
+    .product-row-action-modal .dropdown-item,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item {
+        padding: 10px 20px;
+        white-space: normal;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        font-size: 14px;
+        color: #1e293b;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        text-decoration: none;
+    }
+    .product-row-action-modal .dropdown-item:hover,
+    .product-row-action-modal .dropdown-item:focus,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item:hover,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item:focus {
+        background-color: #dbeafe !important;
+        color: #1e3a8a !important;
+    }
+    .product-row-action-modal .dropdown-item.text-danger,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger {
+        color: #dc2626 !important;
+    }
+    .product-row-action-modal .dropdown-item.text-danger:hover,
+    .product-row-action-modal .dropdown-item.text-danger:focus,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger:hover,
+    #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger:focus {
+        color: #b91c1c !important;
+    }
+    .product-row-action-modal .dropdown-divider,
+    #rowActionPopup .row-action-popup-menu > .dropdown-divider {
+        margin: 6px 0;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    body.dark-mode .product-row-action-modal .modal-content,
+    body.dark-mode #rowActionPopup .modal-content {
+        background: #252b33;
+        color: #e2e8f0;
+        border-color: #475569;
+    }
+    body.dark-mode .product-row-action-modal .modal-header,
+    body.dark-mode #rowActionPopup .modal-header {
+        border-bottom-color: #475569;
+    }
+    body.dark-mode .product-row-action-modal .modal-title,
+    body.dark-mode #rowActionPopup .modal-title {
+        color: #e2e8f0;
+    }
+    body.dark-mode .product-row-action-modal .close,
+    body.dark-mode #rowActionPopup .close {
+        color: #e2e8f0;
+        text-shadow: none;
+        opacity: 0.8;
+    }
+    body.dark-mode .product-row-action-modal .close:hover,
+    body.dark-mode #rowActionPopup .close:hover {
+        opacity: 1;
+    }
+    body.dark-mode .product-row-action-modal .row-action-meta,
+    body.dark-mode #rowActionPopup .row-action-meta {
+        color: #a8b3c4;
+    }
+    body.dark-mode .product-row-action-modal .dropdown-item,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item {
+        color: #e2e8f0;
+    }
+    body.dark-mode .product-row-action-modal .dropdown-item:hover,
+    body.dark-mode .product-row-action-modal .dropdown-item:focus,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item:hover,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item:focus {
+        background-color: #bbf7d0 !important;
+        color: #14532d !important;
+    }
+    body.dark-mode .product-row-action-modal .dropdown-item.text-danger,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger {
+        color: #f87171 !important;
+    }
+    body.dark-mode .product-row-action-modal .dropdown-item.text-danger:hover,
+    body.dark-mode .product-row-action-modal .dropdown-item.text-danger:focus,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger:hover,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-item.text-danger:focus {
+        color: #b91c1c !important;
+    }
+    body.dark-mode .product-row-action-modal .dropdown-divider,
+    body.dark-mode #rowActionPopup .row-action-popup-menu > .dropdown-divider {
+        border-top: 1px solid #374151;
+    }
+
+    #rowActionEditPopup .modal-dialog {
+        height: calc(100vh - 56px);
+        max-width: 1100px;
+        width: min(1100px, calc(100vw - 48px));
+    }
+    #rowActionEditPopup .modal-content { height: 100%; }
+    #rowActionEditPopup .modal-body { min-height: 0; overflow: hidden; }
+    #rowActionEditPopup .row-action-edit-body { position: relative; }
+    #rowActionEditPopup .row-action-edit-frame { border: 0; display: block; height: 100%; visibility: hidden; width: 100%; }
+    #rowActionEditPopup .row-action-edit-frame.row-action-edit-frame-ready { visibility: visible; }
+    #rowActionEditPopup .row-action-edit-loading {
+        align-items: center;
+        background: #fff;
+        color: #64748b;
+        display: flex;
+        gap: 10px;
+        inset: 0;
+        justify-content: center;
+        position: absolute;
+    }
+    #rowActionEditPopup .row-action-edit-frame.row-action-edit-frame-ready + .row-action-edit-loading { display: none; }
+    #rowActionEditPopup .row-action-edit-spinner {
+        animation: row-action-edit-spin .8s linear infinite;
+        border: 3px solid #dbeafe;
+        border-radius: 50%;
+        border-top-color: #2563eb;
+        height: 22px;
+        width: 22px;
+    }
+    @keyframes row-action-edit-spin { to { transform: rotate(360deg); } }
+    body.dark-mode #rowActionEditPopup .row-action-edit-loading {
+        background: #1b2027;
+        color: #a8b3c4;
+    }
+    body.dark-mode #rowActionEditPopup .row-action-edit-spinner {
+        border-color: #374151;
+        border-top-color: #93c5fd;
+    }
+    @media (max-width: 767.98px) {
+        #rowActionEditPopup .modal-dialog { height: 100dvh; margin: 0; max-width: none; width: 100vw; }
+        #rowActionEditPopup .modal-content { border-radius: 0; height: 100dvh; }
+    }
+</style>
+<script src="{{ asset('assets/js/modal-transitions.js') }}?v={{ filemtime(public_path('assets/js/modal-transitions.js')) }}" data-turbo-eval="false"></script>
+<script src="{{ asset('assets/js/row-actions-popup.js') }}?v={{ filemtime(public_path('assets/js/row-actions-popup.js')) }}" data-turbo-eval="false"></script>
+<script>
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.noti-single-dismiss');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var notiId = btn.getAttribute('data-id');
+    var row = btn.closest('.noti-item-row');
+    var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
+    fetch('/notification/mark-single/' + notiId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
+        }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data && data.success) {
+            // Since we now show all recent (read + unread), just mark as read in place:
+            // remove the unread class, remove the dot, remove the dismiss button
+            if (row) {
+                row.classList.remove('noti-item-unread');
+                var dot = row.querySelector('.noti-unread-dot');
+                if (dot) dot.remove();
+                btn.remove();
+            }
+
+            // Update bell badge count
+            var badge = document.querySelector('.notification-bell-link .notification-count');
+            if (data.unread_count > 0) {
+                if (badge) badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+            } else {
+                if (badge) badge.remove();
+                // Update "Mark All As Read" → "All caught up"
+                var clearNoti = document.querySelector('.topnav-dropdown-header .clear-noti');
+                if (clearNoti) {
+                    clearNoti.outerHTML = '<span class="notification-empty-state-label">All caught up</span>';
+                }
+            }
+        }
+    })
+    .catch(function(err) { console.error('Error marking notification as read:', err); });
+});
 </script>
 <!-- Page JS -->
 @stack('page-js')

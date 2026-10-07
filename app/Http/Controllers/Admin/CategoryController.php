@@ -32,7 +32,7 @@ class CategoryController extends Controller
                             })
                     ->addColumn('action',function ($row){
                         $descAttr = htmlspecialchars($row->description ?? '', ENT_QUOTES);
-                        $detailbtn = '<button type="button" class="dropdown-item category-description-btn" data-description="'.$descAttr.'"><i class="fas fa-info-circle mr-2"></i>View Description</button>';
+                        $detailbtn = '<button type="button" class="dropdown-item category-description-btn" data-description="'.$descAttr.'"><i class="fas fa-info-circle mr-2"></i>View Details</button>';
                         $editbtn = '<a data-id="'.$row->id.'" data-name="'.e($row->name).'" data-description="'. $descAttr .'" data-fixed-key="'. e($row->fixed_key) .'" data-no-expiry="'.($row->no_expiry ? '1' : '0').'" href="javascript:void(0)" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
                         $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('categories.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                         if(!auth()->user()->hasPermissionTo('edit-category')){

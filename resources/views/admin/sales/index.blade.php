@@ -24,7 +24,9 @@
 	body.dark-mode #saleEditModal .form-control { background: #111827; border-color: #475569; color: #f8fafc; }
 	body.dark-mode #saleEditModal .form-control:focus { border-color: #69d9aa; box-shadow: 0 0 0 2px rgba(105, 217, 170, .18); }
 	#saleEditModal .modal-footer .btn-light { color: #344054; background: #f8fafc; border-color: #cbd5e1; }
-	body.dark-mode #saleEditModal .modal-footer .btn-light { color: #10231d; background: #f8fafc; border-color: #cbd5e1; }
+	body.dark-mode #saleEditModal .modal-footer .btn-light { color: #e2e8f0; background: #242c38; border-color: #475569; }
+	body.dark-mode #saleEditModal .modal-footer .btn-light:hover,
+	body.dark-mode #saleEditModal .modal-footer .btn-light:focus { color: #ffffff; background: #334155; border-color: #64748b; }
 	#saleProductDetailsModal .modal-dialog { max-width: 760px; }
 	#saleProductDetailsModal .sale-product-details-layout { align-items: stretch; display: grid; gap: 24px; grid-template-columns: minmax(220px, .9fr) minmax(0, 1.35fr); }
 	#saleProductDetailsModal .sale-product-details-image { align-items: center; background: #f5f7fb; border: 1px solid #e5eaf1; border-radius: 8px; display: flex; justify-content: center; min-height: 300px; padding: 18px; }

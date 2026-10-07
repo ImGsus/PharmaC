@@ -30,4 +30,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'gemini' => [
+        'prescription_model' => env('PRESCRIPTION_GEMINI_MODEL', 'gemini-2.5-flash'),
+        'prescription_fallback_model' => env('PRESCRIPTION_GEMINI_FALLBACK_MODEL', 'gemini-3.7-flash'),
+    ],
+
+    'groq' => [
+        'prescription_model' => env('PRESCRIPTION_GROQ_MODEL', 'qwen/qwen3.8-27b'),
+    ],
+
 ];

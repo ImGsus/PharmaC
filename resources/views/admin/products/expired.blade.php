@@ -292,6 +292,10 @@
 						<div class="product-detail-item"><strong>Quantity per Box</strong><span class="expired-detail detail-quantity_per_box"></span></div>
 						<div class="product-detail-item"><strong>Expire Date</strong><span class="expired-detail detail-expiry"></span></div>
 						<div class="product-detail-item"><strong>Date of Purchase</strong><span class="expired-detail detail-purchased"></span></div>
+						<div class="product-detail-item detail-box-expiries-wrap" style="grid-column: 1 / -1; display: none;">
+							<strong>Packaging Box Expiries</strong>
+							<div class="detail-box-expiries-list d-flex flex-wrap mt-1" style="gap: 6px;"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -305,8 +309,7 @@
 			<div class="modal-header">
 				<div class="row-action-heading">
 					<h5 class="modal-title" id="product-row-action-modal-title">Expired Actions</h5>
-					<span class="row-action-meta">Name &rarr; <span id="product-row-action-name"></span></span>
-					<span class="row-action-expiry">Exp Date: <span id="product-row-action-expiry"></span></span>
+					<span class="row-action-meta">Name &rarr; <span id="product-row-action-name"></span> &rarr; <span id="product-row-action-category"></span></span>
 				</div>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			</div>
@@ -330,6 +333,33 @@
 
 @push('page-js')
 <script>
+	window.pharmacyExpiredProductsInit = function() {
+		var tableEl = document.getElementById('expired-product');
+		if (!tableEl) return;
+		if (!window.PharmaTabulator) return;
+
+		window.PharmaTabulator.server({
+			el: 'expired-product',
+			url: "{{route('expired')}}",
+			columns: [
+				{title: 'Brand Name', field: 'product', formatter: 'html'},
+				{title: 'Category', field: 'category'},
+				{title: 'Price', field: 'price'},
+				{title: 'Quantity', field: 'quantity'},
+				{title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
+			]
+		});
+	};
+
+	if (!window.pharmacyExpiredProductsTurboHandler) {
+		window.pharmacyExpiredProductsTurboHandler = function() {
+			if (window.pharmacyExpiredProductsInit) {
+				window.pharmacyExpiredProductsInit();
+			}
+		};
+		document.addEventListener('turbo:load', window.pharmacyExpiredProductsTurboHandler);
+	}
+
     $(document).ready(function() {
 		$(document)
 			.off('.productRowActions')
@@ -338,21 +368,11 @@
 			.off('.expiredProductEdit')
 			.off('.productStatus');
 
-        if (!window.PharmaTabulator) return;
-        window.PharmaTabulator.server({
-            el: 'expired-product',
-            url: "{{route('expired')}}",
-            columns: [
-                {title: 'Brand Name', field: 'product', formatter: 'html'},
-                {title: 'Category', field: 'category'},
-                {title: 'Price', field: 'price'},
-                {title: 'Quantity', field: 'quantity'},
-                {title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 110, hozAlign: 'center'},
-            ]
-        });
+		window.pharmacyExpiredProductsInit();
 
 		var activeProductActionButton = null;
 		var returnToProductActionsAfterEdit = false;
+		var returnToProductActionsAfterDetails = false;
 
 		function runAfterProductActionsReady(callback) {
 			var actionModal = $('#product-row-action-modal');
@@ -385,12 +405,12 @@
 				activeProductActionButton = this;
 				this.setAttribute('aria-expanded', 'true');
 				$('#product-row-action-name').text(this.getAttribute('data-action-name') || '');
-				$('#product-row-action-expiry').text(this.getAttribute('data-action-expiry') || 'No expiry');
+				$('#product-row-action-category').text(this.getAttribute('data-action-category') || '');
 				$('#product-row-action-content').html(menu.innerHTML);
 				$('#product-row-action-modal').modal('show');
 			});
 		$('#product-row-action-modal').off('hidden.bs.modal.productRowActions').on('hidden.bs.modal.productRowActions', function () {
-			if (returnToProductActionsAfterEdit) return;
+			if (returnToProductActionsAfterEdit || returnToProductActionsAfterDetails) return;
 			if (activeProductActionButton) activeProductActionButton.setAttribute('aria-expanded', 'false');
 			activeProductActionButton = null;
 			$('#product-row-action-content').empty();
@@ -417,8 +437,35 @@
 			});
 			var expiryVal = details.expiry || details.expiry_date || '';
 			$('#expiredDetailsModal .detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
+
+			var boxExpiries = details.box_expiries || [];
+			var $boxExpWrap = $('#expiredDetailsModal .detail-box-expiries-wrap');
+			var $boxExpList = $('#expiredDetailsModal .detail-box-expiries-list');
+			$boxExpList.empty();
+
+			if (Array.isArray(boxExpiries) && boxExpiries.length > 0) {
+				boxExpiries.forEach(function (b) {
+					var boxLabel = b.box ? (typeof b.box === 'number' ? 'Box #' + b.box : b.box) : 'Box';
+					var dateStr = b.expiry_date || 'No expiry';
+					var badgeClass = 'badge badge-light border text-dark';
+					if (b.expiry_date) {
+						var expD = new Date(b.expiry_date + 'T00:00:00');
+						var today = new Date();
+						today.setHours(0,0,0,0);
+						if (expD < today) {
+							badgeClass = 'badge badge-danger text-white';
+						}
+					}
+					$boxExpList.append('<span class="' + badgeClass + ' px-2 py-1"><i class="fas fa-box mr-1"></i> ' + boxLabel + ': <strong>' + dateStr + '</strong></span>');
+				});
+				$boxExpWrap.show();
+			} else {
+				$boxExpWrap.hide();
+			}
+
 			var actionModal = $('#product-row-action-modal');
 			if (actionModal.hasClass('show')) {
+				returnToProductActionsAfterDetails = true;
 				runAfterProductActionsReady(function () {
 					actionModal.one('hidden.bs.modal.expiredProductDetails', function () {
 						window.setTimeout(function () {
@@ -429,6 +476,14 @@
 			} else {
 				$('#expiredDetailsModal').modal('show');
 			}
+		});
+
+		$('#expiredDetailsModal').off('hidden.bs.modal.expiredProductDetailsReturn').on('hidden.bs.modal.expiredProductDetailsReturn', function () {
+			if (!returnToProductActionsAfterDetails) return;
+			returnToProductActionsAfterDetails = false;
+			window.setTimeout(function () {
+				$('#product-row-action-modal').modal('show');
+			}, 50);
 		});
 
 		var productEditModal = $('#expired-product-edit-modal');

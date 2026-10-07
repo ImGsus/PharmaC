@@ -42,17 +42,32 @@ class PosController extends Controller
             // Shape into a flat array with only what the tile grid needs.
             ->map(function (Product $product) {
                 $purchase = $product->purchase;
+                $boxCount = (int) (optional($purchase)->packaging_box ?? 0);
+                $looseQty = (int) (optional($purchase)->item_quantity ?? 0);
+                $totalQty = (int) (optional($purchase)->quantity ?? 0);
+                $qtyPerBox = (int) (optional($purchase)->quantity_per_box ?? 0);
+                if ($boxCount > 0 && ($qtyPerBox <= 0 || ($qtyPerBox * $boxCount + $looseQty !== $totalQty && $totalQty > $looseQty))) {
+                    $calc = (int) round(($totalQty - $looseQty) / $boxCount);
+                    if ($calc > 0) {
+                        $qtyPerBox = $calc;
+                    }
+                }
+
                 return [
                     'id'          => $product->id,
                     'name'        => optional($purchase)->product ?? 'Unnamed product',
                     'price'       => (float) ($product->price ?? 0),
-                    'stock'       => (int)   (optional($purchase)->quantity ?? 0),
+                    'stock'       => $totalQty,
                     'category_id' => optional(optional($purchase)->category)->id,
                     'category'    => optional(optional($purchase)->category)->name ?? 'Uncategorized',
                     'image'       => !empty(optional($purchase)->image)
                         ? optional($purchase)->image_url
                         : asset('assets/img/productnoimage.png'),
-                    'expired'     => (bool) $product->expired,
+                    'expired'          => (bool) $product->expired,
+                    'packaging_box'    => $boxCount,
+                    'quantity_per_box' => $qtyPerBox,
+                    'item_quantity'    => $looseQty,
+                    'box_expiries'     => optional($purchase)->box_expiries ?? [],
                 ];
             })
             ->values()
@@ -270,16 +285,29 @@ class PosController extends Controller
         }
 
         $purchase = $product->purchase;
-        $stock    = (int) (optional($purchase)->quantity ?? 0);
+        $totalQty = (int) (optional($purchase)->quantity ?? 0);
+        $boxCount = (int) (optional($purchase)->packaging_box ?? 0);
+        $looseQty = (int) (optional($purchase)->item_quantity ?? 0);
+        $qtyPerBox = (int) (optional($purchase)->quantity_per_box ?? 0);
+        if ($boxCount > 0 && ($qtyPerBox <= 0 || ($qtyPerBox * $boxCount + $looseQty !== $totalQty && $totalQty > $looseQty))) {
+            $calc = (int) round(($totalQty - $looseQty) / $boxCount);
+            if ($calc > 0) {
+                $qtyPerBox = $calc;
+            }
+        }
 
         return response()->json([
             'ok'      => true,
             'product' => [
-                'id'      => $product->id,
-                'name'    => optional($purchase)->product ?? 'Unnamed product',
-                'price'   => (float) ($product->price ?? 0),
-                'stock'   => $stock,
-                'expired' => (bool) $product->expired,
+                'id'               => $product->id,
+                'name'             => optional($purchase)->product ?? 'Unnamed product',
+                'price'            => (float) ($product->price ?? 0),
+                'stock'            => $totalQty,
+                'expired'          => (bool) $product->expired,
+                'packaging_box'    => $boxCount,
+                'quantity_per_box' => $qtyPerBox,
+                'item_quantity'    => $looseQty,
+                'box_expiries'     => optional($purchase)->box_expiries ?? [],
             ],
         ]);
     }

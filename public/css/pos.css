@@ -470,8 +470,11 @@
 
 /* Items table */
 .pos-v2-items {
+    max-height: 275px;
+    overflow-y: auto;
     overflow-x: auto;
     flex: 1;
+    scrollbar-width: thin;
 }
 .pos-v2-items-table {
     border-collapse: collapse;
@@ -479,6 +482,9 @@
     background: #fff;
 }
 .pos-v2-items-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     background: #f2f4f7;
     font-size: .72rem;
     font-weight: 700;
@@ -502,6 +508,52 @@
     width: 70px;
     display: inline-block;
 }
+
+/* Packaging Box Breakdown Styles */
+.pos-v2-box-btn {
+    padding: 0 6px;
+    height: 20px;
+    line-height: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 4px;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+}
+.pos-v2-box-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+.pos-v2-item-box-row {
+    background: #f8fafc;
+    border-bottom: 1px dashed var(--pos-border);
+}
+.pos-v2-item-box-row.is-expired-box {
+    background: rgba(239, 68, 68, 0.08);
+}
+.pos-v2-item-box-row .pos-v2-box-qty {
+    width: 65px;
+    display: inline-block;
+}
+.pos-v2-box-footer-row {
+    background: #f1f5f9;
+    border-bottom: 2px solid var(--pos-border);
+}
+.pos-v2-box-done-btn {
+    font-weight: 600;
+    padding: 2px 14px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
 .pos-v2-empty {
     padding: 1.25rem;
     color: var(--pos-muted);
@@ -779,7 +831,14 @@ body.dark-mode .pos-page-v2 #pos-v2-btn-clear {
 
 body.dark-mode .modal-content:has(.pos-v2-cat-list),
 body.dark-mode #categoriesModal .modal-content,
-body.dark-mode #calculatorModal .modal-content {
+body.dark-mode #calculatorModal .modal-content,
+body.dark-mode #sessionChoiceModal .modal-content,
+body.dark-mode #sessionsModal .modal-content,
+body.dark-mode #sessionOrdersModal .modal-content,
+body.dark-mode #printOrdersModal .modal-content,
+body.dark-mode #historyModal .modal-content,
+body.dark-mode #reportModal .modal-content,
+body.dark-mode #receiptPreviewModal .modal-content {
     background-color: rgb(28, 32, 37) !important;
     color: rgb(231, 233, 236) !important;
     border: 1px solid rgba(255, 255, 255, .10);
@@ -790,7 +849,27 @@ body.dark-mode #categoriesModal .modal-body,
 body.dark-mode #categoriesModal .modal-footer,
 body.dark-mode #calculatorModal .modal-header,
 body.dark-mode #calculatorModal .modal-body,
-body.dark-mode #calculatorModal .modal-footer {
+body.dark-mode #calculatorModal .modal-footer,
+body.dark-mode #sessionChoiceModal .modal-header,
+body.dark-mode #sessionChoiceModal .modal-body,
+body.dark-mode #sessionChoiceModal .modal-footer,
+body.dark-mode #sessionsModal .modal-header,
+body.dark-mode #sessionsModal .modal-body,
+body.dark-mode #sessionsModal .modal-footer,
+body.dark-mode #sessionOrdersModal .modal-header,
+body.dark-mode #sessionOrdersModal .modal-body,
+body.dark-mode #sessionOrdersModal .modal-footer,
+body.dark-mode #printOrdersModal .modal-header,
+body.dark-mode #printOrdersModal .modal-body,
+body.dark-mode #printOrdersModal .modal-footer,
+body.dark-mode #historyModal .modal-header,
+body.dark-mode #historyModal .modal-body,
+body.dark-mode #historyModal .modal-footer,
+body.dark-mode #reportModal .modal-header,
+body.dark-mode #reportModal .modal-body,
+body.dark-mode #reportModal .modal-footer,
+body.dark-mode #receiptPreviewModal .modal-header,
+body.dark-mode #receiptPreviewModal .modal-footer {
     background-color: rgb(28, 32, 37) !important;
     color: rgb(231, 233, 236) !important;
     border-color: rgba(255, 255, 255, .10) !important;
@@ -798,15 +877,43 @@ body.dark-mode #calculatorModal .modal-footer {
 
 body.dark-mode #categoriesModal .modal-title,
 body.dark-mode #calculatorModal .modal-title,
+body.dark-mode #sessionChoiceModal .modal-title,
+body.dark-mode #sessionsModal .modal-title,
+body.dark-mode #sessionOrdersModal .modal-title,
+body.dark-mode #printOrdersModal .modal-title,
+body.dark-mode #historyModal .modal-title,
+body.dark-mode #reportModal .modal-title,
+body.dark-mode #receiptPreviewModal .modal-title,
 body.dark-mode #categoriesModal .text-muted,
 body.dark-mode #calculatorModal .text-muted {
     color: rgb(231, 233, 236) !important;
 }
 
 body.dark-mode #categoriesModal .close,
-body.dark-mode #calculatorModal .close {
-    color: rgb(231, 233, 236) !important;
+body.dark-mode #calculatorModal .close,
+body.dark-mode #sessionChoiceModal .close,
+body.dark-mode #sessionsModal .close,
+body.dark-mode #sessionOrdersModal .close,
+body.dark-mode #printOrdersModal .close,
+body.dark-mode #historyModal .close,
+body.dark-mode #reportModal .close,
+body.dark-mode #receiptPreviewModal .close {
+    color: #94a3b8 !important;
+    text-shadow: none !important;
     opacity: .85;
+}
+
+body.dark-mode #categoriesModal .close:hover,
+body.dark-mode #calculatorModal .close:hover,
+body.dark-mode #sessionChoiceModal .close:hover,
+body.dark-mode #sessionsModal .close:hover,
+body.dark-mode #sessionOrdersModal .close:hover,
+body.dark-mode #printOrdersModal .close:hover,
+body.dark-mode #historyModal .close:hover,
+body.dark-mode #reportModal .close:hover,
+body.dark-mode #receiptPreviewModal .close:hover {
+    color: #ffffff !important;
+    opacity: 1;
 }
 
 body.dark-mode #categoriesModal .pos-v2-cat-row {
@@ -822,16 +929,35 @@ body.dark-mode #categoriesModal .pos-v2-cat-row:hover {
 
 body.dark-mode #categoriesModal .btn-light,
 body.dark-mode #calculatorModal .calculator-grid .btn:not(.btn-calc-op):not(.btn-calc-clear):not(.btn-calc-equals),
-body.dark-mode #calculatorModal .calc-display {
+body.dark-mode #calculatorModal .calc-display,
+body.dark-mode #sessionChoiceModal .btn-outline-secondary,
+body.dark-mode #sessionsModal .btn-outline-secondary,
+body.dark-mode #sessionsModal .btn-secondary,
+body.dark-mode #sessionOrdersModal .btn-secondary,
+body.dark-mode #printOrdersModal .btn-outline-secondary,
+body.dark-mode #printOrdersModal .btn-secondary,
+body.dark-mode #historyModal .btn-secondary,
+body.dark-mode #reportModal .btn-secondary,
+body.dark-mode #receiptPreviewModal .btn-secondary {
     background-color: rgb(32, 38, 45) !important;
     color: rgb(231, 233, 236) !important;
-    border-color: rgba(255, 255, 255, .14) !important;
+    border-color: rgba(255, 255, 255, .18) !important;
 }
 
 body.dark-mode #calculatorModal .calculator-grid .btn:hover,
-body.dark-mode #categoriesModal .btn-light:hover {
+body.dark-mode #categoriesModal .btn-light:hover,
+body.dark-mode #sessionChoiceModal .btn-outline-secondary:hover,
+body.dark-mode #sessionsModal .btn-outline-secondary:hover,
+body.dark-mode #sessionsModal .btn-secondary:hover,
+body.dark-mode #sessionOrdersModal .btn-secondary:hover,
+body.dark-mode #printOrdersModal .btn-outline-secondary:hover,
+body.dark-mode #printOrdersModal .btn-secondary:hover,
+body.dark-mode #historyModal .btn-secondary:hover,
+body.dark-mode #reportModal .btn-secondary:hover,
+body.dark-mode #receiptPreviewModal .btn-secondary:hover {
     background-color: rgb(45, 51, 59) !important;
     color: #ffffff !important;
+    border-color: rgba(255, 255, 255, .28) !important;
 }
 
 body.dark-mode .pos-page-v2 .pos-v2-icon-btn,
@@ -855,6 +981,39 @@ body.dark-mode .pos-page-v2 .pos-v2-secondary-btn:focus {
     background-color: rgb(45, 51, 59) !important;
     color: #ffffff !important;
     border-color: rgb(61, 185, 133) !important;
+}
+
+body.dark-mode .pos-v2-items-table {
+    background: #1c2128 !important;
+}
+body.dark-mode .pos-v2-items-table thead th {
+    background: #252d38 !important;
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
+}
+body.dark-mode .pos-v2-items-table tbody td {
+    border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
+}
+body.dark-mode .pos-v2-box-btn {
+    background: #252d38 !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, .18) !important;
+}
+body.dark-mode .pos-v2-box-btn:hover {
+    background: #333d4b !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, .3) !important;
+}
+body.dark-mode .pos-v2-item-box-row {
+    background: #20262d !important;
+    border-bottom: 1px dashed rgba(255, 255, 255, .12) !important;
+}
+body.dark-mode .pos-v2-item-box-row.is-expired-box {
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+body.dark-mode .pos-v2-box-footer-row {
+    background: #181d24 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, .15) !important;
 }
 
 @media (max-width: 991px) {

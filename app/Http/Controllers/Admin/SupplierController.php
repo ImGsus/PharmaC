@@ -31,19 +31,29 @@ class SupplierController extends Controller
                         ->where('supplier_id', $row->id)
                         ->latest()
                         ->get()
-                        ->map(function ($purchase) {
+                        ->map(function ($purchase) use ($row) {
                             $currentPrice = optional($purchase->purchaseProduct)->price;
+                            $formattedPrice = settings('app_currency', '$').' '.($currentPrice !== null ? $currentPrice : $purchase->cost_price);
                             return [
+                                'id' => $purchase->id,
                                 'product' => $purchase->product,
                                 'category' => optional($purchase->category)->name,
+                                'supplier' => $row->name,
                                 'quantity' => $purchase->quantity,
-                                'cost' => settings('app_currency', '$').' '.($currentPrice !== null ? $currentPrice : $purchase->cost_price),
-                                'expiry' => optional($purchase->expiry_date ? date_create($purchase->expiry_date) : null)->format('d M, Y'),
-                                'submitted' => optional($purchase->created_at)->format('d M, Y'),
+                                'cost' => $formattedPrice,
+                                'price' => $formattedPrice,
+                                'item_quantity' => $purchase->item_quantity,
+                                'packaging_box' => $purchase->packaging_box,
+                                'quantity_per_box' => $purchase->quantity_per_box,
+                                'expiry' => $purchase->expiry_date
+                                    ? date_format(date_create($purchase->expiry_date), 'd M, Y')
+                                    : 'No expiry',
+                                'purchased' => optional($purchase->created_at)->format('d M, Y'),
+                                'image' => $purchase->image_url,
                             ];
                         });
                     $detailbtn = '<button type="button" class="dropdown-item supplier-detail-btn" data-supplier="'.htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8').'" data-products="'.htmlspecialchars($products->toJson(), ENT_QUOTES, 'UTF-8').'" ><i class="fas fa-info-circle mr-2"></i>View Details</button>';
-                    $editbtn = '<a href="'.route("suppliers.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<a href="'.route("suppliers.edit", $row->id).'" data-row-action-name="Supplier" data-row-action-table="supplier-table" data-row-action-list-path="'.route('suppliers.index').'" class="dropdown-item editbtn row-action-iframe-edit"><i class="fas fa-edit mr-2"></i>Edit</a>';
                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('suppliers.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-supplier')) {
                         $editbtn = '';
@@ -51,7 +61,8 @@ class SupplierController extends Controller
                     if (!auth()->user()->hasPermissionTo('destroy-supplier')) {
                         $deletebtn = '';
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle supplier-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Supplier actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$detailbtn.'<div class="dropdown-divider"></div>'.$editbtn.$deletebtn.'</div></div>';
+                    $supplierName = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle supplier-action-button row-action-modal-trigger" data-action-title="Supplier Actions" data-context-label="Name" data-context-value="'.$supplierName.'" aria-haspopup="true" aria-expanded="false" aria-label="Supplier actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$detailbtn.'<div class="dropdown-divider"></div>'.$editbtn.$deletebtn.'</div></div>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -123,7 +134,7 @@ class SupplierController extends Controller
             'comment'=>$request->comment,
         ]);
 
-        $notification = notify("Supplier has been added");
+        $notification = notify("Supplier has been updated");
         return redirect()->route('suppliers.index')->with($notification);
     }
 
@@ -169,6 +180,9 @@ class SupplierController extends Controller
             'product'=>$request->product,
             'comment'=>$request->comment,
         ]);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Supplier has been updated']);
+        }
         $notification = notify("Supplier has been added");
         return redirect()->route('suppliers.index')->with($notification);
     }

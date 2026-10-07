@@ -44,8 +44,14 @@ Route::middleware(['auth', 'audit'])->group(function(){
         return redirect()->route('dashboard');
     });
     Route::get('',[DashboardController::class,'Index']);
+    Route::get('notifications',[NotificationController::class,'index'])->name('notifications.index');
+    Route::get('notifications/modal-content',[NotificationController::class,'modalContent'])->name('notifications.modal-content');
     Route::get('notification',[NotificationController::class,'markAsRead'])->name('mark-as-read');
     Route::get('notification-read',[NotificationController::class,'read'])->name('read');
+    Route::get('notification/read/{id}',[NotificationController::class,'readOne'])->name('notification.read-one');
+    Route::post('notification/mark-single/{id}',[NotificationController::class,'markSingleAsRead'])->name('notification.mark-single');
+    Route::delete('notification/{id}',[NotificationController::class,'destroyAjax'])->name('notification.destroy-ajax');
+    Route::post('notifications/clear-read',[NotificationController::class,'destroyAllRead'])->name('notifications.clear-read');
     Route::get('profile',[UserController::class,'profile'])->name('profile');
     Route::post('profile/{user}',[UserController::class,'updateProfile'])->name('profile.update');
     Route::put('profile/update-password/{user}',[UserController::class,'updatePassword'])->name('update-password');
@@ -88,11 +94,16 @@ Route::middleware(['auth', 'audit'])->group(function(){
     Route::get('prescriptions/gemini-credentials', [PrescriptionController::class, 'geminiCredentials'])->name('prescriptions.gemini-credentials.index');
     Route::post('prescriptions/gemini-credentials', [PrescriptionController::class, 'storeGeminiCredential'])->name('prescriptions.gemini-credentials.store');
     Route::delete('prescriptions/gemini-credentials/{credential}', [PrescriptionController::class, 'deleteGeminiCredential'])->name('prescriptions.gemini-credentials.destroy');
+    Route::get('prescriptions/groq-credentials', [PrescriptionController::class, 'groqCredentials'])->name('prescriptions.groq-credentials.index');
+    Route::post('prescriptions/groq-credentials', [PrescriptionController::class, 'storeGroqCredential'])->name('prescriptions.groq-credentials.store');
+    Route::delete('prescriptions/groq-credentials/{credential}', [PrescriptionController::class, 'deleteGroqCredential'])->name('prescriptions.groq-credentials.destroy');
     Route::post('prescriptions/match-catalog', [PrescriptionController::class, 'matchCatalog'])->name('prescriptions.match-catalog');
     Route::patch('prescriptions/{prescription}/status', [PrescriptionController::class, 'updateStatus'])->name('prescriptions.status');
     Route::delete('prescriptions/{prescription}', [PrescriptionController::class, 'destroy'])->name('prescriptions.destroy');
     Route::get('temperature', [TemperatureController::class, 'index'])->name('temperature.index');
     Route::post('temperature', [TemperatureController::class, 'store'])->name('temperature.store');
+    Route::put('temperature/{reading}', [TemperatureController::class, 'update'])->name('temperature.update');
+    Route::delete('temperature/{reading}', [TemperatureController::class, 'destroy'])->name('temperature.destroy');
     Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
     Route::get('inventory-check/modal-content', [InventoryCheckController::class, 'modalContent'])
         ->middleware('can:view-products')

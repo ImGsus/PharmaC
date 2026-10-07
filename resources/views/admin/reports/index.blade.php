@@ -59,15 +59,42 @@
     html.dark-mode .reports-dashboard .report-card .report-action-button { background-color: transparent !important; border: 1px solid #2e9d72 !important; color: #55c995 !important; }
     body.dark-mode .reports-dashboard .report-card .report-action-button:hover,
     html.dark-mode .reports-dashboard .report-card .report-action-button:hover { background: #2e9d72 !important; border-color: #2e9d72 !important; color: #fff !important; }
-    .report-modal .modal-dialog { max-width: 96vw; }
-    .report-modal .modal-content { border: 0; border-radius: 12px; }
-    .report-modal .modal-header { background: #19324a; color: #fff; border-radius: 12px 12px 0 0; }
+    @media (min-width: 768px) {
+        #reportViewerModal .modal-dialog {
+            width: 95vw !important;
+            max-width: 1400px !important;
+            min-width: 860px !important;
+            margin: 1.75rem auto !important;
+        }
+    }
+    @media (min-width: 1400px) {
+        #reportViewerModal .modal-dialog {
+            max-width: 1520px !important;
+        }
+    }
+    .report-modal .modal-content { border: 0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+    .report-modal .modal-header { background: #19324a; color: #fff; border-radius: 12px 12px 0 0; padding: 16px 22px; }
     .report-modal .modal-header .close { color: #fff; opacity: .9; }
-    .report-modal .modal-body { padding: 18px; }
-    .report-modal .report-table { min-width: 900px; }
-    .report-modal .dataTables_wrapper { overflow-x: auto; }
-    .report-modal .generation-report-table { min-width: 760px; }
+    .report-modal .modal-body { padding: 22px; max-height: calc(100vh - 120px); overflow-y: auto; }
+    .report-modal .report-toolbar { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+    .report-modal .report-toolbar label { font-size: 0.8125rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
+    .report-modal .report-filter-form button[type="submit"] { background-color: #10b981 !important; border-color: #10b981 !important; color: #fff !important; font-weight: 500; transition: background-color .15s ease, border-color .15s ease; }
+    .report-modal .report-filter-form button[type="submit"]:hover { background-color: #059669 !important; border-color: #059669 !important; }
+    .report-modal .report-csv-link { font-weight: 500; }
+    .report-modal .report-summary { color: #64748b; font-size: 0.875rem; margin-bottom: 16px; }
+    body.dark-mode .report-modal .report-toolbar { background: #111827; border-color: rgba(255,255,255,.1); }
+    body.dark-mode .report-modal .report-toolbar label { color: #cbd5e1; }
+    body.dark-mode .report-modal .report-summary { color: #94a3b8; }
+    .report-modal .pharma-table-toolbar { position: static !important; top: auto !important; display: flex !important; align-items: center !important; justify-content: flex-start !important; margin-bottom: 12px !important; background: transparent !important; padding: 0 !important; }
+    .report-modal .pharma-table-toolbar .dataTables_filter { margin: 0 !important; }
+    .report-modal .pharma-table-toolbar .dataTables_filter label { margin: 0 !important; display: flex !important; align-items: center !important; }
+    .report-modal .pharma-table-toolbar .dataTables_filter input { min-width: 260px !important; height: 38px !important; border-radius: 8px !important; padding: 6px 14px !important; border: 1px solid #d1d5db !important; font-size: 0.875rem !important; }
+    body.dark-mode .report-modal .pharma-table-toolbar .dataTables_filter input { background-color: #111827 !important; border-color: rgba(255,255,255,.15) !important; color: #f3f4f6 !important; }
+    .report-modal .tabulator { position: static !important; border: 1px solid var(--ph-tab-border, #e5e7eb) !important; border-radius: 8px !important; }
+    .report-modal .tabulator .tabulator-footer { position: static !important; top: auto !important; order: -1 !important; background-color: var(--ph-header-bg, #f8fafc) !important; border-top: none !important; border-bottom: 1px solid var(--ph-footer-border, #e5e7eb) !important; padding: 8px 14px !important; display: flex !important; align-items: center !important; justify-content: flex-end !important; min-height: 44px !important; }
+    .report-modal .tabulator .tabulator-header { position: static !important; top: auto !important; border-bottom: 1px solid var(--ph-header-border, #e5e7eb) !important; }
     body.dark-mode .report-modal .modal-content { background: #1c2025; color: #e7e9ec; }
+    body.dark-mode .report-modal .tabulator .tabulator-footer { background-color: #1f2937 !important; border-color: rgba(255,255,255,.12) !important; }
     .generation-option { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #e6ebf1; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
     .generation-option:last-child { margin-bottom: 0; }
     .generation-option strong { display: block; margin-bottom: 3px; }
@@ -178,14 +205,33 @@
             var tables = $('#reportViewerBody .report-table, #reportViewerBody .generation-report-table');
             if (window.PharmaTabulator && tables.length) {
                 tables.each(function (index) {
-                    window.PharmaTabulator.fromDom({
+                    var tableInstance = window.PharmaTabulator.fromDom({
                         el: this,
                         key: 'embedded-report-' + index,
-                        pageLength: 10
+                        pageLength: 10,
+                        searchPlaceholder: 'Search report...',
+                        minWidth: 100
                     });
+                    if (tableInstance) {
+                        window.setTimeout(function () {
+                            try { tableInstance.redraw(true); } catch (e) {}
+                        }, 60);
+                    }
                 });
             }
         }
+
+        $('#reportViewerModal').on('shown.bs.modal', function () {
+            $('#reportViewerBody .tabulator').each(function () {
+                var key = $(this).closest('.tabulator-wrapper').attr('data-table-key');
+                if (key && window.PharmaTabulator) {
+                    var table = window.PharmaTabulator.get(key);
+                    if (table) {
+                        try { table.redraw(true); } catch (e) {}
+                    }
+                }
+            });
+        });
 
         function loadReport(url) {
             var body = $('#reportViewerBody');

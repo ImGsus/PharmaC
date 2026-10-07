@@ -1297,6 +1297,10 @@
                             <div><strong>Quantity per Box</strong><span class="dashboard-product-detail quantity_per_box"></span></div>
                             <div><strong>Expire Date</strong><span class="dashboard-product-detail expiry"></span></div>
                             <div><strong>Date of Purchase</strong><span class="dashboard-product-detail purchased"></span></div>
+                            <div class="detail-box-expiries-wrap" style="grid-column: 1 / -1; display: none;">
+                                <strong>Packaging Box Expiries</strong>
+                                <div class="detail-box-expiries-list d-flex flex-wrap mt-1" style="gap: 6px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1439,6 +1443,32 @@
                     }
                     $('#dashboardProductDetailsModal .dashboard-product-detail.' + key).text(details[key] || '');
                 });
+
+                var boxExpiries = details.box_expiries || [];
+                var $boxExpWrap = $('#dashboardProductDetailsModal .detail-box-expiries-wrap');
+                var $boxExpList = $('#dashboardProductDetailsModal .detail-box-expiries-list');
+                $boxExpList.empty();
+
+                if (Array.isArray(boxExpiries) && boxExpiries.length > 0) {
+                    boxExpiries.forEach(function (b) {
+                        var boxLabel = b.box ? (typeof b.box === 'number' ? 'Box #' + b.box : b.box) : 'Box';
+                        var dateStr = b.expiry_date || 'No expiry';
+                        var badgeClass = 'badge badge-light border text-dark';
+                        if (b.expiry_date) {
+                            var expD = new Date(b.expiry_date + 'T00:00:00');
+                            var today = new Date();
+                            today.setHours(0,0,0,0);
+                            if (expD < today) {
+                                badgeClass = 'badge badge-danger text-white';
+                            }
+                        }
+                        $boxExpList.append('<span class="' + badgeClass + ' px-2 py-1"><i class="fas fa-box mr-1"></i> ' + boxLabel + ': <strong>' + dateStr + '</strong></span>');
+                    });
+                    $boxExpWrap.show();
+                } else {
+                    $boxExpWrap.hide();
+                }
+
                 $('#dashboardProductDetailsModal').modal('show');
             });
         }

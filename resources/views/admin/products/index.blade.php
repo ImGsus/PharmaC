@@ -688,6 +688,10 @@
 						<div class="product-detail-item"><strong>Quantity per Box</strong><span class="product-detail detail-quantity_per_box"></span></div>
 						<div class="product-detail-item"><strong>Expiry Date</strong><span class="product-detail detail-expiry"></span></div>
 						<div class="product-detail-item"><strong>Date of Purchase</strong><span class="product-detail detail-purchased"></span></div>
+						<div class="product-detail-item detail-box-expiries-wrap" style="grid-column: 1 / -1; display: none;">
+							<strong>Packaging Box Expiries</strong>
+							<div class="detail-box-expiries-list d-flex flex-wrap mt-1" style="gap: 6px;"></div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -701,7 +705,7 @@
 			<div class="modal-header">
 				<div class="row-action-heading">
 					<h5 class="modal-title" id="product-row-action-modal-title">Products Actions</h5>
-					<span class="row-action-meta">Name &rarr; <span id="product-row-action-name"></span> &rarr; <span id="product-row-action-status"></span></span>
+					<span class="row-action-meta">Name &rarr; <span id="product-row-action-name"></span> &rarr; <span id="product-row-action-category"></span></span>
 				</div>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			</div>
@@ -724,6 +728,7 @@
 @endsection
 
 @push('page-js')
+<script src="{{asset('assets/js/purchase-multi-step.js')}}"></script>
 <script>
     $(document).ready(function() {
 		$(document)
@@ -735,6 +740,7 @@
 
 		var activeProductActionButton = null;
 		var returnToProductActionsAfterEdit = false;
+		var returnToProductActionsAfterDetails = false;
 
 		function runAfterProductActionsReady(callback) {
 			var actionModal = $('#product-row-action-modal');
@@ -767,30 +773,45 @@
 				activeProductActionButton = this;
 				this.setAttribute('aria-expanded', 'true');
 				$('#product-row-action-name').text(this.getAttribute('data-action-name') || '');
-				$('#product-row-action-status').text(this.getAttribute('data-action-status') || '');
+				$('#product-row-action-category').text(this.getAttribute('data-action-category') || '');
 				$('#product-row-action-content').html(menu.innerHTML);
 				$('#product-row-action-modal').modal('show');
 			});
 		$('#product-row-action-modal').off('hidden.bs.modal.productRowActions').on('hidden.bs.modal.productRowActions', function () {
-			if (returnToProductActionsAfterEdit) return;
+			if (returnToProductActionsAfterEdit || returnToProductActionsAfterDetails) return;
 			if (activeProductActionButton) activeProductActionButton.setAttribute('aria-expanded', 'false');
 			activeProductActionButton = null;
 			$('#product-row-action-content').empty();
 		});
 
-        if (window.PharmaTabulator) {
-            window.PharmaTabulator.server({
-                el: 'product-table',
-                url: "{{route('products.index')}}",
-                columns: [
-                    {title: 'Product Name', field: 'product', formatter: 'html'},
-                    {title: 'Category', field: 'category'},
-                    {title: 'Status', field: 'status', formatter: 'html'},
-                    {title: 'Quantity', field: 'quantity'},
-                    {title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 150, hozAlign: 'center'},
-                ]
-            });
-        }
+	window.pharmacyProductsInit = function() {
+		var tableEl = document.getElementById('product-table');
+		if (!tableEl) return;
+		if (!window.PharmaTabulator) return;
+
+		window.PharmaTabulator.server({
+			el: 'product-table',
+			url: "{{route('products.index')}}",
+			columns: [
+				{title: 'Product Name', field: 'product', formatter: 'html'},
+				{title: 'Category', field: 'category'},
+				{title: 'Status', field: 'status', formatter: 'html'},
+				{title: 'Quantity', field: 'quantity'},
+				{title: 'Action', field: 'action', formatter: 'html', headerSort: false, searchable: false, width: 150, hozAlign: 'center'},
+			]
+		});
+	};
+
+	if (!window.pharmacyProductsTurboHandler) {
+		window.pharmacyProductsTurboHandler = function() {
+			if (window.pharmacyProductsInit) {
+				window.pharmacyProductsInit();
+			}
+		};
+		document.addEventListener('turbo:load', window.pharmacyProductsTurboHandler);
+	}
+
+	window.pharmacyProductsInit();
 
 		$(document).off('click.productRowActions', '#product-table .product-detail-btn, #product-row-action-content .product-detail-btn')
 			.on('click.productRowActions', '#product-table .product-detail-btn, #product-row-action-content .product-detail-btn', function (event) {
@@ -813,13 +834,48 @@
 			});
 			var expiryVal = details.expiry || details.expiry_date || '';
 			$('#productDetailsModal .detail-expiry').text(expiryVal && expiryVal !== '-' ? expiryVal : 'No expiry');
+
+			var boxExpiries = details.box_expiries || [];
+			var $boxExpWrap = $('#productDetailsModal .detail-box-expiries-wrap');
+			var $boxExpList = $('#productDetailsModal .detail-box-expiries-list');
+			$boxExpList.empty();
+
+			if (Array.isArray(boxExpiries) && boxExpiries.length > 0) {
+				boxExpiries.forEach(function (b) {
+					var boxLabel = b.box ? (typeof b.box === 'number' ? 'Box #' + b.box : b.box) : 'Box';
+					var dateStr = b.expiry_date || 'No expiry';
+					var badgeClass = 'badge badge-light border text-dark';
+					if (b.expiry_date) {
+						var expD = new Date(b.expiry_date + 'T00:00:00');
+						var today = new Date();
+						today.setHours(0,0,0,0);
+						if (expD < today) {
+							badgeClass = 'badge badge-danger text-white';
+						}
+					}
+					$boxExpList.append('<span class="' + badgeClass + ' px-2 py-1"><i class="fas fa-box mr-1"></i> ' + boxLabel + ': <strong>' + dateStr + '</strong></span>');
+				});
+				$boxExpWrap.show();
+			} else {
+				$boxExpWrap.hide();
+			}
+
 			var showDetails = function () { $('#productDetailsModal').modal('show'); };
 			var actionModal = $('#product-row-action-modal');
 			if (actionModal.hasClass('show')) {
+				returnToProductActionsAfterDetails = true;
 				switchFromProductActions($('#productDetailsModal'), 'productDetails');
 			} else {
 				showDetails();
 			}
+		});
+
+		$('#productDetailsModal').off('hidden.bs.modal.productDetailsReturn').on('hidden.bs.modal.productDetailsReturn', function () {
+			if (!returnToProductActionsAfterDetails) return;
+			returnToProductActionsAfterDetails = false;
+			window.setTimeout(function () {
+				$('#product-row-action-modal').modal('show');
+			}, 50);
 		});
 
 		var productEditModal = $('#product-edit-modal');
@@ -1015,27 +1071,9 @@
 				});
 			});
 
-		/* ---- Add Product modal (reuses the purchase form, styled like "Add Purchase") ---- */
+		/* ---- Add Product modal (multi-step purchase form) ---- */
 		var addProductModal = $('#addProductModal');
 		var addProductForm = addProductModal.find('form');
-		var addProductCategory = addProductForm.find('select[name="category"]');
-		var addProductSupplier = addProductForm.find('select[name="supplier"]');
-		var addProductExpiry = addProductForm.find('input[name="expiry_date"]');
-		var addProductNoExpiry = addProductForm.find('input[name="no_expiry"]');
-
-		function computeAddProductTotal() {
-			var item = parseInt(addProductForm.find('input[name="item_quantity"]').val() || 0, 10);
-			var boxes = parseInt(addProductForm.find('input[name="packaging_box"]').val() || 0, 10);
-			var perBox = parseInt(addProductForm.find('input[name="quantity_per_box"]').val() || 0, 10);
-			addProductForm.find('input[name="total_quantity"]').val(item + (boxes * perBox));
-		}
-
-		function syncAddProductExpiry() {
-			var categoryNoExpiry = addProductCategory.find('option:selected').data('no-expiry') === 1 || addProductCategory.find('option:selected').data('no-expiry') === '1';
-			var noExpiry = categoryNoExpiry || addProductNoExpiry.is(':checked');
-			addProductNoExpiry.prop('disabled', categoryNoExpiry);
-			addProductExpiry.prop('disabled', noExpiry).prop('required', !noExpiry);
-		}
 
 		function initAddProductSelect2() {
 			if (!$.fn.select2) return;
@@ -1056,52 +1094,10 @@
 		if (addProductModal.length) {
 			addProductModal.on('shown.bs.modal', function () {
 				initAddProductSelect2();
-				computeAddProductTotal();
-				syncAddProductExpiry();
 			});
 
-			addProductForm.find('input[name="item_quantity"], input[name="packaging_box"], input[name="quantity_per_box"]').on('input', computeAddProductTotal);
-
-			addProductCategory.on('change', function () {
-				var categoryNoExpiry = addProductCategory.find('option:selected').data('no-expiry') === 1 || addProductCategory.find('option:selected').data('no-expiry') === '1';
-				addProductNoExpiry.prop('checked', categoryNoExpiry).prop('disabled', categoryNoExpiry);
-				syncAddProductExpiry();
-			});
-
-			addProductNoExpiry.on('change', syncAddProductExpiry);
-
-			addProductSupplier.on('change', function () {
-				var option = $(this).find('option:selected');
-				var product = option.data('product') || '';
-				var category = option.data('category') || '';
-				var cost = option.data('cost') || '';
-				var expiry = option.data('expiry') || '';
-				if (product) addProductForm.find('input[name="product"]').val(product);
-				if (category) addProductCategory.val(category).trigger('change.select2').trigger('change');
-				if (cost) addProductForm.find('input[name="cost_price"]').val(cost);
-				if (expiry) addProductExpiry.val(expiry);
-				computeAddProductTotal();
-			});
-
-			var addProductValidationNoticeShown = false;
-			if (addProductForm.length) {
-				addProductForm[0].addEventListener('invalid', function (event) {
-					event.preventDefault();
-					var firstInvalid = addProductForm[0].querySelector(':invalid');
-					if (firstInvalid) firstInvalid.focus();
-					if (!addProductValidationNoticeShown && window.Snackbar) {
-						addProductValidationNoticeShown = true;
-						Snackbar.show({
-							text: 'Please complete all required fields before submitting.',
-							pos: 'top-right',
-							actionTextColor: '#fff',
-							backgroundColor: '#e7515a'
-						});
-						setTimeout(function () {
-							addProductValidationNoticeShown = false;
-						}, 500);
-					}
-				}, true);
+			if (window.initPurchaseMultiStep) {
+				window.initPurchaseMultiStep(addProductForm, addProductModal);
 			}
 
 			// Re-open the modal if the page reloaded with server-side validation errors

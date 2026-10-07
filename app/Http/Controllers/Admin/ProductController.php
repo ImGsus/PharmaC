@@ -63,6 +63,7 @@ class ProductController extends Controller
                     $isActive = (bool) $row->is_active;
                     $stateClass = $isActive ? 'is-active' : 'is-inactive';
                     $actionName = htmlspecialchars((string) optional($purchase)->product, ENT_QUOTES, 'UTF-8');
+                    $actionCategory = htmlspecialchars((string) optional(optional($purchase)->category)->name, ENT_QUOTES, 'UTF-8');
                     $actionStatus = $isActive ? 'Active' : 'Not Active';
                     $statusMenuItem = '';
                     if (auth()->user() && auth()->user()->hasPermissionTo('edit-product')) {
@@ -90,6 +91,7 @@ class ProductController extends Controller
                             'item_quantity' => optional($purchase)->item_quantity,
                             'packaging_box' => optional($purchase)->packaging_box,
                             'quantity_per_box' => optional($purchase)->quantity_per_box,
+                            'box_expiries' => optional($purchase)->box_expiries,
                         ]), ENT_QUOTES, 'UTF-8').'" title="View product details">...</button>';
                     $detailbtn = str_replace(
                         '<button type="button" class="btn btn-secondary product-detail-btn"',
@@ -110,7 +112,7 @@ class ProductController extends Controller
                         $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                     }
 
-                    return '<div class="btn-group product-action-cell '.$stateClass.'" data-active="'.($isActive ? '1' : '0').'"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-status-action-button product-row-action-button '.$stateClass.'" data-action-name="'.$actionName.'" data-action-status="'.$actionStatus.'" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                    return '<div class="btn-group product-action-cell '.$stateClass.'" data-active="'.($isActive ? '1' : '0').'"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-status-action-button product-row-action-button '.$stateClass.'" data-action-name="'.$actionName.'" data-action-category="'.$actionCategory.'" data-action-status="'.$actionStatus.'" aria-haspopup="true" aria-expanded="false" aria-label="Product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['product','status','action'])
                 ->make(true);
@@ -165,6 +167,7 @@ class ProductController extends Controller
         }
         $barcode = $request->barcode ?: Str::upper(Str::random(10));
 
+        $targetProduct = $existingProduct;
         if ($existingProduct) {
             $existingProduct->update([
                 'price'=>$price,
@@ -174,7 +177,7 @@ class ProductController extends Controller
             ]);
             $notification = notify("Product has been updated");
         } else {
-            Product::create([
+            $targetProduct = Product::create([
                 'purchase_id'=>$request->product,
                 'price'=>$price,
                 'discount'=>$discount,
@@ -183,6 +186,13 @@ class ProductController extends Controller
                 'is_active'=>true,
             ]);
             $notification = notify("Product has been added");
+        }
+
+        if ($targetProduct && $targetProduct->purchase) {
+            $hasExpired = \App\Services\ExpiryNotificationService::checkAndNotifyPurchase($targetProduct->purchase);
+            if ($hasExpired > 0) {
+                $notification = notify("Product saved. ⚠️ Notice: Contains expired stock and is currently Active!", "warning");
+            }
         }
 
         return redirect()->route('products.index')->with($notification);
@@ -243,6 +253,9 @@ class ProductController extends Controller
             'barcode'=>$barcode,
             'description'=>$request->description,
         ]);
+        if ($product->purchase) {
+            \App\Services\ExpiryNotificationService::checkAndNotifyPurchase($product->purchase);
+        }
         $notification = notify('product has been updated');
         if ($request->ajax()) {
             return response()->json([
@@ -290,54 +303,111 @@ class ProductController extends Controller
         $title = "expired Products";
         Product::markExpiredProducts();
         if($request->ajax()){
-            $products = Product::with(['purchase.category'])->where('expired', true)->get();
+            $products = Product::with(['purchase.category', 'purchase.supplier'])->where('expired', true)->get();
 
-            return DataTables::of($products)
-                ->addColumn('product',function($product){
-                    if(!empty($product->purchase)){
-                        return $product->purchase->product;
-                    }
-                })
+            $rows = collect();
+            $today = \Illuminate\Support\Carbon::today();
 
-                ->addColumn('category',function($product){
-                    $category = null;
-                    if(!empty($product->purchase->category)){
-                        $category = $product->purchase->category->name;
+            foreach ($products as $product) {
+                $purchase = $product->purchase;
+                if (!$purchase) continue;
+
+                $boxExpiries = $purchase->box_expiries;
+                $hasBoxExpiries = is_array($boxExpiries) && count($boxExpiries) > 0;
+
+                if ($hasBoxExpiries) {
+                    $boxCount = (int) ($purchase->packaging_box ?? 0);
+                    $totalQty = (int) ($purchase->quantity ?? 0);
+                    $looseQty = (int) ($purchase->item_quantity ?? 0);
+                    $boxPool = max(0, $totalQty - $looseQty);
+                    $qtyPerBox = $boxCount > 0 ? (int) round($boxPool / $boxCount) : (int) ($purchase->quantity_per_box ?: 1);
+                    if ($qtyPerBox <= 0) $qtyPerBox = 1;
+
+                    $foundExpiredBox = false;
+                    foreach ($boxExpiries as $item) {
+                        $boxDate = $item['expiry_date'] ?? null;
+                        $isBoxExpired = $boxDate && \Illuminate\Support\Carbon::parse($boxDate)->startOfDay()->lte($today);
+
+                        if ($isBoxExpired) {
+                            $foundExpiredBox = true;
+                            $boxNum = $item['box'] ?? 1;
+                            $boxLabel = is_numeric($boxNum) ? ('Package#' . $boxNum) : (string)$boxNum;
+                            $expiredQty = ($boxNum === 'Loose Items') ? ($looseQty ?: $qtyPerBox) : $qtyPerBox;
+                            $expiredQty = min($expiredQty, $totalQty);
+
+                            $rows->push([
+                                'id'             => $product->id,
+                                'product'        => htmlspecialchars($purchase->product, ENT_QUOTES, 'UTF-8') . ' - <span class="text-danger font-weight-bold" style="color: #ef4444 !important;">' . htmlspecialchars($boxLabel, ENT_QUOTES, 'UTF-8') . '</span>',
+                                'product_name'   => $purchase->product . ' - ' . $boxLabel,
+                                'category'       => optional($purchase->category)->name,
+                                'price'          => settings('app_currency', '$') . ' ' . $product->price,
+                                'quantity'       => $expiredQty,
+                                'expiry_date'    => $boxDate,
+                                'box_label'      => $boxLabel,
+                                'product_model'  => $product,
+                                'purchase_model' => $purchase,
+                            ]);
+                        }
                     }
-                    return $category;
-                })
-                ->addColumn('price',function($product){
-                    return settings('app_currency','$').' '. $product->price;
-                })
-                ->addColumn('quantity',function($product){
-                    if(!empty($product->purchase)){
-                        return $product->purchase->quantity;
+
+                    if (!$foundExpiredBox) {
+                        $rows->push([
+                            'id'             => $product->id,
+                            'product'        => htmlspecialchars($purchase->product, ENT_QUOTES, 'UTF-8'),
+                            'product_name'   => $purchase->product,
+                            'category'       => optional($purchase->category)->name,
+                            'price'          => settings('app_currency', '$') . ' ' . $product->price,
+                            'quantity'       => $purchase->quantity,
+                            'expiry_date'    => $purchase->expiry_date,
+                            'box_label'      => null,
+                            'product_model'  => $product,
+                            'purchase_model' => $purchase,
+                        ]);
                     }
-                })
+                } else {
+                    $rows->push([
+                        'id'             => $product->id,
+                        'product'        => htmlspecialchars($purchase->product, ENT_QUOTES, 'UTF-8'),
+                        'product_name'   => $purchase->product,
+                        'category'       => optional($purchase->category)->name,
+                        'price'          => settings('app_currency', '$') . ' ' . $product->price,
+                        'quantity'       => $purchase->quantity,
+                        'expiry_date'    => $purchase->expiry_date,
+                        'box_label'      => null,
+                        'product_model'  => $product,
+                        'purchase_model' => $purchase,
+                    ]);
+                }
+            }
+
+            return DataTables::of($rows)
                 ->addColumn('action', function ($row) {
-                    $purchase = $row->purchase;
-                    $actionName = htmlspecialchars((string) optional($purchase)->product, ENT_QUOTES, 'UTF-8');
-                    $actionExpiry = optional($purchase)->expiry_date
-                        ? date_format(date_create($purchase->expiry_date), 'd M, Y')
+                    $purchase = $row['purchase_model'];
+                    $product = $row['product_model'];
+                    $actionName = htmlspecialchars((string) $row['product_name'], ENT_QUOTES, 'UTF-8');
+                    $actionCategory = htmlspecialchars((string) optional(optional($purchase)->category)->name, ENT_QUOTES, 'UTF-8');
+                    $actionExpiry = !empty($row['expiry_date'])
+                        ? date_format(date_create($row['expiry_date']), 'd M, Y')
                         : 'No expiry';
                     $actionExpiry = htmlspecialchars($actionExpiry, ENT_QUOTES, 'UTF-8');
                     $detailbtn = '<button type="button" class="dropdown-item expired-detail-btn" '
                         . 'data-details="'.htmlspecialchars(json_encode([
-                            'product'          => optional($purchase)->product,
+                            'product'          => $row['product_name'],
                             'image'            => optional($purchase)->image ? $purchase->image_url : asset('assets/img/productnoimage.png'),
                             'category'         => optional(optional($purchase)->category)->name,
                             'supplier'         => optional(optional($purchase)->supplier)->name,
-                            'price'            => settings('app_currency', '$').' '.$row->price,
-                            'quantity'         => optional($purchase)->quantity,
-                            'expiry'           => optional($purchase)->expiry_date ? date_format(date_create($purchase->expiry_date), 'd M, Y') : 'No expiry',
+                            'price'            => $row['price'],
+                            'quantity'         => $row['quantity'],
+                            'expiry'           => $actionExpiry,
                             'purchased'        => optional(optional($purchase)->created_at)->format('d M, Y'),
                             'item_quantity'    => optional($purchase)->item_quantity,
                             'packaging_box'    => optional($purchase)->packaging_box,
                             'quantity_per_box' => optional($purchase)->quantity_per_box,
+                            'box_expiries'     => optional($purchase)->box_expiries,
                         ]), ENT_QUOTES, 'UTF-8').'">'
                         . '<i class="fas fa-info-circle mr-2"></i>View Details</button>';
-                    $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';
-                    $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('products.destroy', $row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
+                    $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $product->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';
+                    $deletebtn = '<a data-id="'.$product->id.'" data-route="'.route('products.destroy', $product->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fas fa-trash mr-2"></i>Delete</a>';
                     if (!auth()->user()->hasPermissionTo('edit-product')) {
                         $editbtn = '';
                     }
@@ -348,7 +418,7 @@ class ProductController extends Controller
                     if ($editbtn || $deletebtn) {
                         $menuItems .= '<div class="dropdown-divider"></div>'.$editbtn.$deletebtn;
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-row-action-button" data-action-name="'.$actionName.'" data-action-expiry="'.$actionExpiry.'" aria-haspopup="true" aria-expanded="false" aria-label="Expired product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle product-action-button product-row-action-button" data-action-name="'.$actionName.'" data-action-category="'.$actionCategory.'" data-action-expiry="'.$actionExpiry.'" aria-haspopup="true" aria-expanded="false" aria-label="Expired product actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$menuItems.'</div></div>';
                 })
                 ->rawColumns(['product','action'])
                 ->make(true);
@@ -410,6 +480,7 @@ class ProductController extends Controller
                             'item_quantity'    => optional($purchase)->item_quantity,
                             'packaging_box'    => optional($purchase)->packaging_box,
                             'quantity_per_box' => optional($purchase)->quantity_per_box,
+                            'box_expiries'     => optional($purchase)->box_expiries,
                         ]), ENT_QUOTES, 'UTF-8').'">'
                         . '<i class="fas fa-info-circle mr-2"></i>View Details</button>';
                     $editbtn = '<button type="button" data-edit-url="'.route("products.edit", $row->id).'" class="dropdown-item editbtn"><i class="fas fa-edit mr-2"></i>Edit</button>';

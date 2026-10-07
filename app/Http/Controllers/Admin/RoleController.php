@@ -37,7 +37,7 @@ class RoleController extends Controller
                     // return implode("",$role->getAllPermissions()->toArray());
                 })
                 ->addColumn('action',function ($row){
-                    $editbtn = '<a href="'.route('roles.edit',$row->id).'" class="dropdown-item editbtn"><i class="fa fa-edit mr-2"></i>Edit</a>';
+                    $editbtn = '<a href="'.route('roles.edit', $row->id).'" data-row-action-name="Role" data-row-action-table="role-table" data-row-action-list-path="'.route('roles.index').'" class="dropdown-item editbtn row-action-iframe-edit"><i class="fa fa-edit mr-2"></i>Edit</a>';
                     $deletebtn = '<a data-id="'.$row->id.'" data-route="'.route('roles.destroy',$row->id).'" href="javascript:void(0)" id="deletebtn" class="dropdown-item text-danger"><i class="fa fa-trash mr-2"></i>Delete</a>';
                     if(!auth()->user()->hasPermissionTo('edit-role')){
                         $editbtn = '';
@@ -45,7 +45,8 @@ class RoleController extends Controller
                     if(!auth()->user()->hasPermissionTo('destroy-role')){
                         $deletebtn = '';
                     }
-                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle role-action-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Role actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
+                    $roleName = htmlspecialchars($row->name, ENT_QUOTES, 'UTF-8');
+                    return '<div class="btn-group"><button type="button" class="btn btn-sm btn-secondary dropdown-toggle role-action-button row-action-modal-trigger" data-action-title="Roles Actions" data-context-label="Name" data-context-value="'.$roleName.'" aria-haspopup="true" aria-expanded="false" aria-label="Role actions"><i class="fa fa-ellipsis-v"></i></button><div class="dropdown-menu dropdown-menu-right">'.$editbtn.'<div class="dropdown-divider"></div>'.$deletebtn.'</div></div>';
                 })
                 ->rawColumns(['permissions','action'])
                 ->make(true);
@@ -118,6 +119,9 @@ class RoleController extends Controller
             'name' => $request->role,
         ]);
         $role->syncPermissions($request->permission);
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Role updated successfully']);
+        }
         return redirect()->route('roles.index')->with(notify('Role updated successfully'));
     }
 
