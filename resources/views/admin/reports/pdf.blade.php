@@ -1,3 +1,11 @@
+@php
+    // Pre-compute everything before HTML — avoids @php inside CSS blocks
+    $isLandscape  = in_array($report ?? '', ['stock-movement','sales-dispensing','purchase-orders','batch-tracking']);
+    $pageSizeRule = '@page { margin: 1.5cm; size: A4 ' . ($isLandscape ? 'landscape' : 'portrait') . '; }';
+    $fromFormatted = \Carbon\Carbon::parse($from)->format('M d, Y');
+    $toFormatted   = \Carbon\Carbon::parse($to)->format('M d, Y');
+    $headings = ($rows->isNotEmpty()) ? array_keys($rows->first()) : [];
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +16,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #1a202c; background: #f8fafc; }
 
-/* Screen styles */
 .pdf-page { max-width: 1100px; margin: 20px auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 32px 40px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 .pdf-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 3px solid #1e3a5f; padding-bottom: 16px; margin-bottom: 20px; }
 .pdf-logo-area { display: flex; align-items: center; gap: 12px; }
@@ -24,15 +31,12 @@ table { width: 100%; border-collapse: collapse; font-size: 11px; }
 thead tr { background: #1e3a5f; color: #fff; }
 thead th { padding: 8px 10px; text-align: left; font-weight: 600; white-space: nowrap; border: 1px solid #16304f; }
 tbody tr:nth-child(even) { background: #f8fafc; }
-tbody tr:hover { background: #eff6ff; }
 tbody td { padding: 7px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
 .pdf-footer-row { border-top: 2px solid #1e3a5f; padding-top: 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #64748b; }
 .badge-expired { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 9999px; font-size: 10px; font-weight: 600; }
 .badge-critical { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 9999px; font-size: 10px; font-weight: 600; }
 .badge-soon { background: #fef9c3; color: #713f12; padding: 1px 6px; border-radius: 9999px; font-size: 10px; font-weight: 600; }
 
-/* Action buttons (screen only) */
-.no-print { display: block; }
 .print-actions { position: sticky; top: 0; z-index: 100; background: #1e3a5f; padding: 10px 20px; display: flex; gap: 12px; align-items: center; justify-content: flex-end; }
 .print-actions span { color: #fff; font-size: 13px; font-weight: 600; margin-right: auto; }
 .btn-print { background: #2563eb; color: #fff; border: none; padding: 8px 18px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; }
@@ -43,29 +47,29 @@ tbody td { padding: 7px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
 @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
     body { background: #fff !important; color: #000 !important; font-size: 10px; }
-    .no-print, .print-actions { display: none !important; }
+    .print-actions { display: none !important; }
     .pdf-page { max-width: none; margin: 0; border: none; border-radius: 0; padding: 0; box-shadow: none; }
     thead tr { background: #1e3a5f !important; color: #fff !important; }
     tbody tr:nth-child(even) { background: #f8fafc !important; }
     table { page-break-inside: auto; }
     tr { page-break-inside: avoid; }
-    @php echo '@page { margin: 1.5cm; size: A4 ' . $orientation . '; }'; @endphp
 }
 </style>
+{{-- Output @page rule without putting @php inside @media block --}}
+<style>{!! $pageSizeRule !!}</style>
 </head>
 <body>
 
-<div class="print-actions no-print">
-    <span>📄 {{ $title }}</span>
-    <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
-    <button class="btn-close-pdf" onclick="window.close()">✕ Close</button>
+<div class="print-actions">
+    <span>&#128196; {{ $title }}</span>
+    <button class="btn-print" onclick="window.print()">&#128424; Print / Save as PDF</button>
+    <button class="btn-close-pdf" onclick="window.close()">&#x2715; Close</button>
 </div>
 
 <div class="pdf-page">
-    {{-- Header --}}
     <div class="pdf-header">
         <div class="pdf-logo-area">
-            @if($logoUrl)
+            @if(!empty($logoUrl))
                 <img src="{{ $logoUrl }}" alt="{{ $appName }} Logo">
             @endif
             <div>
@@ -75,25 +79,23 @@ tbody td { padding: 7px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
         </div>
         <div class="pdf-meta">
             <h1>{{ $title }}</h1>
-            <p>Period: {{ \Carbon\Carbon::parse($from)->format('M d, Y') }} — {{ \Carbon\Carbon::parse($to)->format('M d, Y') }}</p>
+            <p>Period: {{ $fromFormatted }} &mdash; {{ $toFormatted }}</p>
             <p>Generated: {{ $generatedAt }}</p>
         </div>
     </div>
 
-    {{-- Summary banner --}}
     <div class="pdf-summary">
         {{ $definition['description'] }}
-        &nbsp;|&nbsp; <strong>{{ $rows->count() }}</strong> record(s) found for the selected period.
+        &nbsp;|&nbsp; <strong>{{ $rows->count() }}</strong> record(s) found.
     </div>
 
-    {{-- Table --}}
     <div class="pdf-table-wrap">
         @if($rows->isNotEmpty())
         <table>
             <thead>
                 <tr>
                     <th style="width:36px;">#</th>
-                    @foreach(array_keys($rows->first()) as $heading)
+                    @foreach($headings as $heading)
                     <th>{{ $heading }}</th>
                     @endforeach
                 </tr>
@@ -117,7 +119,6 @@ tbody td { padding: 7px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
         @endif
     </div>
 
-    {{-- Footer --}}
     <div class="pdf-footer-row">
         <span>{{ $appName }} &copy; {{ date('Y') }} &mdash; Confidential</span>
         <span>Total Records: <strong>{{ $rows->count() }}</strong></span>
@@ -126,7 +127,6 @@ tbody td { padding: 7px 10px; border: 1px solid #e2e8f0; vertical-align: top; }
 </div>
 
 <script>
-    // Auto-print after page fully loads
     window.addEventListener('load', function() {
         setTimeout(function() { window.print(); }, 700);
     });
