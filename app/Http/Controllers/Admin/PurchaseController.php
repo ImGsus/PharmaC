@@ -741,4 +741,50 @@ class PurchaseController extends Controller
             'purchases','title'
         ));
     }
+
+    public function exportReport(Request $request)
+    {
+        $this->validate($request, ['from_date' => 'required', 'to_date' => 'required']);
+        $purchases = Purchase::with(['category', 'supplier'])
+            ->whereBetween(DB::raw('DATE(created_at)'), [$request->from_date, $request->to_date])
+            ->get();
+        $currency = \QCod\AppSettings\Models\AppSettings::get('app_currency', '$');
+        $appName  = \QCod\AppSettings\Models\AppSettings::get('app_name', config('app.name', 'PharmaC'));
+        $rows     = $purchases->filter(fn($p) => !empty($p->supplier) && !empty($p->category))->map(fn($p) => [
+            'Medicine Name'  => $p->product,
+            'Category'       => $p->category->name,
+            'Supplier'       => $p->supplier->name,
+            'Purchase Cost'  => $currency . number_format((float)$p->cost_price, 2),
+            'Quantity'       => $p->quantity,
+            'Expire Date'    => $p->expiry_date ? date_format(date_create($p->expiry_date), 'd M, Y') : 'No expiry',
+        ])->values();
+
+        if ($request->input('format') === 'pdf') {
+            $logoPath = \QCod\AppSettings\Models\AppSettings::get('logo');
+            $logoUrl  = ($logoPath && file_exists(public_path('storage/' . $logoPath))) ? url('storage/' . $logoPath) : null;
+            return view('admin.reports.pdf', [
+                'title'       => 'Purchase Report',
+                'report'      => 'purchase-orders',
+                'definition'  => ['description' => 'Purchase records for the selected date range.'],
+                'rows'        => $rows,
+                'from'        => $request->from_date,
+                'to'          => $request->to_date,
+                'currency'    => $currency,
+                'appName'     => $appName,
+                'generatedAt' => now()->format('F d, Y h:i A'),
+                'logoUrl'     => $logoUrl,
+                'orientation' => 'landscape',
+            ]);
+        }
+
+        $filename = 'purchase-report-' . $request->from_date . '-to-' . $request->to_date . '.csv';
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            if ($rows->isNotEmpty()) {
+                fputcsv($out, array_keys($rows->first()));
+                foreach ($rows as $row) fputcsv($out, array_values($row));
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
 }

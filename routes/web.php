@@ -76,13 +76,16 @@ Route::middleware(['auth', 'audit'])->group(function(){
     Route::resource('purchases',PurchaseController::class)->except('show');
     Route::get('purchases/reports',[PurchaseController::class,'reports'])->name('purchases.report');
     Route::post('purchases/reports',[PurchaseController::class,'generateReport']);
+    Route::get('purchases/reports/export',[PurchaseController::class,'exportReport'])->name('purchases.report.export');
     Route::resource('products',ProductController::class)->except('show');
+
     Route::post('products/{product}/status',[ProductController::class,'toggleStatus'])->name('products.toggle-status');
     Route::get('products/outstock',[ProductController::class,'outstock'])->name('outstock');
     Route::get('products/expired',[ProductController::class,'expired'])->name('expired');
     Route::resource('sales',SaleController::class)->except('show');
     Route::get('sales/reports',[SaleController::class,'reports'])->name('sales.report');
     Route::post('sales/reports',[SaleController::class,'generateReport']);
+    Route::get('sales/reports/export',[SaleController::class,'exportReport'])->name('sales.report.export');
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/{report}/export', [ReportController::class, 'export'])->name('reports.export');
