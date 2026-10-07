@@ -268,7 +268,7 @@ class ReportController extends Controller
         $to   = $request->date('to')   ?: now()->endOfDay();
         $rows = $this->rowsFor($report, $from, $to, $request);
 
-        $logoPath = \QCod\AppSettings\Models\AppSettings::get('logo');
+        $logoPath = settings('logo');
         $logoUrl  = ($logoPath && file_exists(public_path('storage/' . $logoPath)))
             ? url('storage/' . $logoPath)
             : null;
